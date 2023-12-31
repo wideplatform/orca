@@ -1,0 +1,33 @@
+---
+name: "SimpleEntity"
+idField:
+  type: "SimpleField"
+  name: "id"
+  columnName: "id"
+  dataType: "LONG"
+  isId: true
+  isNullable: true
+dataFields:
+- type: "SimpleField"
+  name: "bool"
+  columnName: "bool"
+  dataType: "BOOLEAN"
+  isNullable: true
+- type: "SimpleField"
+  name: "integer"
+  columnName: "integer"
+  dataType: "INT"
+  isNullable: true
+- type: "SimpleField"
+  name: "string"
+  columnName: "string"
+  dataType: "STRING"
+  isNullable: true
+- type: "SimpleField"
+  name: "dt"
+  columnName: "dt"
+  dataType: "DATETIME"
+  isNullable: true
+linkedClassName: "com.iostate.orca.SimpleEntity"
+tableName: "simple_entity"
+idGenerator: "auto"

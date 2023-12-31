@@ -1,0 +1,23 @@
+---
+name: "ParentEntity"
+idField:
+  type: "SimpleField"
+  name: "id"
+  columnName: "id"
+  dataType: "LONG"
+  isId: true
+  isNullable: true
+dataFields:
+- type: "SimpleField"
+  name: "string"
+  columnName: "string"
+  dataType: "STRING"
+  isNullable: true
+- type: "SingularAssociationField"
+  name: "child"
+  columnName: "child"
+  dataType: "ChildEntity"
+  isNullable: true
+linkedClassName: "com.iostate.orca.onetoone.ParentEntity"
+tableName: "parent_entity"
+idGenerator: "auto"
