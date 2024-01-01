@@ -1,32 +1,40 @@
 package com.iostate.orca.metadata;
 
+import com.iostate.orca.metadata.dto.FieldDto;
+
 public class SimpleField extends AbstractField {
 
     private final String columnName;
-    private final Class<?> declaredType;
+    private final DataType dataType;
 
-    public SimpleField(String name, String columnName, Class<?> declaredType,
+    public SimpleField(String name, String columnName, DataType dataType,
                        boolean isId, boolean isNullable) {
         super(name, isId, isNullable);
         this.columnName = columnName;
-        this.declaredType = declaredType;
+        this.dataType = dataType;
     }
 
     public String getColumnName() {
         return columnName;
     }
 
-    public Class<?> getDeclaredType() {
-        return declaredType;
-    }
-
     @Override
     public DataType getDataType() {
-        return SimpleDataType.valueOf(getDeclaredType());
+        return dataType;
     }
 
     @Override
     public boolean isAssociation() {
         return false;
+    }
+
+    @Override
+    public final FieldDto toDto() {
+        FieldDto dto = new FieldDto();
+        dto.setName(getName());
+        dto.setColumnName(getColumnName());
+        dto.setDataTypeName(getDataType().name());
+        dto.setNullable(isNullable());
+        return dto;
     }
 }

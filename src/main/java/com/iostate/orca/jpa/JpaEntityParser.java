@@ -10,6 +10,7 @@ import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.PluralAssociationField;
 import com.iostate.orca.metadata.MiddleTable;
+import com.iostate.orca.metadata.SimpleDataType;
 import com.iostate.orca.metadata.SimpleField;
 import com.iostate.orca.metadata.SingularAssociationField;
 
@@ -195,10 +196,8 @@ public class JpaEntityParser {
                                 name, modelRef(targetEntityModel),
                                 fetchType(manyToMany.fetch()), cascadeTypes(manyToMany.cascade()));
                         //TODO table auto-naming
-                        field.setMiddleTable(new MiddleTable(
-                                "REL_" + enclosingEntityModel.getTableName() + "_" + targetEntityModel.getTableName(),
-                                modelRef(enclosingEntityModel),
-                                modelRef(targetEntityModel)));
+                        field.setMiddleTable(
+                                new MiddleTable(modelRef(enclosingEntityModel), modelRef(targetEntityModel)));
                         return field;
                     }
                 }
@@ -208,7 +207,7 @@ public class JpaEntityParser {
         }
 
         String columnName = resolveColumnName(column, jField.getName());
-        return new SimpleField(name, columnName, jField.getType(), isId, isNullable);
+        return new SimpleField(name, columnName, SimpleDataType.valueOf(jField.getType()), isId, isNullable);
     }
 
     private boolean isCollectionTyped(java.lang.reflect.Field field) {

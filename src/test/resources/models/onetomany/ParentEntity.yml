@@ -1,28 +1,22 @@
 ---
 name: "ParentEntity"
+tableName: "parent_entity"
+idGenerator: "auto"
 idField:
-  type: "SimpleField"
   name: "id"
   columnName: "id"
-  dataType: "LONG"
-  isId: true
-  isNullable: true
+  dataTypeName: "LONG"
+  nullable: true
 dataFields:
-- type: "SimpleField"
-  name: "string"
+- name: "string"
   columnName: "string"
-  dataType: "STRING"
-  isNullable: true
-- type: "PluralAssociationField"
-  name: "children"
-  dataType: "java.util.List<ChildEntity>"
-  isNullable: false
-  targetModel:
-    name: "ChildEntity"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "children"
+  dataTypeName: "<ChildEntity>"
+  targetModelName: "ChildEntity"
   fetchType: "LAZY"
   cascadeTypes:
   - "ALL"
-  middleTable: null
+  nullable: false
 linkedClassName: "com.iostate.orca.onetomany.ParentEntity"
-tableName: "parent_entity"
-idGenerator: "auto"

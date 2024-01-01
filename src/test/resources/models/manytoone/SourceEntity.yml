@@ -1,27 +1,22 @@
 ---
 name: "SourceEntity"
-idField:
-  type: "SimpleField"
-  name: "id"
-  columnName: "id"
-  dataType: "LONG"
-  isId: true
-  isNullable: true
-dataFields:
-- type: "SimpleField"
-  name: "string"
-  columnName: "string"
-  dataType: "STRING"
-  isNullable: true
-- type: "SingularAssociationField"
-  name: "target"
-  columnName: "target"
-  dataType: "TargetEntity"
-  isNullable: true
-  targetModel:
-    name: "TargetEntity"
-  fetchType: "LAZY"
-  cascadeTypes: []
-linkedClassName: "com.iostate.orca.manytoone.SourceEntity"
 tableName: "source_entity"
 idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "string"
+  columnName: "string"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "target"
+  columnName: "target"
+  dataTypeName: "TargetEntity"
+  targetModelName: "TargetEntity"
+  fetchType: "LAZY"
+  cascadeTypes: []
+  nullable: true
+linkedClassName: "com.iostate.orca.manytoone.SourceEntity"

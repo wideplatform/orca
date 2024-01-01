@@ -1,9 +1,11 @@
 package com.iostate.orca.metadata;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.iostate.orca.api.BasePO;
+import com.iostate.orca.metadata.dto.EntityModelDto;
 import com.iostate.orca.metadata.view.ViewModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -25,6 +27,12 @@ public class MetadataManager {
 
     private final Map<String, ViewModel> viewModelMap = new ConcurrentHashMap<>();
 
+    private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+
+    {
+        yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
     private final Configuration codeTemplateConfig = new Configuration(Configuration.VERSION_2_3_32);
 
     {
@@ -38,9 +46,8 @@ public class MetadataManager {
     }
 
     public void loadEntityModel(String yaml) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        EntityModel entityModel = objectMapper.readValue(yaml, EntityModel.class);
-        addEntityModel(entityModel);
+        EntityModelDto entityModelDto = yamlMapper.readValue(yaml, EntityModelDto.class);
+        addEntityModel(new ModelConverter(this).entityModel(entityModelDto));
     }
 
     public void addEntityModel(EntityModel entityModel) {
@@ -76,8 +83,7 @@ public class MetadataManager {
     }
 
     public String generateYaml(EntityModel entityModel) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        return objectMapper.writeValueAsString(entityModel);
+        return yamlMapper.writeValueAsString(entityModel.toDto());
     }
 
     public String generateJava(EntityModel entityModel, String namespace, String packageName) {

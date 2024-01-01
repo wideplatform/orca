@@ -8,6 +8,7 @@ import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.metadata.PluralAssociationField;
+import com.iostate.orca.metadata.SimpleDataType;
 import com.iostate.orca.metadata.SimpleField;
 import com.iostate.orca.metadata.SingularAssociationField;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,18 +119,18 @@ public class EntityModelTest {
                 FetchType.LAZY, new CascadeType[]{}
         );
         pluralAssociationField.setMiddleTable(
-                new MiddleTable("REL_SOURCE_ENTITY_TARGET_ENTITY", modelRef(sourceModel), modelRef(targetModel)));
+                new MiddleTable(modelRef(sourceModel), modelRef(targetModel)));
         sourceModel.addDataField(pluralAssociationField);
 
         exportCode("manytomany", sourceModel, targetModel);
     }
 
     private EntityModel modelSimpleEntity() {
-        Field idField = new SimpleField("id", "id", Long.class, true, true);
-        Field boolField = new SimpleField("bool", "bool", Boolean.class, false, true);
-        Field integerField = new SimpleField("integer", "integer", Integer.class, false, true);
-        Field stringField = new SimpleField("string", "string", String.class, false, true);
-        Field datetimeField = new SimpleField("dt", "dt", Instant.class, false, true);
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field boolField = new SimpleField("bool", "bool", SimpleDataType.BOOLEAN, false, true);
+        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
+        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
+        Field datetimeField = new SimpleField("dt", "dt", SimpleDataType.DATETIME, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "SimpleEntity", "simple_entity",
@@ -144,8 +144,8 @@ public class EntityModelTest {
     }
 
     private EntityModel modelParentEntity() {
-        Field idField = new SimpleField("id", "id", Long.class, true, true);
-        Field stringField = new SimpleField("string", "string", String.class, false, true);
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "ParentEntity", "parent_entity",
@@ -156,8 +156,8 @@ public class EntityModelTest {
     }
 
     private EntityModel modelChildEntity() {
-        Field idField = new SimpleField("id", "id", Long.class, true, true);
-        Field integerField = new SimpleField("integer", "integer", Integer.class, false, true);
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "ChildEntity", "child_entity",
@@ -168,8 +168,8 @@ public class EntityModelTest {
     }
 
     private EntityModel modelSourceEntity() {
-        Field idField = new SimpleField("id", "id", Long.class, true, true);
-        Field stringField = new SimpleField("string", "string", String.class, false, true);
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "SourceEntity", "source_entity",
@@ -180,8 +180,8 @@ public class EntityModelTest {
     }
 
     private EntityModel modelTargetEntity() {
-        Field idField = new SimpleField("id", "id", Long.class, true, true);
-        Field integerField = new SimpleField("integer", "integer", Integer.class, false, true);
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "TargetEntity", "target_entity",

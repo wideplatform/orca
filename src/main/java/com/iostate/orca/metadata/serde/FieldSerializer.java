@@ -1,7 +1,6 @@
 package com.iostate.orca.metadata.serde;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.iostate.orca.metadata.AssociationField;
@@ -10,25 +9,11 @@ import com.iostate.orca.metadata.PluralAssociationField;
 
 import java.io.IOException;
 
+@Deprecated
 public class FieldSerializer extends StdSerializer<Field> {
+
     public FieldSerializer() {
         super((Class<Field>) null);
-    }
-
-    protected FieldSerializer(Class<Field> t) {
-        super(t);
-    }
-
-    protected FieldSerializer(JavaType type) {
-        super(type);
-    }
-
-    protected FieldSerializer(Class<?> t, boolean dummy) {
-        super(t, dummy);
-    }
-
-    protected FieldSerializer(StdSerializer<?> src) {
-        super(src);
     }
 
     @Override

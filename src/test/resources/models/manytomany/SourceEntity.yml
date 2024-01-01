@@ -1,32 +1,21 @@
 ---
 name: "SourceEntity"
-idField:
-  type: "SimpleField"
-  name: "id"
-  columnName: "id"
-  dataType: "LONG"
-  isId: true
-  isNullable: true
-dataFields:
-- type: "SimpleField"
-  name: "string"
-  columnName: "string"
-  dataType: "STRING"
-  isNullable: true
-- type: "PluralAssociationField"
-  name: "targets"
-  dataType: "java.util.List<TargetEntity>"
-  isNullable: false
-  targetModel:
-    name: "TargetEntity"
-  fetchType: "LAZY"
-  cascadeTypes: []
-  middleTable:
-    tableName: "REL_SOURCE_ENTITY_TARGET_ENTITY"
-    sourceModel:
-      name: "SourceEntity"
-    targetModel:
-      name: "TargetEntity"
-linkedClassName: "com.iostate.orca.manytomany.SourceEntity"
 tableName: "source_entity"
 idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "string"
+  columnName: "string"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "targets"
+  dataTypeName: "<TargetEntity>"
+  targetModelName: "TargetEntity"
+  fetchType: "LAZY"
+  cascadeTypes: []
+  nullable: false
+linkedClassName: "com.iostate.orca.manytomany.SourceEntity"

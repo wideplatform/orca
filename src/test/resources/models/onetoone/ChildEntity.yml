@@ -1,18 +1,15 @@
 ---
 name: "ChildEntity"
-idField:
-  type: "SimpleField"
-  name: "id"
-  columnName: "id"
-  dataType: "LONG"
-  isId: true
-  isNullable: true
-dataFields:
-- type: "SimpleField"
-  name: "integer"
-  columnName: "integer"
-  dataType: "INT"
-  isNullable: true
-linkedClassName: "com.iostate.orca.onetoone.ChildEntity"
 tableName: "child_entity"
 idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "integer"
+  columnName: "integer"
+  dataTypeName: "INT"
+  nullable: true
+linkedClassName: "com.iostate.orca.onetoone.ChildEntity"

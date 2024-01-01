@@ -54,6 +54,6 @@ public abstract class AbstractField implements Field {
 
     @Override
     public String toString() {
-        return String.format("%s{name='%s'}", getClass().getSimpleName(), name);
+        return String.format("%s{name='%s', dataType=%s}", getClass().getSimpleName(), name, getDataType());
     }
 }

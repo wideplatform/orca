@@ -1,12 +1,7 @@
 package com.iostate.orca.metadata;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.iostate.orca.metadata.serde.FieldDeserializer;
-import com.iostate.orca.metadata.serde.FieldSerializer;
+import com.iostate.orca.metadata.dto.FieldDto;
 
-@JsonSerialize(using = FieldSerializer.class)
-@JsonDeserialize(using = FieldDeserializer.class)
 public interface Field {
 
     String getName();
@@ -29,4 +24,6 @@ public interface Field {
     Object getValue(Object entity);
 
     void setValue(Object entity, Object value);
+
+    FieldDto toDto();
 }

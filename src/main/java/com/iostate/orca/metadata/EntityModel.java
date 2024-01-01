@@ -4,15 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iostate.orca.api.MapBackedPO;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.api.exception.PersistenceException;
+import com.iostate.orca.metadata.dto.EntityModelDto;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Collectors;
 
 public class EntityModel extends Model {
-    private String tableName;
-    private String idGenerator;
-
-    protected EntityModel() {
-    }
+    private final String tableName;
+    private final String idGenerator;
 
     public EntityModel(String name, String tableName,
                        String idGenerator, Field idField) {
@@ -45,5 +44,16 @@ public class EntityModel extends Model {
         } else {
             return new MapBackedPO(getName());
         }
+    }
+
+    public final EntityModelDto toDto() {
+        EntityModelDto dto = new EntityModelDto();
+        dto.setName(getName());
+        dto.setTableName(getTableName());
+        dto.setIdGenerator(getIdGenerator());
+        dto.setIdField(getIdField().toDto());
+        dto.setDataFields(getDataFields().stream().map(Field::toDto).collect(Collectors.toList()));
+        dto.setLinkedClassName(getLinkedClassName());
+        return dto;
     }
 }

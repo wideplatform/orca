@@ -2,7 +2,6 @@ package com.iostate.orca.metadata.serde;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,6 +9,7 @@ import com.iostate.orca.metadata.CascadeType;
 import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.PluralAssociationField;
 import com.iostate.orca.metadata.SimpleDataType;
 import com.iostate.orca.metadata.SimpleField;
@@ -19,21 +19,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class FieldDeserializer extends StdDeserializer<Field> {
-    protected FieldDeserializer() {
+
+    private final MetadataManager metadataManager;
+
+    public FieldDeserializer(MetadataManager metadataManager) {
         super((Class<?>) null);
-    }
-
-    protected FieldDeserializer(Class<?> vc) {
-        super(vc);
-    }
-
-    protected FieldDeserializer(JavaType valueType) {
-        super(valueType);
-    }
-
-    protected FieldDeserializer(StdDeserializer<?> src) {
-        super(src);
+        this.metadataManager = metadataManager;
     }
 
     @Override
@@ -53,7 +46,7 @@ public class FieldDeserializer extends StdDeserializer<Field> {
                 return new SimpleField(
                         name,
                         columnName,
-                        SimpleDataType.valueOf(dataType).javaType(),
+                        SimpleDataType.valueOf(dataType),
                         isId,
                         isNullable);
             }
@@ -84,7 +77,7 @@ public class FieldDeserializer extends StdDeserializer<Field> {
 
     private EntityModelRef modelRef(JsonNode node) {
         String name = node.get("name").asText();
-        return new EntityModelRef(name, null);
+        return new EntityModelRef(name, metadataManager);
     }
 
     private FetchType fetchType(JsonNode node) {

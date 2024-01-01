@@ -12,8 +12,8 @@ public class MiddleTable {
     private final EntityModelRef sourceModel;
     private final EntityModelRef targetModel;
 
-    public MiddleTable(String tableName, EntityModelRef sourceModel, EntityModelRef targetModel) {
-        this.tableName = tableName;
+    public MiddleTable(EntityModelRef sourceModel, EntityModelRef targetModel) {
+        this.tableName = "rel_" + sourceModel.model().getTableName() + "_" + targetModel.model().getTableName();
         this.sourceModel = sourceModel;
         this.targetModel = targetModel;
     }
