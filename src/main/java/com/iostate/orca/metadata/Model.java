@@ -11,9 +11,9 @@ public class Model {
     private String name;
     private Field idField;
     private final List<Field> dataFields = Collections.synchronizedList(new ArrayList<>());
-    private final Map<String, Field> _allFieldsMap = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final transient Map<String, Field> _allFieldsMap = Collections.synchronizedMap(new LinkedHashMap<>());
     private String linkedClassName;
-    private Class<?> _linkedClass;
+    private transient Class<?> _linkedClass;
 
     protected Model() {
     }
@@ -40,6 +40,13 @@ public class Model {
 
     public Collection<Field> getDataFields() {
         return dataFields;
+    }
+
+    public void setDataFields(List<Field> dataFields) {
+        synchronized (this.dataFields) {
+            this.dataFields.clear();
+            this.dataFields.addAll(dataFields);
+        }
     }
 
     public String getLinkedClassName() {

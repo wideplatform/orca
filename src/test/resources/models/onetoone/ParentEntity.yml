@@ -18,6 +18,11 @@ dataFields:
   columnName: "child"
   dataType: "ChildEntity"
   isNullable: true
+  targetModel:
+    name: "ChildEntity"
+  fetchType: "LAZY"
+  cascadeTypes:
+  - "ALL"
 linkedClassName: "com.iostate.orca.onetoone.ParentEntity"
 tableName: "parent_entity"
 idGenerator: "auto"

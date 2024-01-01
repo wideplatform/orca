@@ -1,6 +1,5 @@
 package com.iostate.orca.metadata.inverse;
 
-
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.api.PersistentObject;
 
@@ -8,7 +7,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * Based on inverse field on the target entity meta
+ * Based on inverse field on the target
  */
 public class DirectInverse implements Inverse {
     private final Field targetInverseField;

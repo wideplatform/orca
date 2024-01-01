@@ -6,6 +6,8 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.InverseAssociationField;
+import com.iostate.orca.metadata.MetadataManager;
+import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.PluralAssociationField;
 import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.metadata.SimpleField;
@@ -35,9 +37,11 @@ import java.util.stream.Stream;
 public class JpaEntityParser {
 
     private final BiConsumer<Class<?>, EntityModel> ingest;
+    private final MetadataManager metadataManager;
 
-    public JpaEntityParser(BiConsumer<Class<?>, EntityModel> ingest) {
+    public JpaEntityParser(BiConsumer<Class<?>, EntityModel> ingest, MetadataManager metadataManager) {
         this.ingest = ingest;
+        this.metadataManager = metadataManager;
     }
 
     public EntityModel execute(Class<?> entityClass) {
@@ -147,21 +151,23 @@ public class JpaEntityParser {
         if (oneToOne != null) {
             //TODO optional(), targetEntity()
             Class<?> targetEntity = jField.getType();
-            EntityModel targetEntityModel = new JpaEntityParser(ingest).execute(targetEntity);
+            EntityModel targetEntityModel = new JpaEntityParser(ingest, metadataManager).execute(targetEntity);
             String columnName = resolveColumnName(column, jField.getName().toUpperCase() + "_ID");
 
-            return new SingularAssociationField(name, columnName, targetEntityModel, isId, isNullable,
-                    cascadeTypes(oneToOne.cascade()), fetchType(oneToOne.fetch()));
+            return new SingularAssociationField(name, columnName,
+                    modelRef(targetEntityModel), isId, isNullable,
+                    fetchType(oneToOne.fetch()), cascadeTypes(oneToOne.cascade()));
         }
 
         if (manyToOne != null) {
             //TODO optional(), targetEntity()
             Class<?> targetEntity = jField.getType();
-            EntityModel targetEntityModel = new JpaEntityParser(ingest).execute(targetEntity);
+            EntityModel targetEntityModel = new JpaEntityParser(ingest, metadataManager).execute(targetEntity);
             String columnName = resolveColumnName(column, jField.getName().toUpperCase() + "_ID");
 
-            return new SingularAssociationField(name, columnName, targetEntityModel, isId, isNullable,
-                    cascadeTypes(manyToOne.cascade()), fetchType(manyToOne.fetch()));
+            return new SingularAssociationField(name, columnName,
+                    modelRef(targetEntityModel), isId, isNullable,
+                    fetchType(manyToOne.fetch()), cascadeTypes(manyToOne.cascade()));
         }
 
         if (oneToMany != null ||
@@ -173,24 +179,26 @@ public class JpaEntityParser {
                 Type targetType = collectionType.getActualTypeArguments()[0];
                 if (targetType instanceof Class) {
                     Class<?> targetEntity = (Class<?>) targetType;
-                    EntityModel targetEntityModel = new JpaEntityParser(ingest).execute(targetEntity);
+                    EntityModel targetEntityModel = new JpaEntityParser(ingest, metadataManager).execute(targetEntity);
 
                     if (oneToMany != null) {
                         Field inverseField = createInverseField(enclosingEntityModel);
                         targetEntityModel.addDataField(inverseField);
 
                         PluralAssociationField field = new PluralAssociationField(
-                                name, targetEntityModel, cascadeTypes(oneToMany.cascade()), fetchType(oneToMany.fetch()));
+                                name, modelRef(targetEntityModel),
+                                fetchType(oneToMany.fetch()), cascadeTypes(oneToMany.cascade()));
                         field.setTargetInverseField(inverseField);
                         return field;
                     } else {
                         PluralAssociationField field = new PluralAssociationField(
-                                name, targetEntityModel, cascadeTypes(manyToMany.cascade()), fetchType(manyToMany.fetch()));
+                                name, modelRef(targetEntityModel),
+                                fetchType(manyToMany.fetch()), cascadeTypes(manyToMany.cascade()));
                         //TODO table auto-naming
                         field.setMiddleTable(new MiddleTable(
                                 "REL_" + enclosingEntityModel.getTableName() + "_" + targetEntityModel.getTableName(),
-                                enclosingEntityModel,
-                                targetEntityModel));
+                                modelRef(enclosingEntityModel),
+                                modelRef(targetEntityModel)));
                         return field;
                     }
                 }
@@ -215,7 +223,7 @@ public class JpaEntityParser {
         String inverseColumnName = inverseFieldName.toUpperCase() + "_ID";
         return new InverseAssociationField(
                 inverseFieldName, inverseColumnName,
-                enclosingEntityModel,
+                modelRef(enclosingEntityModel),
                 false, true);
     }
 
@@ -244,5 +252,9 @@ public class JpaEntityParser {
 
     private FetchType fetchType(javax.persistence.FetchType fetch) {
         return FetchType.valueOf(fetch.name());
+    }
+
+    private EntityModelRef modelRef(EntityModel entityModel) {
+        return new EntityModelRef(entityModel.getName(), metadataManager);
     }
 }

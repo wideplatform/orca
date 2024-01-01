@@ -59,6 +59,6 @@ public class SingularAssociationCascade implements Cascade {
     }
 
     public Object getTargetId() {
-        return field.getTargetModel().getIdField().getValue(value);
+        return field.getTargetModel().model().getIdField().getValue(value);
     }
 }

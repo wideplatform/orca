@@ -17,6 +17,12 @@ dataFields:
   name: "children"
   dataType: "java.util.List<ChildEntity>"
   isNullable: false
+  targetModel:
+    name: "ChildEntity"
+  fetchType: "LAZY"
+  cascadeTypes:
+  - "ALL"
+  middleTable: null
 linkedClassName: "com.iostate.orca.onetomany.ParentEntity"
 tableName: "parent_entity"
 idGenerator: "auto"

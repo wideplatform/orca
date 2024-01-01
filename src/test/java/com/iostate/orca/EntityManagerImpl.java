@@ -133,7 +133,7 @@ public class EntityManagerImpl implements EntityManager {
                     if (a.isSingular()) {
                         Object raw = po.getFieldValue(a.getName());
                         if (raw != null) {
-                            Object targetObject = find(a.getTargetModel().linkedClass(), raw);
+                            Object targetObject = find(a.getTargetModel().model().linkedClass(), raw);
                             field.setValue(po, targetObject);
                         }
                     } else {
@@ -144,7 +144,7 @@ public class EntityManagerImpl implements EntityManager {
 
                         List<PersistentObject> targets;
                         if (pa.getTargetInverseField() != null) {
-                            targets = sqlHelper.findByField(a.getTargetModel(), a.getTargetInverseField(), id);
+                            targets = sqlHelper.findByField(a.getTargetModel().model(), a.getTargetInverseField(), id);
 //              for (PersistentObject target : targets) {
 //                f.getTargetInverseField().setValue(target, id);
 //              }

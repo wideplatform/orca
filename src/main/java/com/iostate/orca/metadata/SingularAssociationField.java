@@ -10,15 +10,13 @@ import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
 public class SingularAssociationField extends AssociationField {
 
     private final String columnName;
-    private final CascadeConfig cascadeConfig;
     private final DataType dataType;
 
     public SingularAssociationField(String name, String columnName,
-                                    EntityModel targetModel,
-                                    boolean isId, boolean isNullable, CascadeType[] cascadeTypes, FetchType fetchType) {
-        super(name, targetModel, isId, isNullable, fetchType);
+                                    EntityModelRef targetModel,
+                                    boolean isId, boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
+        super(name, targetModel, isId, isNullable, fetchType, cascadeTypes);
         this.columnName = columnName;
-        this.cascadeConfig = new CascadeConfig(cascadeTypes);
         this.dataType = new ReferenceDataType(targetModel, false);
     }
 
@@ -34,7 +32,7 @@ public class SingularAssociationField extends AssociationField {
 
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new SingularAssociationCascade(this, (PersistentObject) getValue(entity), cascadeConfig);
+        return new SingularAssociationCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
     }
 
     @Override

@@ -12,16 +12,14 @@ import java.util.Collection;
  */
 public class PluralAssociationField extends AssociationField {
 
-    private final CascadeConfig cascadeConfig;
     private final DataType dataType;
 
     private MiddleTable middleTable;
 
     public PluralAssociationField(String name,
-                                  EntityModel targetModel,
-                                  CascadeType[] cascadeTypes, FetchType fetchType) {
-        super(name, targetModel, false, false, fetchType);
-        this.cascadeConfig = new CascadeConfig(cascadeTypes);
+                                  EntityModelRef targetModel,
+                                  FetchType fetchType, CascadeType[] cascadeTypes) {
+        super(name, targetModel, false, false, fetchType, cascadeTypes);
         this.dataType = new ReferenceDataType(targetModel, true);
     }
 
@@ -38,7 +36,7 @@ public class PluralAssociationField extends AssociationField {
     @SuppressWarnings("unchecked")
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new PluralAssociationCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig);
+        return new PluralAssociationCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
     }
 
     @Override

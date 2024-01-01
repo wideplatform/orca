@@ -17,6 +17,16 @@ dataFields:
   name: "targets"
   dataType: "java.util.List<TargetEntity>"
   isNullable: false
+  targetModel:
+    name: "TargetEntity"
+  fetchType: "LAZY"
+  cascadeTypes: []
+  middleTable:
+    tableName: "REL_SOURCE_ENTITY_TARGET_ENTITY"
+    sourceModel:
+      name: "SourceEntity"
+    targetModel:
+      name: "TargetEntity"
 linkedClassName: "com.iostate.orca.manytomany.SourceEntity"
 tableName: "source_entity"
 idGenerator: "auto"

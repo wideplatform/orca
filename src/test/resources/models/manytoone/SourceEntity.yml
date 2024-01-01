@@ -18,6 +18,10 @@ dataFields:
   columnName: "target"
   dataType: "TargetEntity"
   isNullable: true
+  targetModel:
+    name: "TargetEntity"
+  fetchType: "LAZY"
+  cascadeTypes: []
 linkedClassName: "com.iostate.orca.manytoone.SourceEntity"
 tableName: "source_entity"
 idGenerator: "auto"

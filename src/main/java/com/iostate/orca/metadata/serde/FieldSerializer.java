@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.PluralAssociationField;
 
 import java.io.IOException;
 
@@ -42,6 +44,15 @@ public class FieldSerializer extends StdSerializer<Field> {
             gen.writeBooleanField("isId", true);
         }
         gen.writeBooleanField("isNullable", value.isNullable());
+        if (value instanceof AssociationField) {
+            AssociationField af = (AssociationField) value;
+            gen.writeObjectField("targetModel", af.getTargetModel());
+            gen.writeObjectField("fetchType", af.getFetchType());
+            gen.writeObjectField("cascadeTypes", af.getCascadeTypes());
+            if (value instanceof PluralAssociationField) {
+                gen.writeObjectField("middleTable", ((PluralAssociationField) value).getMiddleTable());
+            }
+        }
         gen.writeEndObject();
     }
 }

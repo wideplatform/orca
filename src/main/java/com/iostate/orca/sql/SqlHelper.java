@@ -237,16 +237,16 @@ public class SqlHelper {
     }
 
     public List<PersistentObject> findByRelation(MiddleTable middleTable, Object sourceId) {
-        EntityModel targetMeta = middleTable.getTargetModel();
+        EntityModel targetModel = middleTable.getTargetModel().model();
 
-        String selectedColumns = selectableColumns(targetMeta, "t.");
+        String selectedColumns = selectableColumns(targetModel, "t.");
 
         String sql = "SELECT " + selectedColumns +
-                " FROM " + targetMeta.getTableName() + " t JOIN " + middleTable.getTableName() + " r ON t." +
-                targetMeta.getIdField().getColumnName() + " = r.target_id WHERE r.source_id = ?";
+                " FROM " + targetModel.getTableName() + " t JOIN " + middleTable.getTableName() + " r ON t." +
+                targetModel.getIdField().getColumnName() + " = r.target_id WHERE r.source_id = ?";
 
         try {
-            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetMeta));
+            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel));
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }

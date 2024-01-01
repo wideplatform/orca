@@ -31,7 +31,7 @@ public class EntityResultMapper implements ResultMapper {
             }
 
             if (field.isAssociation()) {
-                DataType dataType = ((AssociationField) field).getTargetModel().getIdField().getDataType();
+                DataType dataType = ((AssociationField) field).getTargetModel().model().getIdField().getDataType();
                 Object value = TypeHandlers.INSTANCE.find(dataType).getValue(rs, field.getColumnName());
                 po.setFieldValue(field.getName(), value);
             } else {
