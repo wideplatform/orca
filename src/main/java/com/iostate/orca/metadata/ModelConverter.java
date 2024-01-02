@@ -34,7 +34,7 @@ public class ModelConverter {
                     fieldDto.isNullable()
             );
         } else {
-            EntityModelRef target = new EntityModelRef(fieldDto.getTargetModelName(), metadataManager);
+            EntityModelRef targetModelRef = new EntityModelRef(fieldDto.getTargetModelName(), metadataManager);
             FetchType fetchType = FetchType.valueOf(fieldDto.getFetchType());
             CascadeType[] cascadeTypes = fieldDto.getCascadeTypes().stream()
                     .map(CascadeType::valueOf)
@@ -42,18 +42,19 @@ public class ModelConverter {
             if (fieldDto.getDataTypeName().startsWith("<")) {
                 PluralAssociationField field = new PluralAssociationField(
                         fieldDto.getName(),
-                        target,
+                        sourceModel,
+                        targetModelRef,
                         fetchType,
                         cascadeTypes
                 );
-//                EntityModelRef source = new EntityModelRef(sourceModel.getName(), metadataManager);
-//                field.setMiddleTable(new MiddleTable(source, target));
+                field.createMiddleTable(metadataManager);
                 return field;
             } else {
                 return new SingularAssociationField(
                         fieldDto.getName(),
                         fieldDto.getColumnName(),
-                        target,
+                        sourceModel,
+                        targetModelRef,
                         isId,
                         fieldDto.isNullable(),
                         fetchType,

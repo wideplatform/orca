@@ -1,20 +1,20 @@
 package com.iostate.orca.metadata;
 
 public class ReferenceDataType implements DataType {
-    private final EntityModelRef targetModel;
+    private final EntityModelRef targetModelRef;
     private final boolean isPlural;
 
-    public ReferenceDataType(EntityModelRef targetModel, boolean isPlural) {
-        this.targetModel = targetModel;
+    public ReferenceDataType(EntityModelRef targetModelRef, boolean isPlural) {
+        this.targetModelRef = targetModelRef;
         this.isPlural = isPlural;
     }
 
     @Override
     public String name() {
         if (isPlural) {
-            return "<" + targetModel.getName() + ">";
+            return "<" + targetModelRef.getName() + ">";
         } else {
-            return targetModel.getName();
+            return targetModelRef.getName();
         }
     }
 
@@ -25,9 +25,5 @@ public class ReferenceDataType implements DataType {
         } else {
             return name();
         }
-    }
-
-    public EntityModelRef getTargetModel() {
-        return targetModel;
     }
 }

@@ -237,7 +237,7 @@ public class SqlHelper {
     }
 
     public List<PersistentObject> findByRelation(MiddleTable middleTable, Object sourceId) {
-        EntityModel targetModel = middleTable.getTargetModel().model();
+        EntityModel targetModel = middleTable.getTargetModelRef().model();
 
         String selectedColumns = selectableColumns(targetModel, "t.");
 

@@ -10,9 +10,10 @@ import com.iostate.orca.metadata.cascade.VoidCascade;
  */
 public class InverseAssociationField extends SingularAssociationField {
 
-    public InverseAssociationField(String name, String columnName, EntityModelRef targetModel,
+    public InverseAssociationField(String name, String columnName,
+                                   EntityModel sourceModel, EntityModelRef targetModelRef,
                                    boolean isId, boolean isNullable) {
-        super(name, columnName, targetModel, isId, isNullable, FetchType.EAGER, null);
+        super(name, columnName, sourceModel, targetModelRef, isId, isNullable, FetchType.EAGER, null);
     }
 
     @Override

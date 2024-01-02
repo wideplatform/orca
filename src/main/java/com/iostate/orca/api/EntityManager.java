@@ -1,5 +1,6 @@
 package com.iostate.orca.api;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface EntityManager {
@@ -23,4 +24,6 @@ public interface EntityManager {
     <T> T fetch(Class<T> entityClass, Object id);
 
     <T> T ref(Class<T> entityClass, Object id);
+
+    int executeDML(String sql, Object[] args) throws SQLException;
 }

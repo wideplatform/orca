@@ -46,8 +46,8 @@ public class TableGeneratorImpl implements TableGenerator {
                     if (rel != null) {
                         String ddl = String.format("  CREATE TABLE %s(source_id %s, target_id %s, PRIMARY KEY (source_id, target_id));\n",
                                 rel.getTableName(),
-                                SqlTypeMapping.sqlType(rel.getSourceModel().model().getIdField()),
-                                SqlTypeMapping.sqlType(rel.getTargetModel().model().getIdField())
+                                SqlTypeMapping.sqlType(rel.getSourceModelRef().model().getIdField()),
+                                SqlTypeMapping.sqlType(rel.getTargetModelRef().model().getIdField())
                         );
                         tablesVsDdls.put(rel.getTableName(), ddl);
                     }

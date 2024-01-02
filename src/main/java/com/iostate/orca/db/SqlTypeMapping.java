@@ -32,7 +32,7 @@ class SqlTypeMapping {
         if (field.isAssociation()) {
             AssociationField rf = (AssociationField) field;
             if (rf.hasColumn()) {
-                return sqlTypes.get(rf.getTargetModel().model().getIdField().getDataType());
+                return sqlTypes.get(rf.getTargetModelRef().model().getIdField().getDataType());
             } else {
                 throw new IllegalArgumentException("field " + rf + " should not map to SQL type");
             }

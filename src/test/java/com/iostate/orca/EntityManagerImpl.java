@@ -12,6 +12,7 @@ import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.sql.SqlHelper;
 
 import javax.persistence.EntityNotFoundException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class EntityManagerImpl implements EntityManager {
@@ -133,7 +134,7 @@ public class EntityManagerImpl implements EntityManager {
                     if (a.isSingular()) {
                         Object raw = po.getFieldValue(a.getName());
                         if (raw != null) {
-                            Object targetObject = find(a.getTargetModel().model().linkedClass(), raw);
+                            Object targetObject = find(a.getTargetModelRef().model().linkedClass(), raw);
                             field.setValue(po, targetObject);
                         }
                     } else {
@@ -144,7 +145,7 @@ public class EntityManagerImpl implements EntityManager {
 
                         List<PersistentObject> targets;
                         if (pa.getTargetInverseField() != null) {
-                            targets = sqlHelper.findByField(a.getTargetModel().model(), a.getTargetInverseField(), id);
+                            targets = sqlHelper.findByField(a.getTargetModelRef().model(), a.getTargetInverseField(), id);
 //              for (PersistentObject target : targets) {
 //                f.getTargetInverseField().setValue(target, id);
 //              }
@@ -183,8 +184,9 @@ public class EntityManagerImpl implements EntityManager {
         return null;
     }
 
-    public SqlHelper getSqlHelper() {
-        return sqlHelper;
+    @Override
+    public int executeDML(String sql, Object[] args) throws SQLException {
+        return sqlHelper.executeDML(sql, args);
     }
 
     private EntityModel getEntityModel(Class<?> entityClass) {

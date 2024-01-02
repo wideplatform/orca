@@ -36,7 +36,7 @@ class PersistableRecord {
             AssociationField assoc = (AssociationField) field;
 
             if (assoc.isInverse()) {
-                Field inverseTargetIdField = assoc.getTargetModel().model().getIdField();
+                Field inverseTargetIdField = assoc.getTargetModelRef().model().getIdField();
                 Object inverseTargetEntity = field.getValue(entity);
                 if (inverseTargetEntity != null) {
                     Object inverseTargetId = inverseTargetIdField.getValue(inverseTargetEntity);
@@ -51,7 +51,7 @@ class PersistableRecord {
                 // This entry will be refreshed after cascading
                 // When persisting with generated ID, current value is a null
                 // When persisting with given ID or updating, current value is a non-null ID
-                columnValues.put(field.getColumnName(), assoc.getTargetModel().model().getIdField().getValue(entity));
+                columnValues.put(field.getColumnName(), assoc.getTargetModelRef().model().getIdField().getValue(entity));
 
                 singularCascades.add((SingularAssociationCascade) cascade);
             } else {

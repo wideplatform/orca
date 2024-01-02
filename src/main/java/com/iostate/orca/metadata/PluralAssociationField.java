@@ -17,10 +17,10 @@ public class PluralAssociationField extends AssociationField {
     private MiddleTable middleTable;
 
     public PluralAssociationField(String name,
-                                  EntityModelRef targetModel,
+                                  EntityModel sourceModel, EntityModelRef targetModelRef,
                                   FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, targetModel, false, false, fetchType, cascadeTypes);
-        this.dataType = new ReferenceDataType(targetModel, true);
+        super(name, sourceModel, targetModelRef, false, false, fetchType, cascadeTypes);
+        this.dataType = new ReferenceDataType(targetModelRef, true);
     }
 
     @Override
@@ -53,7 +53,10 @@ public class PluralAssociationField extends AssociationField {
         return middleTable;
     }
 
-    public void setMiddleTable(MiddleTable middleTable) {
-        this.middleTable = middleTable;
+    public void createMiddleTable(MetadataManager metadataManager) {
+        this.middleTable = new MiddleTable(
+                new EntityModelRef(getSourceModel().getName(), metadataManager),
+                getTargetModelRef()
+        );
     }
 }

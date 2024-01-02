@@ -24,7 +24,7 @@ public class IndirectInverse implements Inverse {
     @Override
     public void fill(PersistentObject entity) {
         for (PersistentObject target : targets) {
-//            middleTable.put(entity, target, ((EntityManagerImpl) entityManager).getSqlHelper());
+            middleTable.put(entity, target, entityManager);
         }
     }
 }

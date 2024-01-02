@@ -6,7 +6,6 @@ import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.metadata.PluralAssociationField;
 import com.iostate.orca.metadata.SimpleDataType;
 import com.iostate.orca.metadata.SimpleField;
@@ -75,7 +74,8 @@ public class EntityModelTest {
         EntityModel childModel = modelChildEntity();
         parentModel.addDataField(
                 new SingularAssociationField(
-                        "child", "child", modelRef(childModel),
+                        "child", "child",
+                        parentModel, modelRef(childModel),
                         false, true,
                         FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
         );
@@ -89,7 +89,8 @@ public class EntityModelTest {
         EntityModel childModel = modelChildEntity();
         parentModel.addDataField(
                 new PluralAssociationField(
-                        "children", modelRef(childModel),
+                        "children",
+                        parentModel, modelRef(childModel),
                         FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
         );
 
@@ -101,7 +102,8 @@ public class EntityModelTest {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
         SingularAssociationField singularAssociationField = new SingularAssociationField(
-                "target", "target", modelRef(targetModel),
+                "target", "target",
+                sourceModel, modelRef(targetModel),
                 false, true,
                 FetchType.LAZY, new CascadeType[]{}
         );
@@ -115,11 +117,11 @@ public class EntityModelTest {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
         PluralAssociationField pluralAssociationField = new PluralAssociationField(
-                "targets", modelRef(targetModel),
+                "targets",
+                sourceModel, modelRef(targetModel),
                 FetchType.LAZY, new CascadeType[]{}
         );
-        pluralAssociationField.setMiddleTable(
-                new MiddleTable(modelRef(sourceModel), modelRef(targetModel)));
+        pluralAssociationField.createMiddleTable(metadataManager);
         sourceModel.addDataField(pluralAssociationField);
 
         exportCode("manytomany", sourceModel, targetModel);
