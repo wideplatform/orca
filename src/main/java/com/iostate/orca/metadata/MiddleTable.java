@@ -34,6 +34,14 @@ public class MiddleTable {
         return targetModelRef;
     }
 
+    public String getSourceIdColumnName() {
+        return "source_id";
+    }
+
+    public String getTargetIdColumnName() {
+        return "target_id";
+    }
+
     public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
         //TODO check existence
         String sql = "INSERT INTO " + getTableName() + "(source_id, target_id) VALUES(?,?)";

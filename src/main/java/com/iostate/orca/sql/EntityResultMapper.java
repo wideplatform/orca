@@ -1,5 +1,6 @@
 package com.iostate.orca.sql;
 
+import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.DataType;
@@ -15,9 +16,11 @@ import java.sql.SQLException;
  */
 public class EntityResultMapper implements ResultMapper {
     private final EntityModel model;
+    private final EntityManager entityManager;
 
-    public EntityResultMapper(EntityModel model) {
+    public EntityResultMapper(EntityModel model, EntityManager entityManager) {
         this.model = model;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -31,12 +34,15 @@ public class EntityResultMapper implements ResultMapper {
             }
 
             if (field.isAssociation()) {
-                DataType dataType = ((AssociationField) field).getTargetModelRef().model().getIdField().getDataType();
-                Object value = TypeHandlers.INSTANCE.find(dataType).getValue(rs, field.getColumnName());
-                po.setFieldValue(field.getName(), value);
+                EntityModel targetModel = ((AssociationField) field).getTargetModelRef().model();
+                DataType dataType = targetModel.getIdField().getDataType();
+                Object targetId = TypeHandlers.INSTANCE.find(dataType).getValue(rs, field.getColumnName());
+                // TODO lazy fetch
+                PersistentObject target = entityManager.find(targetModel, targetId);
+                po.setFieldValue(field.getName(), target);
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType()).getValue(rs, field.getColumnName());
-                field.setValue(po, value);
+                po.setFieldValue(field.getName(), value);
             }
         }
 

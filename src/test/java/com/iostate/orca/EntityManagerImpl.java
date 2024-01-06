@@ -2,24 +2,24 @@ package com.iostate.orca;
 
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManager;
+import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.PluralAssociationField;
-import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.sql.SqlHelper;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 public class EntityManagerImpl implements EntityManager {
 
-    private MetadataManager metadataManager;
+    private final MetadataManager metadataManager;
 
-    private SqlHelper sqlHelper;
+    private final SqlHelper sqlHelper;
 
     public EntityManagerImpl(MetadataManager metadataManager, ConnectionProvider connectionProvider) {
         this.metadataManager = metadataManager;
@@ -119,7 +119,16 @@ public class EntityManagerImpl implements EntityManager {
         }
 
         EntityModel entityModel = getEntityModel(entityClass);
-        PersistentObject po = sqlHelper.find(entityModel, id);
+        PersistentObject po = find(entityModel, id);
+
+        //noinspection unchecked
+        return (T) po;
+    }
+
+    @Override
+    public PersistentObject find(EntityModel entityModel, Object id) {
+        Objects.requireNonNull(entityModel);
+        PersistentObject po = sqlHelper.findById(entityModel, id);
 
         // Populate references
         entityModel.allFields()
@@ -127,14 +136,14 @@ public class EntityManagerImpl implements EntityManager {
                 .filter(Field::isAssociation)
                 .forEach(field -> {
                     AssociationField a = (AssociationField) field;
-//          if (a.getFetchType() == FetchType.LAZY) {
-//            return;
-//          }
+//                    if (a.getFetchType() == FetchType.LAZY) {
+//                        return;
+//                    }
 
                     if (a.isSingular()) {
                         Object raw = po.getFieldValue(a.getName());
                         if (raw != null) {
-                            Object targetObject = find(a.getTargetModelRef().model().linkedClass(), raw);
+                            Object targetObject = find(a.getTargetModelRef().model(), raw);
                             field.setValue(po, targetObject);
                         }
                     } else {
@@ -146,20 +155,17 @@ public class EntityManagerImpl implements EntityManager {
                         List<PersistentObject> targets;
                         if (pa.getTargetInverseField() != null) {
                             targets = sqlHelper.findByField(a.getTargetModelRef().model(), a.getTargetInverseField(), id);
-//              for (PersistentObject target : targets) {
-//                f.getTargetInverseField().setValue(target, id);
-//              }
+                            for (PersistentObject target : targets) {
+                                pa.getTargetInverseField().setValue(target, id);
+                            }
                         } else {
-                            MiddleTable middleTable = pa.getMiddleTable();
-                            targets = sqlHelper.findByRelation(middleTable, id);
+                            targets = sqlHelper.findByRelation(pa.getMiddleTable(), id);
                         }
                         //TODO should also load target's associations
                         field.setValue(po, targets);
                     }
                 });
-
-        //noinspection unchecked
-        return (T) po;
+        return po;
     }
 
     @Override

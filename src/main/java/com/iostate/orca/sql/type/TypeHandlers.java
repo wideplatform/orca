@@ -17,8 +17,6 @@ public enum TypeHandlers {
         classTypeHandlerMap.put(SimpleDataType.LONG, new LongTypeHandler());
 
         classTypeHandlerMap.put(SimpleDataType.INT, new IntTypeHandler());
-
-        //TODO reference type
     }
 
     private final TypeHandler<Object> defaultTypeHandler = new ObjectTypeHandler();

@@ -1,5 +1,7 @@
 package com.iostate.orca.api;
 
+import com.iostate.orca.metadata.EntityModel;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -18,6 +20,8 @@ public interface EntityManager {
     void refresh(Object entity);
 
     <T> T find(Class<T> entityClass, Object id);
+
+    PersistentObject find(EntityModel entityModel, Object id);
 
     <T> List<T> findByField(Class<T> entityClass, String fieldName, Object fieldValue);
 

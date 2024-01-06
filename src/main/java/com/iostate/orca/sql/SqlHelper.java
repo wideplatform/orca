@@ -2,13 +2,16 @@ package com.iostate.orca.sql;
 
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManager;
+import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.MiddleTable;
+import com.iostate.orca.sql.query.SqlCondition;
+import com.iostate.orca.sql.query.SqlQuery;
+import com.iostate.orca.sql.query.SqlTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,6 +21,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -197,43 +201,38 @@ public class SqlHelper {
         }
     }
 
-    public PersistentObject find(EntityModel entityModel, Object id) {
-        String selectedColumns = selectableColumns(entityModel);
-
+    public PersistentObject findById(EntityModel entityModel, Object id) {
         String sql = String.format("SELECT %s FROM %s WHERE %s = ?",
-                selectedColumns, entityModel.getTableName(), entityModel.getIdField().getColumnName());
-
-        PersistentObject result;
+                String.join(",", columns(entityModel)),
+                entityModel.getTableName(),
+                entityModel.getIdField().getColumnName()
+        );
         try {
-            List<PersistentObject> records = executeQuery(sql, new Object[]{id}, new EntityResultMapper(entityModel));
+            List<PersistentObject> records = executeQuery(sql, new Object[]{id}, new EntityResultMapper(entityModel, entityManager));
 
             if (records.isEmpty()) {
                 return null;
             } else if (records.size() == 1) {
-                result = records.get(0);
+                return records.get(0);
             } else {
-                //TODO what exception type to use? Should rollback
                 throw new NonUniqueResultException(String.format("entityName: %s, id: %s", entityModel.getName(), id));
             }
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
-
-        return result;
     }
 
     public List<PersistentObject> findByField(EntityModel entityModel, Field field, Object value) {
-        String selectedColumns = selectableColumns(entityModel);
-
         String sql = String.format("SELECT %s FROM %s WHERE %s = ?",
-                selectedColumns, entityModel.getTableName(), field.getColumnName());
-
+                String.join(",", columns(entityModel)),
+                entityModel.getTableName(),
+                field.getColumnName()
+        );
         try {
-            return executeQuery(sql, new Object[]{value}, new EntityResultMapper(entityModel));
+            return executeQuery(sql, new Object[]{value}, new EntityResultMapper(entityModel, entityManager));
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
-
     }
 
     public List<PersistentObject> findByRelation(MiddleTable middleTable, Object sourceId) {
@@ -246,14 +245,45 @@ public class SqlHelper {
                 targetModel.getIdField().getColumnName() + " = r.target_id WHERE r.source_id = ?";
 
         try {
-            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel));
+            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel, entityManager));
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
     }
 
-    private String selectableColumns(EntityModel entityModel) {
-        return selectableColumns(entityModel, "");
+    private SqlQuery getFindByRelationQuery(MiddleTable middleTable, Object sourceId) {
+        SqlQuery sqlQuery = new SqlQuery();
+        SqlTable drivingTable = sqlQuery.addDrivingTable(
+                middleTable.getTableName(),
+                Collections.emptyList(),
+                Collections.emptyList()
+        );
+        SqlCondition sourceIdFilter = new SqlCondition(
+                drivingTable.columnRef(middleTable.getSourceIdColumnName()),
+                "=",
+                sqlQuery.createArgument(sourceId)
+        );
+        drivingTable.addFilter(sourceIdFilter);
+
+        EntityModel targetModel = middleTable.getTargetModelRef().model();
+        String targetModelIdColumnName = targetModel.getIdField().getColumnName();
+        sqlQuery.addJoinTable(
+                targetModel.getTableName(),
+                columns(targetModel),
+                List.of(targetModelIdColumnName),
+                drivingTable.columnRef(middleTable.getTargetIdColumnName()),
+                targetModelIdColumnName
+        );
+
+        return sqlQuery;
+    }
+
+    private List<String> columns(EntityModel entityModel) {
+        return entityModel.allFields()
+                .stream()
+                .filter(Field::hasColumn)
+                .map(Field::getColumnName)
+                .collect(Collectors.toList());
     }
 
     private String selectableColumns(EntityModel entityModel, String prefix) {
