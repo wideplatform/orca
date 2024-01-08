@@ -9,6 +9,7 @@ import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
+import com.iostate.orca.sql.query.QueryRootNode;
 import com.iostate.orca.sql.query.SqlCondition;
 import com.iostate.orca.sql.query.SqlQuery;
 import com.iostate.orca.sql.query.SqlTable;
@@ -21,7 +22,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,7 +60,6 @@ public class SqlHelper {
 
         String sql = String.format("INSERT INTO %s(%s) VALUES (%s)",
                 entityModel.getTableName(), columns, valuePlaceholders);
-
         Object[] args = record.getColumnValues().values().toArray();
 
         try {
@@ -202,14 +201,21 @@ public class SqlHelper {
     }
 
     public PersistentObject findById(EntityModel entityModel, Object id) {
-        String sql = String.format("SELECT %s FROM %s WHERE %s = ?",
-                String.join(",", columns(entityModel)),
-                entityModel.getTableName(),
-                entityModel.getIdField().getColumnName()
-        );
-        try {
-            List<PersistentObject> records = executeQuery(sql, new Object[]{id}, new EntityResultMapper(entityModel, entityManager));
+        QueryRootNode queryRootNode = new QueryRootNode(entityModel);
+        SqlQuery sqlQuery = queryRootNode.toSqlQuery();
+        SqlTable drivingTable = sqlQuery.getDrivingTable();
+        drivingTable.addFilter(new SqlCondition(
+                drivingTable.columnRef(entityModel.getIdField().getColumnName()),
+                "=",
+                sqlQuery.createArgument(id)
+        ));
 
+        try {
+            List<PersistentObject> records = executeQuery(
+                    sqlQuery.toString(),
+                    sqlQuery.getArgumentValues().toArray(),
+                    queryRootNode::mapRow
+            );
             if (records.isEmpty()) {
                 return null;
             } else if (records.size() == 1) {
@@ -223,13 +229,21 @@ public class SqlHelper {
     }
 
     public List<PersistentObject> findByField(EntityModel entityModel, Field field, Object value) {
-        String sql = String.format("SELECT %s FROM %s WHERE %s = ?",
-                String.join(",", columns(entityModel)),
-                entityModel.getTableName(),
-                field.getColumnName()
-        );
+        QueryRootNode queryRootNode = new QueryRootNode(entityModel);
+        SqlQuery sqlQuery = queryRootNode.toSqlQuery();
+        SqlTable drivingTable = sqlQuery.getDrivingTable();
+        drivingTable.addFilter(new SqlCondition(
+                drivingTable.columnRef(field.getColumnName()),
+                "=",
+                sqlQuery.createArgument(value)
+        ));
+
         try {
-            return executeQuery(sql, new Object[]{value}, new EntityResultMapper(entityModel, entityManager));
+            return executeQuery(
+                    sqlQuery.toString(),
+                    sqlQuery.getArgumentValues().toArray(),
+                    queryRootNode::mapRow
+            );
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
@@ -245,45 +259,10 @@ public class SqlHelper {
                 targetModel.getIdField().getColumnName() + " = r.target_id WHERE r.source_id = ?";
 
         try {
-            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel, entityManager));
+            return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel));
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
-    }
-
-    private SqlQuery getFindByRelationQuery(MiddleTable middleTable, Object sourceId) {
-        SqlQuery sqlQuery = new SqlQuery();
-        SqlTable drivingTable = sqlQuery.addDrivingTable(
-                middleTable.getTableName(),
-                Collections.emptyList(),
-                Collections.emptyList()
-        );
-        SqlCondition sourceIdFilter = new SqlCondition(
-                drivingTable.columnRef(middleTable.getSourceIdColumnName()),
-                "=",
-                sqlQuery.createArgument(sourceId)
-        );
-        drivingTable.addFilter(sourceIdFilter);
-
-        EntityModel targetModel = middleTable.getTargetModelRef().model();
-        String targetModelIdColumnName = targetModel.getIdField().getColumnName();
-        sqlQuery.addJoinTable(
-                targetModel.getTableName(),
-                columns(targetModel),
-                List.of(targetModelIdColumnName),
-                drivingTable.columnRef(middleTable.getTargetIdColumnName()),
-                targetModelIdColumnName
-        );
-
-        return sqlQuery;
-    }
-
-    private List<String> columns(EntityModel entityModel) {
-        return entityModel.allFields()
-                .stream()
-                .filter(Field::hasColumn)
-                .map(Field::getColumnName)
-                .collect(Collectors.toList());
     }
 
     private String selectableColumns(EntityModel entityModel, String prefix) {
@@ -350,5 +329,4 @@ public class SqlHelper {
     private void logSql(String sql, Object[] args) {
         System.out.printf("SQL: %s, args: %s\n", sql, Arrays.toString(args));
     }
-
 }

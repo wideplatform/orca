@@ -32,6 +32,10 @@ public class SqlQuery {
         return sqlArgumentGenerator.generate(value);
     }
 
+    public SqlTable getDrivingTable() {
+        return tables.get(0);
+    }
+
     public List<Object> getArgumentValues() {
         return sqlArgumentGenerator.getArguments()
                 .stream()

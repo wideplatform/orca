@@ -5,6 +5,7 @@ import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
+import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.PluralAssociationField;
@@ -136,10 +137,9 @@ public class EntityManagerImpl implements EntityManager {
                 .filter(Field::isAssociation)
                 .forEach(field -> {
                     AssociationField a = (AssociationField) field;
-//                    if (a.getFetchType() == FetchType.LAZY) {
-//                        return;
-//                    }
-
+                    if (a.getFetchType() == FetchType.EAGER) {
+                        return;
+                    }
                     if (a.isSingular()) {
                         Object raw = po.getFieldValue(a.getName());
                         if (raw != null) {
@@ -148,10 +148,6 @@ public class EntityManagerImpl implements EntityManager {
                         }
                     } else {
                         PluralAssociationField pa = (PluralAssociationField) a;
-//                        if (pa.isVirtual()) {
-//                            return;
-//                        }
-
                         List<PersistentObject> targets;
                         if (pa.getTargetInverseField() != null) {
                             targets = sqlHelper.findByField(a.getTargetModelRef().model(), a.getTargetInverseField(), id);

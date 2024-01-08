@@ -1,5 +1,7 @@
 package com.iostate.orca.metadata;
 
+import java.util.Objects;
+
 public class EntityModelRef {
 
     private final String name;
@@ -15,6 +17,9 @@ public class EntityModelRef {
     }
 
     public EntityModel model() {
-        return metadataManager.findEntityByName(name);
+        return Objects.requireNonNull(
+                metadataManager.findEntityByName(name),
+                "Model " + name + " is not found"
+        );
     }
 }

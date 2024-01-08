@@ -16,7 +16,7 @@ dataFields:
   columnName: "child"
   dataTypeName: "ChildEntity"
   targetModelName: "ChildEntity"
-  fetchType: "LAZY"
+  fetchType: "EAGER"
   cascadeTypes:
   - "ALL"
   nullable: true

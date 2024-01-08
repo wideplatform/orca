@@ -77,7 +77,7 @@ public class EntityModelTest {
                         "child", "child",
                         parentModel, modelRef(childModel),
                         false, true,
-                        FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
+                        FetchType.EAGER, new CascadeType[]{CascadeType.ALL})
         );
 
         exportCode("onetoone", parentModel, childModel);
@@ -105,7 +105,7 @@ public class EntityModelTest {
                 "target", "target",
                 sourceModel, modelRef(targetModel),
                 false, true,
-                FetchType.LAZY, new CascadeType[]{}
+                FetchType.EAGER, new CascadeType[]{}
         );
         sourceModel.addDataField(singularAssociationField);
 

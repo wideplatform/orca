@@ -14,11 +14,11 @@ public class SqlTable {
     private String alias;
 
     SqlTable(String name,
-                    List<String> columns,
-                    List<String> orderColumns,
-                    TableAliasGenerator tableAliasGenerator,
-                    SqlExpression joiner,
-                    String joinColumn) {
+             List<String> columns,
+             List<String> orderColumns,
+             TableAliasGenerator tableAliasGenerator,
+             SqlExpression joiner,
+             String joinColumn) {
         this.name = name;
         this.columns = columns;
         this.orderColumns = orderColumns;
