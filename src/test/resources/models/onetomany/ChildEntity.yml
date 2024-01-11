@@ -12,4 +12,10 @@ dataFields:
   columnName: "integer"
   dataTypeName: "INT"
   nullable: true
+- name: "parent"
+  columnName: "parent_id"
+  dataTypeName: "ParentEntity"
+  targetModelName: "ParentEntity"
+  fetchType: "EAGER"
+  nullable: false
 linkedClassName: "com.iostate.orca.onetomany.ChildEntity"

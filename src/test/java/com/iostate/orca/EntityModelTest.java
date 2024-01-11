@@ -75,8 +75,8 @@ public class EntityModelTest {
         parentModel.addDataField(
                 new SingularAssociationField(
                         "child", "child",
-                        parentModel, modelRef(childModel),
-                        false, true,
+                        parentModel, modelRef(childModel), null,
+                        true,
                         FetchType.EAGER, new CascadeType[]{CascadeType.ALL})
         );
 
@@ -90,8 +90,15 @@ public class EntityModelTest {
         parentModel.addDataField(
                 new PluralAssociationField(
                         "children",
-                        parentModel, modelRef(childModel),
+                        parentModel, modelRef(childModel), "parent",
                         FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
+        );
+        childModel.addDataField(
+                new SingularAssociationField(
+                        "parent", "parent_id",
+                        childModel, modelRef(parentModel), null,
+                        false, FetchType.EAGER, null
+                )
         );
 
         exportCode("onetomany", parentModel, childModel);
@@ -103,9 +110,8 @@ public class EntityModelTest {
         EntityModel targetModel = modelTargetEntity();
         SingularAssociationField singularAssociationField = new SingularAssociationField(
                 "target", "target",
-                sourceModel, modelRef(targetModel),
-                false, true,
-                FetchType.EAGER, new CascadeType[]{}
+                sourceModel, modelRef(targetModel), null,
+                true, FetchType.EAGER, new CascadeType[]{}
         );
         sourceModel.addDataField(singularAssociationField);
 
@@ -118,7 +124,7 @@ public class EntityModelTest {
         EntityModel targetModel = modelTargetEntity();
         PluralAssociationField pluralAssociationField = new PluralAssociationField(
                 "targets",
-                sourceModel, modelRef(targetModel),
+                sourceModel, modelRef(targetModel), null,
                 FetchType.LAZY, new CascadeType[]{}
         );
         pluralAssociationField.createMiddleTable(metadataManager);

@@ -5,6 +5,7 @@ import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.inverse.DirectInverse;
 import com.iostate.orca.metadata.inverse.Inverse;
 import com.iostate.orca.metadata.inverse.VoidInverse;
@@ -47,8 +48,9 @@ public class SingularAssociationCascade implements Cascade {
 
     @Override
     public Inverse getInverse(EntityManager entityManager) {
-        if (field.getTargetInverseField() != null) {
-            return new DirectInverse(field.getTargetInverseField(), Collections.singleton(value));
+        if (field.getMappedByFieldName() != null) {
+            Field mappedByField = field.getTargetModelRef().model().findFieldByName(field.getMappedByFieldName());
+            return new DirectInverse(mappedByField, Collections.singleton(value));
         } else {
             return new VoidInverse();
         }

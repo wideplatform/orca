@@ -7,7 +7,9 @@ public class FieldDto {
     private String columnName;
     private String dataTypeName;
     private boolean isNullable;
+    // Association-only
     private String targetModelName;
+    private String mappedByFieldName;
     private String fetchType;
     private List<String> cascadeTypes = null;
 
@@ -65,5 +67,13 @@ public class FieldDto {
 
     public void setCascadeTypes(List<String> cascadeTypes) {
         this.cascadeTypes = cascadeTypes;
+    }
+
+    public String getMappedByFieldName() {
+        return mappedByFieldName;
+    }
+
+    public void setMappedByFieldName(String mappedByFieldName) {
+        this.mappedByFieldName = mappedByFieldName;
     }
 }

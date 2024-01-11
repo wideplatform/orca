@@ -11,6 +11,7 @@ import java.util.function.Function;
 public class ChildEntity extends com.iostate.orca.api.BasePO {
     private Long id;
     private Integer integer;
+    private ParentEntity parent;
 
     public Long getId() {
         return id;
@@ -28,6 +29,14 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
         this.integer = integer;
         markUpdatedField("integer");
     }
+    public ParentEntity getParent() {
+        return parent;
+    }
+
+    public void setParent(ParentEntity parent) {
+        this.parent = parent;
+        markUpdatedField("parent");
+    }
 
     private static final Map<String, Function<ChildEntity, Object>> GETTERS;
 
@@ -35,6 +44,7 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
         Map<String, Function<ChildEntity, Object>> getters = new HashMap<>();
         getters.put("id", ChildEntity::getId);
         getters.put("integer", ChildEntity::getInteger);
+        getters.put("parent", ChildEntity::getParent);
         GETTERS = Collections.unmodifiableMap(getters);
     }
 
@@ -44,6 +54,7 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
         Map<String, BiConsumer<ChildEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
         setters.put("integer", (object, value) -> object.setInteger((Integer) value));
+        setters.put("parent", (object, value) -> object.setParent((ParentEntity) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }
 

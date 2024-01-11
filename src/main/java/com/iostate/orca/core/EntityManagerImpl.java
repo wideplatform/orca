@@ -1,4 +1,4 @@
-package com.iostate.orca;
+package com.iostate.orca.core;
 
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManager;
@@ -13,6 +13,7 @@ import com.iostate.orca.sql.SqlHelper;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -130,37 +131,7 @@ public class EntityManagerImpl implements EntityManager {
     public PersistentObject find(EntityModel entityModel, Object id) {
         Objects.requireNonNull(entityModel);
         PersistentObject po = sqlHelper.findById(entityModel, id);
-
-        // Populate references
-        entityModel.allFields()
-                .stream()
-                .filter(Field::isAssociation)
-                .forEach(field -> {
-                    AssociationField a = (AssociationField) field;
-                    if (a.getFetchType() == FetchType.EAGER) {
-                        return;
-                    }
-                    if (a.isSingular()) {
-                        Object raw = po.getFieldValue(a.getName());
-                        if (raw != null) {
-                            Object targetObject = find(a.getTargetModelRef().model(), raw);
-                            field.setValue(po, targetObject);
-                        }
-                    } else {
-                        PluralAssociationField pa = (PluralAssociationField) a;
-                        List<PersistentObject> targets;
-                        if (pa.getTargetInverseField() != null) {
-                            targets = sqlHelper.findByField(a.getTargetModelRef().model(), a.getTargetInverseField(), id);
-                            for (PersistentObject target : targets) {
-                                pa.getTargetInverseField().setValue(target, id);
-                            }
-                        } else {
-                            targets = sqlHelper.findByRelation(pa.getMiddleTable(), id);
-                        }
-                        //TODO should also load target's associations
-                        field.setValue(po, targets);
-                    }
-                });
+        loadAllLazy(entityModel, Collections.singletonList(po));
         return po;
     }
 
@@ -172,8 +143,52 @@ public class EntityManagerImpl implements EntityManager {
             throw new IllegalArgumentException(String.format("field %s is not found in class %s", fieldName, entityClass.getName()));
         }
 
+        List<PersistentObject> pos = sqlHelper.findByField(entityModel, field, fieldValue);
+        loadAllLazy(entityModel, pos);
         //noinspection unchecked
-        return (List<T>) sqlHelper.findByField(entityModel, field, fieldValue);
+        return (List<T>) pos;
+    }
+
+    private void loadAllLazy(EntityModel entityModel, List<PersistentObject> pos) {
+        Field idField = entityModel.getIdField();
+        entityModel.allFields().stream()
+                .filter(Field::isAssociation)
+                .map(field -> (AssociationField) field)
+                .forEach(a -> {
+                    if (a.getFetchType() == FetchType.EAGER) {
+                        return;
+                    }
+
+                    EntityModel targetModel = a.getTargetModelRef().model();
+                    Field mappedByField = null;
+                    if (a.getMappedByFieldName() != null) {
+                        mappedByField = targetModel.findFieldByName(a.getMappedByFieldName());
+                    }
+
+                    for (PersistentObject po : pos) {
+                        if (a.isSingular()) {
+                            Object raw = po.getFieldValue(a.getName());
+                            if (raw != null) {
+                                Object targetObject = find(targetModel, raw);
+                                a.setValue(po, targetObject);
+                            }
+                        } else {
+                            PluralAssociationField pa = (PluralAssociationField) a;
+                            Object id = idField.getValue(po);
+                            List<PersistentObject> targets;
+                            if (mappedByField != null) {
+                                targets = sqlHelper.findByField(targetModel, mappedByField, id);
+                                for (PersistentObject target : targets) {
+                                    mappedByField.setValue(target, id);
+                                }
+                            } else {
+                                targets = sqlHelper.findByRelation(pa.getMiddleTable(), id);
+                            }
+                            //TODO should also load target's associations
+                            a.setValue(po, targets);
+                        }
+                    }
+                });
     }
 
     @Override

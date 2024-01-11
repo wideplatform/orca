@@ -4,6 +4,7 @@ package com.iostate.orca.metadata.cascade;
 import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.PluralAssociationField;
 import com.iostate.orca.metadata.inverse.DirectInverse;
 import com.iostate.orca.metadata.inverse.IndirectInverse;
@@ -56,8 +57,9 @@ public class PluralAssociationCascade implements Cascade {
 
     @Override
     public Inverse getInverse(EntityManager entityManager) {
-        if (field.getTargetInverseField() != null) {
-            return new DirectInverse(field.getTargetInverseField(), values);
+        if (field.getMappedByFieldName() != null) {
+            Field mappedByField = field.getTargetModelRef().model().findFieldByName(field.getMappedByFieldName());
+            return new DirectInverse(mappedByField, values);
         } else {
             return new IndirectInverse(field.getMiddleTable(), values, entityManager);
         }

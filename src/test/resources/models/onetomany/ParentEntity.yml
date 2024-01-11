@@ -15,6 +15,7 @@ dataFields:
 - name: "children"
   dataTypeName: "<ChildEntity>"
   targetModelName: "ChildEntity"
+  mappedByFieldName: "parent"
   fetchType: "LAZY"
   cascadeTypes:
   - "ALL"

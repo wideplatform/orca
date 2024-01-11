@@ -4,6 +4,7 @@ import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.Namespace;
 import com.iostate.orca.db.DbInitializer;
 import com.iostate.orca.metadata.MetadataManager;
+import com.iostate.orca.core.EntityManagerImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 

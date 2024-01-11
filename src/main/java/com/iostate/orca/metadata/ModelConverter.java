@@ -36,16 +36,17 @@ public class ModelConverter {
         } else {
             EntityModelRef targetModelRef = new EntityModelRef(fieldDto.getTargetModelName(), metadataManager);
             FetchType fetchType = FetchType.valueOf(fieldDto.getFetchType());
-            CascadeType[] cascadeTypes = fieldDto.getCascadeTypes().stream()
-                    .map(CascadeType::valueOf)
-                    .toArray(CascadeType[]::new);
+            CascadeType[] cascadeTypes = fieldDto.getCascadeTypes() == null ?
+                    null :
+                    fieldDto.getCascadeTypes().stream()
+                            .map(CascadeType::valueOf)
+                            .toArray(CascadeType[]::new);
+
             if (fieldDto.getDataTypeName().startsWith("<")) {
                 PluralAssociationField field = new PluralAssociationField(
-                        fieldDto.getName(),
-                        sourceModel,
-                        targetModelRef,
-                        fetchType,
-                        cascadeTypes
+                        fieldDto.getName(), sourceModel,
+                        targetModelRef, fieldDto.getMappedByFieldName(),
+                        fetchType, cascadeTypes
                 );
                 field.createMiddleTable(metadataManager);
                 return field;
@@ -55,7 +56,7 @@ public class ModelConverter {
                         fieldDto.getColumnName(),
                         sourceModel,
                         targetModelRef,
-                        isId,
+                        fieldDto.getMappedByFieldName(),
                         fieldDto.isNullable(),
                         fetchType,
                         cascadeTypes

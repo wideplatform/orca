@@ -12,18 +12,19 @@ public abstract class AssociationField extends AbstractField {
     private final EntityModel sourceModel;
     // dynamic reference, targetModel may be recreated when edited
     private final EntityModelRef targetModelRef;
+    private final String mappedByFieldName;
     private final FetchType fetchType;
     private final CascadeType[] cascadeTypes;
 
     private final transient CascadeConfig cascadeConfig;
 
-    private Field targetInverseField;
-
-    public AssociationField(String name, EntityModel sourceModel, EntityModelRef targetModelRef,
-                            boolean isId, boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, isId, isNullable);
+    public AssociationField(String name, EntityModel sourceModel,
+                            EntityModelRef targetModelRef, String mappedByFieldName,
+                            boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
+        super(name, false, isNullable);
         this.sourceModel = sourceModel;
         this.targetModelRef = targetModelRef;
+        this.mappedByFieldName = mappedByFieldName;
         this.fetchType = fetchType;
         this.cascadeTypes = cascadeTypes;
         this.cascadeConfig = new CascadeConfig(cascadeTypes);
@@ -35,6 +36,10 @@ public abstract class AssociationField extends AbstractField {
 
     public EntityModelRef getTargetModelRef() {
         return targetModelRef;
+    }
+
+    public String getMappedByFieldName() {
+        return mappedByFieldName;
     }
 
     public FetchType getFetchType() {
@@ -64,14 +69,6 @@ public abstract class AssociationField extends AbstractField {
         return false;
     }
 
-    public Field getTargetInverseField() {
-        return targetInverseField;
-    }
-
-    public void setTargetInverseField(Field targetInverseField) {
-        this.targetInverseField = targetInverseField;
-    }
-
     @Override
     public final FieldDto toDto() {
         FieldDto dto = new FieldDto();
@@ -79,9 +76,12 @@ public abstract class AssociationField extends AbstractField {
         dto.setColumnName(getColumnName());
         dto.setDataTypeName(getDataType().name());
         dto.setTargetModelName(getTargetModelRef().getName());
+        dto.setMappedByFieldName(getMappedByFieldName());
         dto.setNullable(isNullable());
         dto.setFetchType(getFetchType().name());
-        dto.setCascadeTypes(Arrays.stream(getCascadeTypes()).map(Enum::name).collect(Collectors.toList()));
+        if (getCascadeTypes() != null) {
+            dto.setCascadeTypes(Arrays.stream(getCascadeTypes()).map(Enum::name).collect(Collectors.toList()));
+        }
         return dto;
     }
 }

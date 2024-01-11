@@ -16,10 +16,11 @@ public class PluralAssociationField extends AssociationField {
 
     private MiddleTable middleTable;
 
-    public PluralAssociationField(String name,
-                                  EntityModel sourceModel, EntityModelRef targetModelRef,
-                                  FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, sourceModel, targetModelRef, false, false, fetchType, cascadeTypes);
+    public PluralAssociationField(
+            String name,
+            EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
+            FetchType fetchType, CascadeType[] cascadeTypes) {
+        super(name, sourceModel, targetModelRef, mappedByFieldName, false, fetchType, cascadeTypes);
         this.dataType = new ReferenceDataType(targetModelRef, true);
     }
 

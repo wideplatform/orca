@@ -1,5 +1,7 @@
 package com.iostate.orca.sql.query;
 
+import com.iostate.orca.sql.query.condition.Equal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class SqlTable {
         this.tableAliasGenerator = tableAliasGenerator;
         this.joinCondition = joiner == null ?
                 null :
-                new SqlCondition(joiner, "=", new SqlColumnRef(this, joinColumn));
+                new Equal(joiner, new SqlColumnRef(this, joinColumn));
     }
 
     public void addFilter(SqlCondition condition) {

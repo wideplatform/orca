@@ -10,9 +10,9 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.sql.query.QueryRootNode;
-import com.iostate.orca.sql.query.SqlCondition;
 import com.iostate.orca.sql.query.SqlQuery;
 import com.iostate.orca.sql.query.SqlTable;
+import com.iostate.orca.sql.query.condition.Equal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -204,9 +204,8 @@ public class SqlHelper {
         QueryRootNode queryRootNode = new QueryRootNode(entityModel);
         SqlQuery sqlQuery = queryRootNode.toSqlQuery();
         SqlTable drivingTable = sqlQuery.getDrivingTable();
-        drivingTable.addFilter(new SqlCondition(
+        drivingTable.addFilter(new Equal(
                 drivingTable.columnRef(entityModel.getIdField().getColumnName()),
-                "=",
                 sqlQuery.createArgument(id)
         ));
 
@@ -232,9 +231,8 @@ public class SqlHelper {
         QueryRootNode queryRootNode = new QueryRootNode(entityModel);
         SqlQuery sqlQuery = queryRootNode.toSqlQuery();
         SqlTable drivingTable = sqlQuery.getDrivingTable();
-        drivingTable.addFilter(new SqlCondition(
+        drivingTable.addFilter(new Equal(
                 drivingTable.columnRef(field.getColumnName()),
-                "=",
                 sqlQuery.createArgument(value)
         ));
 

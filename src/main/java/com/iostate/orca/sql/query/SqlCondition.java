@@ -6,7 +6,7 @@ public class SqlCondition {
     private final String operator;
     private final SqlExpression right;
 
-    public SqlCondition(SqlExpression left, String operator, SqlExpression right) {
+    protected SqlCondition(SqlExpression left, String operator, SqlExpression right) {
         this.left = left;
         this.operator = operator;
         this.right = right;

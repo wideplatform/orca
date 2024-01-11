@@ -12,10 +12,11 @@ public class SingularAssociationField extends AssociationField {
     private final String columnName;
     private final DataType dataType;
 
-    public SingularAssociationField(String name, String columnName,
-                                    EntityModel sourceModel, EntityModelRef targetModelRef,
-                                    boolean isId, boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, sourceModel, targetModelRef, isId, isNullable, fetchType, cascadeTypes);
+    public SingularAssociationField(
+            String name, String columnName,
+            EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
+            boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
+        super(name, sourceModel, targetModelRef, mappedByFieldName, isNullable, fetchType, cascadeTypes);
         this.columnName = columnName;
         this.dataType = new ReferenceDataType(targetModelRef, false);
     }
