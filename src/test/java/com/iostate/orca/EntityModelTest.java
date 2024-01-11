@@ -5,11 +5,12 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.metadata.PluralAssociationField;
+import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.SimpleDataType;
 import com.iostate.orca.metadata.SimpleField;
-import com.iostate.orca.metadata.SingularAssociationField;
+import com.iostate.orca.metadata.BelongsTo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -73,11 +74,18 @@ public class EntityModelTest {
         EntityModel parentModel = modelParentEntity();
         EntityModel childModel = modelChildEntity();
         parentModel.addDataField(
-                new SingularAssociationField(
-                        "child", "child",
-                        parentModel, modelRef(childModel), null,
+                new HasOne(
+                        "child",
+                        parentModel, modelRef(childModel), "parent",
                         true,
                         FetchType.EAGER, new CascadeType[]{CascadeType.ALL})
+        );
+        childModel.addDataField(
+                new BelongsTo(
+                        "parent", "parent_id",
+                        childModel, modelRef(parentModel), null,
+                        false,
+                        FetchType.EAGER, null)
         );
 
         exportCode("onetoone", parentModel, childModel);
@@ -88,15 +96,15 @@ public class EntityModelTest {
         EntityModel parentModel = modelParentEntity();
         EntityModel childModel = modelChildEntity();
         parentModel.addDataField(
-                new PluralAssociationField(
+                new HasMany(
                         "children",
                         parentModel, modelRef(childModel), "parent",
                         FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
         );
         childModel.addDataField(
-                new SingularAssociationField(
+                new BelongsTo(
                         "parent", "parent_id",
-                        childModel, modelRef(parentModel), null,
+                        childModel, modelRef(parentModel), "children",
                         false, FetchType.EAGER, null
                 )
         );
@@ -108,12 +116,11 @@ public class EntityModelTest {
     public void testManyToOne() throws IOException {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
-        SingularAssociationField singularAssociationField = new SingularAssociationField(
+        sourceModel.addDataField(new BelongsTo(
                 "target", "target",
                 sourceModel, modelRef(targetModel), null,
                 true, FetchType.EAGER, new CascadeType[]{}
-        );
-        sourceModel.addDataField(singularAssociationField);
+        ));
 
         exportCode("manytoone", sourceModel, targetModel);
     }
@@ -122,13 +129,13 @@ public class EntityModelTest {
     public void testManyToMany() throws IOException {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
-        PluralAssociationField pluralAssociationField = new PluralAssociationField(
+        HasMany hasMany = new HasMany(
                 "targets",
                 sourceModel, modelRef(targetModel), null,
                 FetchType.LAZY, new CascadeType[]{}
         );
-        pluralAssociationField.createMiddleTable(metadataManager);
-        sourceModel.addDataField(pluralAssociationField);
+        hasMany.createMiddleTable(metadataManager);
+        sourceModel.addDataField(hasMany);
 
         exportCode("manytomany", sourceModel, targetModel);
     }

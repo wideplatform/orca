@@ -4,26 +4,21 @@ import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
 import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
 
-/**
- * field with XToOne association type
- */
-public class SingularAssociationField extends AssociationField {
+public class HasOne extends AssociationField {
 
-    private final String columnName;
     private final DataType dataType;
 
-    public SingularAssociationField(
-            String name, String columnName,
+    public HasOne(
+            String name,
             EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
         super(name, sourceModel, targetModelRef, mappedByFieldName, isNullable, fetchType, cascadeTypes);
-        this.columnName = columnName;
         this.dataType = new ReferenceDataType(targetModelRef, false);
     }
 
     @Override
     public String getColumnName() {
-        return columnName;
+        return null;
     }
 
     @Override
@@ -45,4 +40,5 @@ public class SingularAssociationField extends AssociationField {
     public boolean isPlural() {
         return false;
     }
+
 }

@@ -43,7 +43,7 @@ public class ModelConverter {
                             .toArray(CascadeType[]::new);
 
             if (fieldDto.getDataTypeName().startsWith("<")) {
-                PluralAssociationField field = new PluralAssociationField(
+                HasMany field = new HasMany(
                         fieldDto.getName(), sourceModel,
                         targetModelRef, fieldDto.getMappedByFieldName(),
                         fetchType, cascadeTypes
@@ -51,7 +51,7 @@ public class ModelConverter {
                 field.createMiddleTable(metadataManager);
                 return field;
             } else {
-                return new SingularAssociationField(
+                return new BelongsTo(
                         fieldDto.getName(),
                         fieldDto.getColumnName(),
                         sourceModel,

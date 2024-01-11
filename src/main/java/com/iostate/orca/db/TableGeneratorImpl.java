@@ -2,7 +2,7 @@ package com.iostate.orca.db;
 
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.PluralAssociationField;
+import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.MiddleTable;
 
 import java.util.HashMap;
@@ -39,8 +39,8 @@ public class TableGeneratorImpl implements TableGenerator {
 
         entityModel.allFields()
                 .stream()
-                .filter(f -> f instanceof PluralAssociationField)
-                .map(f -> (PluralAssociationField) f)
+                .filter(f -> f instanceof HasMany)
+                .map(f -> (HasMany) f)
                 .forEach(f -> {
                     MiddleTable rel = f.getMiddleTable();
                     if (rel != null) {

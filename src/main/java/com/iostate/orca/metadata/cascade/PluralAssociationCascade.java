@@ -5,7 +5,7 @@ import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.PluralAssociationField;
+import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.inverse.DirectInverse;
 import com.iostate.orca.metadata.inverse.IndirectInverse;
 import com.iostate.orca.metadata.inverse.Inverse;
@@ -14,12 +14,12 @@ import java.util.Collection;
 
 public class PluralAssociationCascade implements Cascade {
 
-    private final PluralAssociationField field;
+    private final HasMany field;
     private final Collection<PersistentObject> values;
     private final CascadeConfig cascadeConfig;
 
     public PluralAssociationCascade(
-            PluralAssociationField field,
+            HasMany field,
             Collection<PersistentObject> values,
             CascadeConfig cascadeConfig) {
         this.field = field;

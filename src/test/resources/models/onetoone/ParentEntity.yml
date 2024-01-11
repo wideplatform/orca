@@ -13,9 +13,9 @@ dataFields:
   dataTypeName: "STRING"
   nullable: true
 - name: "child"
-  columnName: "child"
   dataTypeName: "ChildEntity"
   targetModelName: "ChildEntity"
+  mappedByFieldName: "parent"
   fetchType: "EAGER"
   cascadeTypes:
   - "ALL"

@@ -8,7 +8,7 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.metadata.PluralAssociationField;
+import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.sql.SqlHelper;
 
 import javax.persistence.EntityNotFoundException;
@@ -173,7 +173,7 @@ public class EntityManagerImpl implements EntityManager {
                                 a.setValue(po, targetObject);
                             }
                         } else {
-                            PluralAssociationField pa = (PluralAssociationField) a;
+                            HasMany pa = (HasMany) a;
                             Object id = idField.getValue(po);
                             List<PersistentObject> targets;
                             if (mappedByField != null) {

@@ -7,16 +7,13 @@ import com.iostate.orca.metadata.cascade.PluralAssociationCascade;
 
 import java.util.Collection;
 
-/**
- * field with XToMany association type
- */
-public class PluralAssociationField extends AssociationField {
+public class HasMany extends AssociationField {
 
     private final DataType dataType;
 
     private MiddleTable middleTable;
 
-    public PluralAssociationField(
+    public HasMany(
             String name,
             EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             FetchType fetchType, CascadeType[] cascadeTypes) {
