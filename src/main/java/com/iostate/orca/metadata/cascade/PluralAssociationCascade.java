@@ -11,6 +11,7 @@ import com.iostate.orca.metadata.inverse.IndirectInverse;
 import com.iostate.orca.metadata.inverse.Inverse;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class PluralAssociationCascade implements Cascade {
 
@@ -22,9 +23,9 @@ public class PluralAssociationCascade implements Cascade {
             HasMany field,
             Collection<PersistentObject> values,
             CascadeConfig cascadeConfig) {
-        this.field = field;
-        this.values = values;
-        this.cascadeConfig = cascadeConfig;
+        this.field = Objects.requireNonNull(field);
+        this.values = Objects.requireNonNull(values);
+        this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
     }
 
     @Override

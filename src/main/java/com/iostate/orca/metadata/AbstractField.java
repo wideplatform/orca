@@ -3,6 +3,8 @@ package com.iostate.orca.metadata;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.api.PersistentObject;
 
+import java.util.Objects;
+
 public abstract class AbstractField implements Field {
     protected final String name;
     protected final boolean isId;
@@ -36,6 +38,7 @@ public abstract class AbstractField implements Field {
 
     @Override
     public Object getValue(Object entity) {
+        Objects.requireNonNull(entity, "entity is null when reading from field " + getName());
         try {
             return ((PersistentObject) entity).getFieldValue(getName());
         } catch (Exception e) {
@@ -45,6 +48,7 @@ public abstract class AbstractField implements Field {
 
     @Override
     public void setValue(Object entity, Object value) {
+        Objects.requireNonNull(entity, "entity is null when writing to field " + getName());
         try {
             ((PersistentObject) entity).setFieldValue(getName(), value);
         } catch (Exception e) {

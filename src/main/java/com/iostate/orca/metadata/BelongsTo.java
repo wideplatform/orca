@@ -2,7 +2,7 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
+import com.iostate.orca.metadata.cascade.VoidCascade;
 
 // Backed by FK
 public class BelongsTo extends AssociationField {
@@ -31,7 +31,8 @@ public class BelongsTo extends AssociationField {
 
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new SingularAssociationCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
+        return new VoidCascade();
+//        return new SingularAssociationCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
     }
 
     @Override

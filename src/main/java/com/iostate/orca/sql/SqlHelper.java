@@ -9,7 +9,7 @@ import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
-import com.iostate.orca.sql.query.QueryRootNode;
+import com.iostate.orca.sql.query.QueryTree;
 import com.iostate.orca.sql.query.SqlQuery;
 import com.iostate.orca.sql.query.SqlTable;
 import com.iostate.orca.sql.query.condition.Equal;
@@ -201,8 +201,8 @@ public class SqlHelper {
     }
 
     public PersistentObject findById(EntityModel entityModel, Object id) {
-        QueryRootNode queryRootNode = new QueryRootNode(entityModel);
-        SqlQuery sqlQuery = queryRootNode.toSqlQuery();
+        QueryTree queryTree = new QueryTree(entityModel);
+        SqlQuery sqlQuery = queryTree.toSqlQuery();
         SqlTable drivingTable = sqlQuery.getDrivingTable();
         drivingTable.addFilter(new Equal(
                 drivingTable.columnRef(entityModel.getIdField().getColumnName()),
@@ -210,10 +210,10 @@ public class SqlHelper {
         ));
 
         try {
-            List<PersistentObject> records = executeQuery(
+            List<PersistentObject> records = query(
                     sqlQuery.toString(),
                     sqlQuery.getArgumentValues().toArray(),
-                    queryRootNode::mapRow
+                    queryTree
             );
             if (records.isEmpty()) {
                 return null;
@@ -228,8 +228,8 @@ public class SqlHelper {
     }
 
     public List<PersistentObject> findByField(EntityModel entityModel, Field field, Object value) {
-        QueryRootNode queryRootNode = new QueryRootNode(entityModel);
-        SqlQuery sqlQuery = queryRootNode.toSqlQuery();
+        QueryTree queryTree = new QueryTree(entityModel);
+        SqlQuery sqlQuery = queryTree.toSqlQuery();
         SqlTable drivingTable = sqlQuery.getDrivingTable();
         drivingTable.addFilter(new Equal(
                 drivingTable.columnRef(field.getColumnName()),
@@ -237,10 +237,10 @@ public class SqlHelper {
         ));
 
         try {
-            return executeQuery(
+            return query(
                     sqlQuery.toString(),
                     sqlQuery.getArgumentValues().toArray(),
-                    queryRootNode::mapRow
+                    queryTree
             );
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
@@ -290,6 +290,26 @@ public class SqlHelper {
                     records.add(resultMapper.mapRow(rs));
                 }
                 return records;
+            }
+        }
+    }
+
+    private List<PersistentObject> query(
+            String sql, Object[] args, QueryTree queryTree) throws SQLException {
+        if (sql == null) {
+            throw new IllegalArgumentException("sql is null");
+        }
+
+        try (PreparedStatement ps = connection().prepareStatement(sql)) {
+            if (args != null) {
+                for (int i = 0; i < args.length; i++) {
+                    ps.setObject(i + 1, args[i]);
+                }
+            }
+
+            logSql(sql, args);
+            try (ResultSet rs = ps.executeQuery()) {
+                return queryTree.mapRows(rs);
             }
         }
     }

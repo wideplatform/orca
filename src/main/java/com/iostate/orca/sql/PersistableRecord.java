@@ -11,6 +11,7 @@ import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 /**
  * Record-style PO representation for persisting, also a tree having cascade nodes.
@@ -24,8 +25,8 @@ class PersistableRecord {
     private final Collection<PluralAssociationCascade> pluralCascades = new ArrayList<>();
 
     PersistableRecord(Collection<Field> fields, PersistentObject entity, EntityManager entityManager) {
-        this.parent = entity;
-        this.entityManager = entityManager;
+        this.parent = Objects.requireNonNull(entity);
+        this.entityManager = Objects.requireNonNull(entityManager);
         for (Field field : fields) {
             add(field, entity);
         }
@@ -46,15 +47,20 @@ class PersistableRecord {
                 return;
             }
 
-            Cascade cascade = assoc.getCascade(entity);
-            if (assoc.isSingular()) {
+            if (assoc.hasColumn()) {
                 // This entry will be refreshed after cascading
                 // When persisting with generated ID, current value is a null
                 // When persisting with given ID or updating, current value is a non-null ID
-                columnValues.put(field.getColumnName(), assoc.getTargetModelRef().model().getIdField().getValue(entity));
+                columnValues.put(
+                        assoc.getColumnName(),
+                        assoc.getTargetModelRef().model().getIdField().getValue(entity)
+                );
+            }
 
+            Cascade cascade = assoc.getCascade(entity);
+            if (cascade instanceof SingularAssociationCascade) {
                 singularCascades.add((SingularAssociationCascade) cascade);
-            } else {
+            } else if (cascade instanceof PluralAssociationCascade) {
                 pluralCascades.add((PluralAssociationCascade) cascade);
             }
         } else {

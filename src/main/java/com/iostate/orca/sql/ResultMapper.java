@@ -6,6 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-interface ResultMapper {
+public interface ResultMapper {
     PersistentObject mapRow(ResultSet rs) throws SQLException;
 }

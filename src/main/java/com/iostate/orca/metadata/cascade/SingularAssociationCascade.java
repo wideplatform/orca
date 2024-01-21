@@ -11,6 +11,7 @@ import com.iostate.orca.metadata.inverse.Inverse;
 import com.iostate.orca.metadata.inverse.VoidInverse;
 
 import java.util.Collections;
+import java.util.Objects;
 
 public class SingularAssociationCascade implements Cascade {
 
@@ -19,14 +20,14 @@ public class SingularAssociationCascade implements Cascade {
     private final CascadeConfig cascadeConfig;
 
     public SingularAssociationCascade(AssociationField field, PersistentObject value, CascadeConfig cascadeConfig) {
-        this.field = field;
+        this.field = Objects.requireNonNull(field);
         this.value = value;
-        this.cascadeConfig = cascadeConfig;
+        this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
     }
 
     @Override
     public void persist(EntityManager entityManager) {
-        if (cascadeConfig.isPersist() && value != null) {
+        if (value != null && cascadeConfig.isPersist()) {
             // Should use merge?
             entityManager.merge(value);
         }
@@ -34,21 +35,21 @@ public class SingularAssociationCascade implements Cascade {
 
     @Override
     public void merge(EntityManager entityManager) {
-        if (cascadeConfig.isMerge() && value != null) {
+        if (value != null && cascadeConfig.isMerge()) {
             entityManager.merge(value);
         }
     }
 
     @Override
     public void remove(EntityManager entityManager) {
-        if (cascadeConfig.isRemove() && value != null) {
+        if (value != null && cascadeConfig.isRemove()) {
             entityManager.remove(value);
         }
     }
 
     @Override
     public Inverse getInverse(EntityManager entityManager) {
-        if (field.getMappedByFieldName() != null) {
+        if (value != null && field.getMappedByFieldName() != null) {
             Field mappedByField = field.getTargetModelRef().model().findFieldByName(field.getMappedByFieldName());
             return new DirectInverse(mappedByField, Collections.singleton(value));
         } else {
