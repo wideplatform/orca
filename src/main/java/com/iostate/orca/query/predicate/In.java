@@ -1,7 +1,8 @@
 package com.iostate.orca.query.predicate;
 
-import com.iostate.orca.query.expression.Attribute;
-import com.iostate.orca.query.expression.CollectionBinding;
+import com.iostate.orca.query.SqlBuilder;
+import com.iostate.orca.query.expression.PathNavigation;
+import com.iostate.orca.query.expression.MultiValueBinding;
 import com.iostate.orca.query.expression.Expression;
 
 import java.util.Collection;
@@ -11,14 +12,21 @@ class In extends AbstractPredicate {
     private final Expression l;
     private final Expression r;
 
-    In(String attribute, Collection<Object> bindValueCollection) {
-        l = new Attribute(attribute);
-        r = new CollectionBinding(bindValueCollection);
+    In(String objectPath, Collection<Object> bindValueCollection) {
+        l = new PathNavigation(objectPath);
+        r = new MultiValueBinding(bindValueCollection);
     }
 
     In(Expression l, Expression r) {
         this.l = l;
         this.r = r;
+    }
+
+    @Override
+    public void accept(SqlBuilder sqlBuilder) {
+        l.accept(sqlBuilder);
+        sqlBuilder.addString(" IN ");
+        r.accept(sqlBuilder);
     }
 
     @Override

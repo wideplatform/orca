@@ -1,5 +1,6 @@
 package com.iostate.orca.query.predicate;
 
+import com.iostate.orca.query.SqlBuilder;
 import com.iostate.orca.query.expression.Expression;
 
 class NotEqual extends AbstractPredicate {
@@ -10,6 +11,13 @@ class NotEqual extends AbstractPredicate {
     public NotEqual(Expression l, Expression r) {
         this.l = l;
         this.r = r;
+    }
+
+    @Override
+    public void accept(SqlBuilder sqlBuilder) {
+        l.accept(sqlBuilder);
+        sqlBuilder.addString(" <> ");
+        r.accept(sqlBuilder);
     }
 
     @Override

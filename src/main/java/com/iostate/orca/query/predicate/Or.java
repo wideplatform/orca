@@ -1,31 +1,59 @@
 package com.iostate.orca.query.predicate;
 
+import com.iostate.orca.query.SqlBuilder;
+
 class Or extends Compound {
 
-    private final Predicate a;
-    private final Predicate b;
+    private final Predicate[] members;
 
-    public Or(Predicate a, Predicate b) {
-        this.a = a;
-        this.b = b;
+    public Or(Predicate... members) {
+        this.members = members;
+    }
+
+    @Override
+    public void accept(SqlBuilder sqlBuilder) {
+        int count = 0;
+        for (Predicate member : members) {
+            if (count++ > 0) {
+                sqlBuilder.addString(" OR ");
+            }
+            acceptMember(member, sqlBuilder);
+        }
+    }
+
+    private void acceptMember(Predicate member, SqlBuilder sqlBuilder) {
+        if (member instanceof Or) {
+            member.accept(sqlBuilder);
+        } else if (member instanceof Compound) {
+            sqlBuilder.addString("(");
+            member.accept(sqlBuilder);
+            sqlBuilder.addString(")");
+        } else {
+            member.accept(sqlBuilder);
+        }
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        appendMember(a, builder);
-        builder.append(" OR ");
-        appendMember(b, builder);
-        return builder.toString();
+        StringBuilder sb = new StringBuilder();
+
+        int count = 0;
+        for (Predicate member : members) {
+            if (count++ > 0) {
+                sb.append(" OR ");
+            }
+            appendMember(member, sb);
+        }
+        return sb.toString();
     }
 
-    private void appendMember(Predicate member, StringBuilder builder) {
+    private void appendMember(Predicate member, StringBuilder sb) {
         if (member instanceof Or) {
-            builder.append(member);
+             sb.append(member);
         } else if (member instanceof Compound) {
-            builder.append('(').append(member).append(')');
+            sb.append("(").append(member).append(")");
         } else {
-            builder.append(member);
+            sb.append(member);
         }
     }
 }

@@ -1,11 +1,18 @@
 package com.iostate.orca.query.expression;
 
-public class ValueBinding implements Expression {
+import com.iostate.orca.query.SqlBuilder;
+
+public class SingleValueBinding implements Expression {
 
     private final Object value;
 
-    public ValueBinding(Object value) {
+    public SingleValueBinding(Object value) {
         this.value = value;
+    }
+
+    @Override
+    public void accept(SqlBuilder sqlBuilder) {
+        sqlBuilder.addArgument(value);
     }
 
     @Override

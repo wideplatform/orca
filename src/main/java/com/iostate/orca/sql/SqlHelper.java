@@ -9,10 +9,9 @@ import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
+import com.iostate.orca.query.predicate.Predicates;
 import com.iostate.orca.sql.query.QueryTree;
-import com.iostate.orca.sql.query.SqlQuery;
-import com.iostate.orca.sql.query.SqlTable;
-import com.iostate.orca.sql.query.condition.Equal;
+import com.iostate.orca.sql.query.SqlObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -202,17 +201,13 @@ public class SqlHelper {
 
     public PersistentObject findById(EntityModel entityModel, Object id) {
         QueryTree queryTree = new QueryTree(entityModel);
-        SqlQuery sqlQuery = queryTree.toSqlQuery();
-        SqlTable drivingTable = sqlQuery.getDrivingTable();
-        drivingTable.addFilter(new Equal(
-                drivingTable.columnRef(entityModel.getIdField().getColumnName()),
-                sqlQuery.createArgument(id)
-        ));
+        queryTree.addFilter(Predicates.equal("id", id));
+        SqlObject sqlObject = queryTree.toSqlObject();
 
         try {
             List<PersistentObject> records = query(
-                    sqlQuery.toString(),
-                    sqlQuery.getArgumentValues().toArray(),
+                    sqlObject.getSql(),
+                    sqlObject.getArguments(),
                     queryTree
             );
             if (records.isEmpty()) {
@@ -229,17 +224,13 @@ public class SqlHelper {
 
     public List<PersistentObject> findByField(EntityModel entityModel, Field field, Object value) {
         QueryTree queryTree = new QueryTree(entityModel);
-        SqlQuery sqlQuery = queryTree.toSqlQuery();
-        SqlTable drivingTable = sqlQuery.getDrivingTable();
-        drivingTable.addFilter(new Equal(
-                drivingTable.columnRef(field.getColumnName()),
-                sqlQuery.createArgument(value)
-        ));
+        queryTree.addFilter(Predicates.equal(field.getName(), value));
+        SqlObject sqlObject = queryTree.toSqlObject();
 
         try {
             return query(
-                    sqlQuery.toString(),
-                    sqlQuery.getArgumentValues().toArray(),
+                    sqlObject.getSql(),
+                    sqlObject.getArguments(),
                     queryTree
             );
         } catch (SQLException e) {

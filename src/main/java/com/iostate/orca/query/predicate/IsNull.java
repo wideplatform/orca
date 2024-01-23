@@ -1,20 +1,29 @@
 package com.iostate.orca.query.predicate;
 
+import com.iostate.orca.query.SqlBuilder;
+import com.iostate.orca.query.expression.Expression;
+
 class IsNull extends AbstractPredicate {
 
-    private final String attribute;
+    private final Expression expression;
 
-    public IsNull(String attribute) {
-        this.attribute = attribute;
+    public IsNull(Expression expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public void accept(SqlBuilder sqlBuilder) {
+        expression.accept(sqlBuilder);
+        sqlBuilder.addString(" IS NULL");
     }
 
     @Override
     public String toString() {
-        return attribute + " IS NULL";
+        return expression + " IS NULL";
     }
 
     @Override
     public Predicate negate() {
-        return new IsNotNull(attribute);
+        return new IsNotNull(expression);
     }
 }

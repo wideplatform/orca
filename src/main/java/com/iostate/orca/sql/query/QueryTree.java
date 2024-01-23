@@ -1,59 +1,123 @@
 package com.iostate.orca.sql.query;
 
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.exception.InvalidObjectPathException;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.query.ConcreteSqlBuilder;
+import com.iostate.orca.query.SqlBuilder;
+import com.iostate.orca.query.predicate.Predicate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /** Entrance of object-oriented query model */
 public class QueryTree {
     private final QueryRootNode root;
+    private final List<Predicate> filters = new ArrayList<>();
 
     public QueryTree(EntityModel entityModel) {
         root = new QueryRootNode(entityModel);
     }
 
-    public SqlQuery toSqlQuery() {
-        return root.toSqlQuery();
+    public void addFilter(Predicate filter) {
+        filters.add(filter);
+    }
+
+    public SqlObject toSqlObject() {
+        ConcreteSqlBuilder sqlBuilder = new ConcreteSqlBuilder(this);
+        sqlBuilder.addString("SELECT ");
+        root.buildSelectColumns(sqlBuilder);
+        sqlBuilder.addString(" FROM ");
+        root.buildTableClauses(sqlBuilder);
+        if (filters.isEmpty()) {
+            return new SqlObject(sqlBuilder.toSql(), new Object[]{});
+        }
+
+        sqlBuilder.addString(" WHERE ");
+        int filterCount = 0;
+        for (Predicate filter : filters) {
+            if (filterCount > 0) {
+                sqlBuilder.addString(" AND ");
+            }
+            filter.accept(sqlBuilder);
+            filterCount++;
+        }
+        return new SqlObject(sqlBuilder.toSql(), sqlBuilder.getArguments().toArray());
     }
 
     public List<PersistentObject> mapRows(ResultSet rs) throws SQLException {
         return root.mapRows(rs);
     }
+
+    public String resolveObjectPath(String objectPath) {
+        List<String> levels = Arrays.asList(objectPath.split("\\."));
+        return root.resolveObjectPath(levels);
+    }
+}
+
+class QueryContext {
+    final TableAliasGenerator tableAliasGenerator = new TableAliasGenerator();
+    final ColumnIndexGenerator columnIndexGenerator = new ColumnIndexGenerator();
 }
 
 abstract class QueryNode {
     protected final EntityModel entityModel;
+    protected final String tableAlias;
     protected final List<SelectedField> selectedFields = new ArrayList<>();
     protected final List<QueryJoinNode> joins = new ArrayList<>();
 
-    protected QueryNode(EntityModel entityModel, ColumnIndexGenerator columnIndexGenerator) {
+    protected QueryNode(EntityModel entityModel, QueryContext queryContext) {
         this.entityModel = entityModel;
-        buildSubtree(columnIndexGenerator);
+        this.tableAlias = queryContext.tableAliasGenerator.generate();
+        buildSubtree(queryContext);
     }
 
-    protected final void buildSubtree(ColumnIndexGenerator columnIndexGenerator) {
+    protected final void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
             if (field.hasColumn()) {
                 if (field.isAssociation()) {
                     AssociationField af = (AssociationField) field;
                     if (af.getFetchType() == FetchType.EAGER) {
-                        joins.add(new QueryJoinNode(af, columnIndexGenerator));
+                        joins.add(new QueryJoinNode(af, queryContext));
                     }
                 } else {
-                    selectedFields.add(new SelectedField(field, columnIndexGenerator));
+                    selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
                 }
             }
+        }
+    }
+
+    void buildSelectColumns(SqlBuilder sqlBuilder) {
+        for (SelectedField sf : selectedFields) {
+            sqlBuilder.addSelectColumn(tableAlias, sf.getField().getColumnName());
+        }
+        for (QueryJoinNode join : joins) {
+            join.buildSelectColumns(sqlBuilder);
+        }
+    }
+
+    String resolveObjectPath(List<String> levels) {
+        String name = levels.get(0);
+        Field field = entityModel.findFieldByName(name);
+        if (field == null) {
+            throw new InvalidObjectPathException("Field " + name + " is not found in " + entityModel.getName());
+        }
+        if (field.isAssociation()) {
+            QueryJoinNode join = joins.stream()
+                    .filter(j -> j.getAssociationField().getName().equals(name))
+                    .findFirst()
+                    .get();
+            return join.resolveObjectPath(levels.subList(1, levels.size()));
+        } else {
+            return tableAlias + '.' + field.getColumnName();
         }
     }
 }
@@ -63,23 +127,14 @@ class QueryRootNode extends QueryNode {
     private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
     QueryRootNode(EntityModel entityModel) {
-        super(entityModel, new ColumnIndexGenerator());
+        super(entityModel, new QueryContext());
     }
 
-    SqlQuery toSqlQuery() {
-        SqlQuery sqlQuery = new SqlQuery();
-        SqlTable drivingTable = sqlQuery.addDrivingTable(
-                entityModel.getTableName(),
-                selectedFields.stream()
-                        .map(sf -> sf.getField().getColumnName())
-                        .collect(Collectors.toList()),
-                Collections.emptyList()
-        );
-
-        for (QueryJoinNode qa : joins) {
-            qa.decorateSqlQuery(sqlQuery, drivingTable);
+    void buildTableClauses(SqlBuilder sqlBuilder) {
+        sqlBuilder.addTableClause(entityModel.getTableName() + " " + tableAlias);
+        for (QueryJoinNode join : joins) {
+            join.buildTableClauses(sqlBuilder, tableAlias);
         }
-        return sqlQuery;
     }
 
     List<PersistentObject> mapRows(ResultSet rs) throws SQLException {
@@ -105,21 +160,13 @@ class QueryJoinNode extends QueryNode {
     // Handle duplicate data in cartesian product
     private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
-    QueryJoinNode(AssociationField associationField, ColumnIndexGenerator columnIndexGenerator) {
-        super(associationField.getTargetModelRef().model(), columnIndexGenerator);
+    QueryJoinNode(AssociationField associationField, QueryContext queryContext) {
+        super(associationField.getTargetModelRef().model(), queryContext);
         this.associationField = associationField;
     }
 
-    void decorateSqlQuery(SqlQuery sqlQuery, SqlTable parentTable) {
-        sqlQuery.addJoinTable(
-                entityModel.getTableName(),
-                selectedFields.stream()
-                        .map(sf -> sf.getField().getColumnName())
-                        .collect(Collectors.toList()),
-                Collections.emptyList(),
-                parentTable.columnRef(associationField.getColumnName()),
-                entityModel.getIdField().getColumnName()
-        );
+    public AssociationField getAssociationField() {
+        return associationField;
     }
 
     void mapRow(ResultSet rs, PersistentObject parent) throws SQLException {
@@ -144,6 +191,20 @@ class QueryJoinNode extends QueryNode {
         }
         for (QueryJoinNode join : joins) {
             join.mapRow(rs, po);
+        }
+    }
+
+    void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
+        String joinCondition = associationField.hasColumn() ?
+                parentTableAlias + "." + associationField.getColumnName() + " = "
+                        + tableAlias + "." + entityModel.getIdField().getColumnName() :
+                parentTableAlias + "." + associationField.getSourceModel().getIdField().getColumnName() + " = "
+                + tableAlias + "." + entityModel.findFieldByName(associationField.getMappedByFieldName()).getColumnName();
+        sqlBuilder.addTableClause(
+                " LEFT JOIN " + entityModel.getTableName() + " " + tableAlias +
+                        " ON " + joinCondition);
+        for (QueryJoinNode join : joins) {
+            join.buildTableClauses(sqlBuilder, tableAlias);
         }
     }
 }

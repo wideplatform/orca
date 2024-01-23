@@ -1,5 +1,7 @@
 package com.iostate.orca.query.predicate;
 
+import com.iostate.orca.query.SqlBuilder;
+
 public interface Predicate {
 
     Predicate and(Predicate other);
@@ -7,6 +9,8 @@ public interface Predicate {
     Predicate or(Predicate other);
 
     Predicate negate();
+
+    void accept(SqlBuilder sqlBuilder);
 
     static Predicate and(Predicate... predicates) {
         Predicate result = null;
