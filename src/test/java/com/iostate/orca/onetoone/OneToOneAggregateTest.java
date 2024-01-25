@@ -45,6 +45,20 @@ public class OneToOneAggregateTest extends TestBase {
         assertEquals(1, child.getInteger().intValue());
     }
 
+    @Test
+    public void testFindByChildField() {
+        ParentEntity preparedParent = prepare();
+        preparedParent.getChild().setInteger(123);
+
+        entityManager.persist(preparedParent);
+
+        ParentEntity resultParent = entityManager.findBy(ParentEntity.class, "child.integer", 123).get(0);
+        assertNotNull(resultParent.getId());
+        ChildEntity child = resultParent.getChild();
+        assertNotNull(child);
+        assertNotNull(child.getId());
+    }
+
     private ParentEntity prepare() {
         ParentEntity preparedParent = new ParentEntity();
         preparedParent.setChild(new ChildEntity());

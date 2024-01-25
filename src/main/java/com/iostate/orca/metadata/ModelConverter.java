@@ -50,10 +50,9 @@ public class ModelConverter {
                 );
                 field.createMiddleTable(metadataManager);
                 return field;
-            } else {
-                return new BelongsTo(
+            } else if (fieldDto.getColumnName() == null) {
+                return new HasOne(
                         fieldDto.getName(),
-                        fieldDto.getColumnName(),
                         sourceModel,
                         targetModelRef,
                         fieldDto.getMappedByFieldName(),
@@ -61,6 +60,17 @@ public class ModelConverter {
                         fetchType,
                         cascadeTypes
                 );
+            } else {
+                return new BelongsTo(
+                            fieldDto.getName(),
+                            fieldDto.getColumnName(),
+                            sourceModel,
+                            targetModelRef,
+                            fieldDto.getMappedByFieldName(),
+                            fieldDto.isNullable(),
+                            fetchType,
+                            cascadeTypes
+                    );
             }
         }
     }

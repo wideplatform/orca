@@ -2,7 +2,7 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
+import com.iostate.orca.metadata.cascade.HasOneCascade;
 
 public class HasOne extends AssociationField {
 
@@ -28,7 +28,7 @@ public class HasOne extends AssociationField {
 
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new SingularAssociationCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
+        return new HasOneCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
     }
 
     @Override

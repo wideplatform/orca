@@ -222,9 +222,9 @@ public class SqlHelper {
         }
     }
 
-    public List<PersistentObject> findByField(EntityModel entityModel, Field field, Object value) {
+    public List<PersistentObject> findBy(EntityModel entityModel, String objectPath, Object value) {
         QueryTree queryTree = new QueryTree(entityModel);
-        queryTree.addFilter(Predicates.equal(field.getName(), value));
+        queryTree.addFilter(Predicates.equal(objectPath, value));
         SqlObject sqlObject = queryTree.toSqlObject();
 
         try {

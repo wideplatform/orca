@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /** Entrance of object-oriented query model */
 public class QueryTree {
@@ -82,16 +83,18 @@ abstract class QueryNode {
 
     protected final void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
-            if (field.hasColumn()) {
-                if (field.isAssociation()) {
-                    AssociationField af = (AssociationField) field;
-                    if (af.getFetchType() == FetchType.EAGER) {
-                        joins.add(new QueryJoinNode(af, queryContext));
-                    }
-                } else {
-                    selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
+             if (field.isAssociation()) {
+                 if (field.hasColumn()) {
+                     // TODO belongsTo field is not filled
+                     continue;
+                 }
+                AssociationField af = (AssociationField) field;
+                if (af.getFetchType() == FetchType.EAGER) {
+                    joins.add(new QueryJoinNode(af, queryContext));
                 }
-            }
+            } else if (field.hasColumn()) {
+                 selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
+             }
         }
     }
 
@@ -111,11 +114,13 @@ abstract class QueryNode {
             throw new InvalidObjectPathException("Field " + name + " is not found in " + entityModel.getName());
         }
         if (field.isAssociation()) {
-            QueryJoinNode join = joins.stream()
+            Optional<QueryJoinNode> join = joins.stream()
                     .filter(j -> j.getAssociationField().getName().equals(name))
-                    .findFirst()
-                    .get();
-            return join.resolveObjectPath(levels.subList(1, levels.size()));
+                    .findFirst();
+            if (join.isEmpty()) {
+                throw new NullPointerException();
+            }
+            return join.get().resolveObjectPath(levels.subList(1, levels.size()));
         } else {
             return tableAlias + '.' + field.getColumnName();
         }

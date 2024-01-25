@@ -1,12 +1,13 @@
 package com.iostate.orca.sql;
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.metadata.AssociationField;
-import com.iostate.orca.metadata.Field;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.metadata.AssociationField;
+import com.iostate.orca.metadata.BelongsTo;
+import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.PluralAssociationCascade;
-import com.iostate.orca.metadata.cascade.SingularAssociationCascade;
+import com.iostate.orca.metadata.cascade.HasManyCascade;
+import com.iostate.orca.metadata.cascade.HasOneCascade;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,15 +18,16 @@ import java.util.Objects;
  * Record-style PO representation for persisting, also a tree having cascade nodes.
  */
 class PersistableRecord {
-    private final PersistentObject parent;
+    private final PersistentObject entity;
     private final EntityManager entityManager;
 
     private final LinkedHashMap<String, Object> columnValues = new LinkedHashMap<>();
-    private final Collection<SingularAssociationCascade> singularCascades = new ArrayList<>();
-    private final Collection<PluralAssociationCascade> pluralCascades = new ArrayList<>();
+
+    private final Collection<HasOneCascade> hasOneCascades = new ArrayList<>();
+    private final Collection<HasManyCascade> hasManyCascades = new ArrayList<>();
 
     PersistableRecord(Collection<Field> fields, PersistentObject entity, EntityManager entityManager) {
-        this.parent = Objects.requireNonNull(entity);
+        this.entity = Objects.requireNonNull(entity);
         this.entityManager = Objects.requireNonNull(entityManager);
         for (Field field : fields) {
             add(field, entity);
@@ -36,12 +38,12 @@ class PersistableRecord {
         if (field.isAssociation()) {
             AssociationField assoc = (AssociationField) field;
 
-            if (assoc.isInverse()) {
-                Field inverseTargetIdField = assoc.getTargetModelRef().model().getIdField();
-                Object inverseTargetEntity = field.getValue(entity);
-                if (inverseTargetEntity != null) {
-                    Object inverseTargetId = inverseTargetIdField.getValue(inverseTargetEntity);
-                    columnValues.put(field.getColumnName(), inverseTargetId);
+            if (assoc instanceof BelongsTo) {
+                Field targetIdField = assoc.getTargetModelRef().model().getIdField();
+                Object targetEntity = field.getValue(entity);
+                if (targetEntity != null) {
+                    Object targetId = targetIdField.getValue(targetEntity);
+                    columnValues.put(field.getColumnName(), targetId);
                 }
                 // Complete
                 return;
@@ -58,10 +60,10 @@ class PersistableRecord {
             }
 
             Cascade cascade = assoc.getCascade(entity);
-            if (cascade instanceof SingularAssociationCascade) {
-                singularCascades.add((SingularAssociationCascade) cascade);
-            } else if (cascade instanceof PluralAssociationCascade) {
-                pluralCascades.add((PluralAssociationCascade) cascade);
+            if (cascade instanceof HasOneCascade) {
+                hasOneCascades.add((HasOneCascade) cascade);
+            } else if (cascade instanceof HasManyCascade) {
+                hasManyCascades.add((HasManyCascade) cascade);
             }
         } else {
             columnValues.put(field.getColumnName(), field.getValue(entity));
@@ -73,20 +75,15 @@ class PersistableRecord {
     }
 
     void prePersist() {
-        singularCascades.forEach(cascade -> {
-            // persist target first
-            cascade.persist(entityManager);
-            // fill target ID into source FK column
-            columnValues.put(cascade.getField().getColumnName(), cascade.getTargetId());
-        });
     }
 
     void postPersist() {
-        singularCascades.forEach(cascade -> {
-            cascade.getInverse(entityManager).fill(parent);
+        hasOneCascades.forEach(cascade -> {
+            cascade.getInverse(entityManager).fill(entity);
+            cascade.persist(entityManager);
         });
-        pluralCascades.forEach(cascade -> {
-            cascade.getInverse(entityManager).fill(parent);
+        hasManyCascades.forEach(cascade -> {
+            cascade.getInverse(entityManager).fill(entity);
             cascade.persist(entityManager);
         });
     }
@@ -95,7 +92,7 @@ class PersistableRecord {
     }
 
     void postUpdate() {
-        singularCascades.forEach(cascade -> cascade.merge(entityManager));
-        pluralCascades.forEach(cascade -> cascade.merge(entityManager));
+        hasOneCascades.forEach(cascade -> cascade.merge(entityManager));
+        hasManyCascades.forEach(cascade -> cascade.merge(entityManager));
     }
 }

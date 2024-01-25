@@ -136,14 +136,10 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public <T> List<T> findByField(Class<T> entityClass, String fieldName, Object fieldValue) {
+    public <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue) {
         EntityModel entityModel = getEntityModel(entityClass);
-        Field field = entityModel.findFieldByName(fieldName);
-        if (field == null) {
-            throw new IllegalArgumentException(String.format("field %s is not found in class %s", fieldName, entityClass.getName()));
-        }
-
-        List<PersistentObject> pos = sqlHelper.findByField(entityModel, field, fieldValue);
+        Field field = entityModel.findFieldByName(objectPath);
+        List<PersistentObject> pos = sqlHelper.findBy(entityModel, objectPath, fieldValue);
         loadAllLazy(entityModel, pos);
         //noinspection unchecked
         return (List<T>) pos;
@@ -177,7 +173,7 @@ public class EntityManagerImpl implements EntityManager {
                             Object id = idField.getValue(po);
                             List<PersistentObject> targets;
                             if (mappedByField != null) {
-                                targets = sqlHelper.findByField(targetModel, mappedByField, id);
+                                targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
                                 for (PersistentObject target : targets) {
                                     mappedByField.setValue(target, id);
                                 }

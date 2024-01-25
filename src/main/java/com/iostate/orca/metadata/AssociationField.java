@@ -65,10 +65,6 @@ public abstract class AssociationField extends AbstractField {
 
     public abstract boolean isPlural();
 
-    public boolean isInverse() {
-        return false;
-    }
-
     @Override
     public final FieldDto toDto() {
         FieldDto dto = new FieldDto();

@@ -3,7 +3,7 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.PluralAssociationCascade;
+import com.iostate.orca.metadata.cascade.HasManyCascade;
 
 import java.util.Collection;
 
@@ -34,7 +34,7 @@ public class HasMany extends AssociationField {
     @SuppressWarnings("unchecked")
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new PluralAssociationCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
+        return new HasManyCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
     }
 
     @Override

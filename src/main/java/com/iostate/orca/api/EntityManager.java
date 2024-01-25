@@ -23,7 +23,7 @@ public interface EntityManager {
 
     PersistentObject find(EntityModel entityModel, Object id);
 
-    <T> List<T> findByField(Class<T> entityClass, String fieldName, Object fieldValue);
+    <T> List<T> findBy(Class<T> entityClass, String fieldName, Object fieldValue);
 
     <T> T fetch(Class<T> entityClass, Object id);
 

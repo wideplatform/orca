@@ -13,13 +13,13 @@ import com.iostate.orca.metadata.inverse.Inverse;
 import java.util.Collection;
 import java.util.Objects;
 
-public class PluralAssociationCascade implements Cascade {
+public class HasManyCascade implements Cascade {
 
     private final HasMany field;
     private final Collection<PersistentObject> values;
     private final CascadeConfig cascadeConfig;
 
-    public PluralAssociationCascade(
+    public HasManyCascade(
             HasMany field,
             Collection<PersistentObject> values,
             CascadeConfig cascadeConfig) {

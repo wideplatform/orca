@@ -13,13 +13,13 @@ import com.iostate.orca.metadata.inverse.VoidInverse;
 import java.util.Collections;
 import java.util.Objects;
 
-public class SingularAssociationCascade implements Cascade {
+public class HasOneCascade implements Cascade {
 
     private final AssociationField field;
     private final PersistentObject value;
     private final CascadeConfig cascadeConfig;
 
-    public SingularAssociationCascade(AssociationField field, PersistentObject value, CascadeConfig cascadeConfig) {
+    public HasOneCascade(AssociationField field, PersistentObject value, CascadeConfig cascadeConfig) {
         this.field = Objects.requireNonNull(field);
         this.value = value;
         this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
