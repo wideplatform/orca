@@ -117,7 +117,7 @@ public class EntityModelTest {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
         sourceModel.addDataField(new BelongsTo(
-                "target", "target",
+                "target", "target_id",
                 sourceModel, modelRef(targetModel), null,
                 true, FetchType.EAGER, new CascadeType[]{}
         ));

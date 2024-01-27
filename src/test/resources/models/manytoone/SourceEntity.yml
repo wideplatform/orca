@@ -13,7 +13,7 @@ dataFields:
   dataTypeName: "STRING"
   nullable: true
 - name: "target"
-  columnName: "target"
+  columnName: "target_id"
   dataTypeName: "TargetEntity"
   targetModelName: "TargetEntity"
   fetchType: "EAGER"

@@ -60,7 +60,7 @@ public class QueryTree {
 
     public String resolveObjectPath(String objectPath) {
         List<String> levels = Arrays.asList(objectPath.split("\\."));
-        return root.resolveObjectPath(levels);
+        return root.resolveObjectPath(levels, 0);
     }
 }
 
@@ -70,32 +70,48 @@ class QueryContext {
 }
 
 abstract class QueryNode {
+    private final QueryNode parentNode;
     protected final EntityModel entityModel;
     protected final String tableAlias;
     protected final List<SelectedField> selectedFields = new ArrayList<>();
     protected final List<QueryJoinNode> joins = new ArrayList<>();
+    // TODO fire additional queries to load other association fields which are not joinable
+    protected final List<QueryAddition> additions = new ArrayList<>();
 
-    protected QueryNode(EntityModel entityModel, QueryContext queryContext) {
+    protected QueryNode(QueryNode parentNode, EntityModel entityModel, QueryContext queryContext) {
+        this.parentNode = parentNode;
         this.entityModel = entityModel;
         this.tableAlias = queryContext.tableAliasGenerator.generate();
         buildSubtree(queryContext);
     }
 
-    protected final void buildSubtree(QueryContext queryContext) {
+    private void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
              if (field.isAssociation()) {
-                 if (field.hasColumn()) {
-                     // TODO belongsTo field is not filled
-                     continue;
-                 }
                 AssociationField af = (AssociationField) field;
                 if (af.getFetchType() == FetchType.EAGER) {
-                    joins.add(new QueryJoinNode(af, queryContext));
+                    if (isCircular(af)) {
+                        additions.add(new QueryAddition(this, af));
+                    } else {
+                        joins.add(new QueryJoinNode(this, af, queryContext));
+                    }
                 }
             } else if (field.hasColumn()) {
                  selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
              }
         }
+    }
+
+    private boolean isCircular(AssociationField associationField) {
+        String targetModelName = associationField.getTargetModelRef().getName();
+        QueryNode ancestor = this;
+        while (ancestor != null) {
+            if (ancestor.entityModel.getName().equals(targetModelName)) {
+                return true;
+            }
+            ancestor = ancestor.parentNode;
+        }
+        return false;
     }
 
     void buildSelectColumns(SqlBuilder sqlBuilder) {
@@ -107,22 +123,25 @@ abstract class QueryNode {
         }
     }
 
-    String resolveObjectPath(List<String> levels) {
-        String name = levels.get(0);
+    String resolveObjectPath(List<String> levels, int offset) {
+        if (offset >= levels.size()) {
+            throw InvalidObjectPathException.outOfBounds(levels, offset);
+        }
+        String name = levels.get(offset);
         Field field = entityModel.findFieldByName(name);
         if (field == null) {
-            throw new InvalidObjectPathException("Field " + name + " is not found in " + entityModel.getName());
+            throw InvalidObjectPathException.fieldNotFound(levels, name);
         }
-        if (field.isAssociation()) {
+        if (field.hasColumn()) {
+            return tableAlias + '.' + field.getColumnName();
+        } else {
             Optional<QueryJoinNode> join = joins.stream()
                     .filter(j -> j.getAssociationField().getName().equals(name))
                     .findFirst();
             if (join.isEmpty()) {
-                throw new NullPointerException();
+                throw InvalidObjectPathException.fieldNotFound(levels, name);
             }
-            return join.get().resolveObjectPath(levels.subList(1, levels.size()));
-        } else {
-            return tableAlias + '.' + field.getColumnName();
+            return join.get().resolveObjectPath(levels, offset + 1);
         }
     }
 }
@@ -132,7 +151,7 @@ class QueryRootNode extends QueryNode {
     private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
     QueryRootNode(EntityModel entityModel) {
-        super(entityModel, new QueryContext());
+        super(null, entityModel, new QueryContext());
     }
 
     void buildTableClauses(SqlBuilder sqlBuilder) {
@@ -165,8 +184,8 @@ class QueryJoinNode extends QueryNode {
     // Handle duplicate data in cartesian product
     private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
-    QueryJoinNode(AssociationField associationField, QueryContext queryContext) {
-        super(associationField.getTargetModelRef().model(), queryContext);
+    QueryJoinNode(QueryNode parentNode, AssociationField associationField, QueryContext queryContext) {
+        super(parentNode, associationField.getTargetModelRef().model(), queryContext);
         this.associationField = associationField;
     }
 
@@ -211,6 +230,17 @@ class QueryJoinNode extends QueryNode {
         for (QueryJoinNode join : joins) {
             join.buildTableClauses(sqlBuilder, tableAlias);
         }
+    }
+}
+
+// Not a node
+class QueryAddition {
+    private final QueryNode parentNode;
+    private final AssociationField associationField;
+
+    QueryAddition(QueryNode parentNode, AssociationField associationField) {
+        this.parentNode = parentNode;
+        this.associationField = associationField;
     }
 }
 

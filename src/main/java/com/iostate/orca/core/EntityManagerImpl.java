@@ -169,16 +169,18 @@ public class EntityManagerImpl implements EntityManager {
                                 a.setValue(po, targetObject);
                             }
                         } else {
-                            HasMany pa = (HasMany) a;
+                            HasMany hasMany = (HasMany) a;
                             Object id = idField.getValue(po);
                             List<PersistentObject> targets;
                             if (mappedByField != null) {
+                                // one-to-many
                                 targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
                                 for (PersistentObject target : targets) {
-                                    mappedByField.setValue(target, id);
+                                    mappedByField.setValue(target, po);
                                 }
                             } else {
-                                targets = sqlHelper.findByRelation(pa.getMiddleTable(), id);
+                                // many-to-many
+                                targets = sqlHelper.findByRelation(hasMany.getMiddleTable(), id);
                             }
                             //TODO should also load target's associations
                             a.setValue(po, targets);
