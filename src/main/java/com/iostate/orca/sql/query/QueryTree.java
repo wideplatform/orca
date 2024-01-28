@@ -219,11 +219,15 @@ class QueryJoinNode extends QueryNode {
     }
 
     void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
-        String joinCondition = associationField.hasColumn() ?
-                parentTableAlias + "." + associationField.getColumnName() + " = "
-                        + tableAlias + "." + entityModel.getIdField().getColumnName() :
-                parentTableAlias + "." + associationField.getSourceModel().getIdField().getColumnName() + " = "
-                + tableAlias + "." + entityModel.findFieldByName(associationField.getMappedByFieldName()).getColumnName();
+        String joinCondition;
+        if (associationField.hasColumn()) {
+            joinCondition = parentTableAlias + "." + associationField.getColumnName() + " = "
+                    + tableAlias + "." + entityModel.getIdField().getColumnName();
+        } else {
+            joinCondition = parentTableAlias + "." + associationField.getSourceModel().getIdField().getColumnName() + " = "
+                    + tableAlias + "." + entityModel.findFieldByName(associationField.getMappedByFieldName()).getColumnName();
+        }
+        // TODO many-to-many
         sqlBuilder.addTableClause(
                 " LEFT JOIN " + entityModel.getTableName() + " " + tableAlias +
                         " ON " + joinCondition);

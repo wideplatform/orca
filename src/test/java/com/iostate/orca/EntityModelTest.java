@@ -99,7 +99,7 @@ public class EntityModelTest {
                 new HasMany(
                         "children",
                         parentModel, modelRef(childModel), "parent",
-                        FetchType.LAZY, new CascadeType[]{CascadeType.ALL})
+                        FetchType.EAGER, new CascadeType[]{CascadeType.ALL})
         );
         childModel.addDataField(
                 new BelongsTo(

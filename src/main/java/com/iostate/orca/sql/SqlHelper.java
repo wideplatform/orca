@@ -215,7 +215,7 @@ public class SqlHelper {
             } else if (records.size() == 1) {
                 return records.get(0);
             } else {
-                throw new NonUniqueResultException(String.format("entityName: %s, id: %s", entityModel.getName(), id));
+                throw new NonUniqueResultException(entityModel.getName(), id);
             }
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);

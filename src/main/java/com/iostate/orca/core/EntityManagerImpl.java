@@ -3,10 +3,14 @@ package com.iostate.orca.core;
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.exception.NonUniqueResultException;
+import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.AssociationField;
+import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.sql.SqlHelper;
@@ -150,11 +154,8 @@ public class EntityManagerImpl implements EntityManager {
         entityModel.allFields().stream()
                 .filter(Field::isAssociation)
                 .map(field -> (AssociationField) field)
+                .filter(a -> a.getFetchType() == FetchType.LAZY)
                 .forEach(a -> {
-                    if (a.getFetchType() == FetchType.EAGER) {
-                        return;
-                    }
-
                     EntityModel targetModel = a.getTargetModelRef().model();
                     Field mappedByField = null;
                     if (a.getMappedByFieldName() != null) {
@@ -162,14 +163,23 @@ public class EntityManagerImpl implements EntityManager {
                     }
 
                     for (PersistentObject po : pos) {
-                        if (a.isSingular()) {
-                            Object raw = po.getFieldValue(a.getName());
-                            if (raw != null) {
-                                Object targetObject = find(targetModel, raw);
-                                a.setValue(po, targetObject);
+                        if (a instanceof BelongsTo) {
+                            // TODO get fkValue
+                            Object fkValue = po.getFieldValue(a.getName());
+                            if (fkValue != null) {
+                                Object target = find(targetModel, fkValue);
+                                a.setValue(po, target);
                             }
-                        } else {
-                            HasMany hasMany = (HasMany) a;
+                        } else if (a instanceof HasOne) {
+                            Object id = idField.getValue(po);
+                            List<PersistentObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
+                            if (targets.size() == 1) {
+                                a.setValue(po, targets.get(0));
+                            } else if (targets.size() > 1) {
+                                throw new NonUniqueResultException(entityModel.getName(), id);
+                            }
+                            // else: remain null if targets is empty
+                        } else if (a instanceof HasMany) {
                             Object id = idField.getValue(po);
                             List<PersistentObject> targets;
                             if (mappedByField != null) {
@@ -180,10 +190,12 @@ public class EntityManagerImpl implements EntityManager {
                                 }
                             } else {
                                 // many-to-many
-                                targets = sqlHelper.findByRelation(hasMany.getMiddleTable(), id);
+                                targets = sqlHelper.findByRelation(((HasMany) a).getMiddleTable(), id);
                             }
                             //TODO should also load target's associations
                             a.setValue(po, targets);
+                        } else {
+                            throw new PersistenceException("Unknown association type: " + a.getClass());
                         }
                     }
                 });
