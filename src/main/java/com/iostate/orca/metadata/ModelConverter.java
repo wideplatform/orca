@@ -48,7 +48,9 @@ public class ModelConverter {
                         targetModelRef, fieldDto.getMappedByFieldName(),
                         fetchType, cascadeTypes
                 );
-                field.createMiddleTable(metadataManager);
+                if (field.getMappedByFieldName() == null) {
+                    field.createMiddleTable(metadataManager);
+                }
                 return field;
             } else if (fieldDto.getColumnName() == null) {
                 return new HasOne(
@@ -66,8 +68,7 @@ public class ModelConverter {
                             fieldDto.getColumnName(),
                             sourceModel,
                             targetModelRef,
-                            fieldDto.getMappedByFieldName(),
-                            fieldDto.isNullable(),
+                        fieldDto.isNullable(),
                             fetchType,
                             cascadeTypes
                     );

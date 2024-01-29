@@ -83,7 +83,7 @@ public class EntityModelTest {
         childModel.addDataField(
                 new BelongsTo(
                         "parent", "parent_id",
-                        childModel, modelRef(parentModel), null,
+                        childModel, modelRef(parentModel),
                         false,
                         FetchType.EAGER, null)
         );
@@ -104,7 +104,7 @@ public class EntityModelTest {
         childModel.addDataField(
                 new BelongsTo(
                         "parent", "parent_id",
-                        childModel, modelRef(parentModel), "children",
+                        childModel, modelRef(parentModel),
                         false, FetchType.EAGER, null
                 )
         );
@@ -118,8 +118,8 @@ public class EntityModelTest {
         EntityModel targetModel = modelTargetEntity();
         sourceModel.addDataField(new BelongsTo(
                 "target", "target_id",
-                sourceModel, modelRef(targetModel), null,
-                true, FetchType.EAGER, new CascadeType[]{}
+                sourceModel, modelRef(targetModel),
+                true, FetchType.LAZY, new CascadeType[]{}
         ));
 
         exportCode("manytoone", sourceModel, targetModel);

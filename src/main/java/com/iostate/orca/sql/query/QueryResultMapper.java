@@ -1,6 +1,7 @@
 package com.iostate.orca.sql.query;
 
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.sql.ResultMapper;
@@ -29,9 +30,16 @@ class QueryResultMapper implements ResultMapper {
 
         for (SelectedField sf : selectedFields) {
             Field field = sf.getField();
-            Object value = TypeHandlers.INSTANCE.find(field.getDataType())
-                    .getValue(rs, sf.getIndex());
-            po.setFieldValue(field.getName(), value);
+            if (field.isAssociation()) {
+                AssociationField af = (AssociationField) field;
+                Object value = TypeHandlers.INSTANCE.find(af.getTargetModelRef().model().getIdField().getDataType())
+                        .getValue(rs, sf.getIndex());
+                po.setForeignKeyValue(af.getColumnName(), value);
+            } else {
+                Object value = TypeHandlers.INSTANCE.find(field.getDataType())
+                        .getValue(rs, sf.getIndex());
+                po.setFieldValue(field.getName(), value);
+            }
         }
 
         return po;

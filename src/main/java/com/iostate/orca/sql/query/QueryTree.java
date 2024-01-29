@@ -91,7 +91,8 @@ abstract class QueryNode {
 
     private void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
-             if (field.isAssociation()) {
+            // all eager associations
+            if (field.isAssociation()) {
                 AssociationField af = (AssociationField) field;
                 if (af.getFetchType() == FetchType.EAGER) {
                     if (isCircular(af)) {
@@ -100,9 +101,12 @@ abstract class QueryNode {
                         joins.add(new QueryJoinNode(this, af, queryContext));
                     }
                 }
-            } else if (field.hasColumn()) {
-                 selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
-             }
+            }
+
+            // SimpleField and BelongsTo
+            if (field.hasColumn()) {
+                selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
+            }
         }
     }
 

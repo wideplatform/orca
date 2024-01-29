@@ -12,9 +12,9 @@ public class BelongsTo extends AssociationField {
 
     public BelongsTo(
             String name, String columnName,
-            EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
+            EntityModel sourceModel, EntityModelRef targetModelRef,
             boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, sourceModel, targetModelRef, mappedByFieldName, isNullable, fetchType, cascadeTypes);
+        super(name, sourceModel, targetModelRef, null, isNullable, fetchType, cascadeTypes);
         this.columnName = columnName;
         this.dataType = new ReferenceDataType(targetModelRef, false);
     }

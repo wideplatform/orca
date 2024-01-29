@@ -16,7 +16,7 @@ dataFields:
   columnName: "target_id"
   dataTypeName: "TargetEntity"
   targetModelName: "TargetEntity"
-  fetchType: "EAGER"
+  fetchType: "LAZY"
   cascadeTypes: []
   nullable: true
 linkedClassName: "com.iostate.orca.manytoone.SourceEntity"

@@ -142,13 +142,13 @@ public class EntityManagerImpl implements EntityManager {
     @Override
     public <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue) {
         EntityModel entityModel = getEntityModel(entityClass);
-        Field field = entityModel.findFieldByName(objectPath);
         List<PersistentObject> pos = sqlHelper.findBy(entityModel, objectPath, fieldValue);
         loadAllLazy(entityModel, pos);
         //noinspection unchecked
         return (List<T>) pos;
     }
 
+    // TODO implement real lazy loading in generated code
     private void loadAllLazy(EntityModel entityModel, List<PersistentObject> pos) {
         Field idField = entityModel.getIdField();
         entityModel.allFields().stream()
@@ -164,8 +164,7 @@ public class EntityManagerImpl implements EntityManager {
 
                     for (PersistentObject po : pos) {
                         if (a instanceof BelongsTo) {
-                            // TODO get fkValue
-                            Object fkValue = po.getFieldValue(a.getName());
+                            Object fkValue = po.getForeignKeyValue(a.getColumnName());
                             if (fkValue != null) {
                                 Object target = find(targetModel, fkValue);
                                 a.setValue(po, target);

@@ -16,7 +16,6 @@ dataFields:
   columnName: "parent_id"
   dataTypeName: "ParentEntity"
   targetModelName: "ParentEntity"
-  mappedByFieldName: "children"
   fetchType: "EAGER"
   nullable: false
 linkedClassName: "com.iostate.orca.onetomany.ChildEntity"
