@@ -132,7 +132,7 @@ public class EntityModelTest {
         HasMany hasMany = new HasMany(
                 "targets",
                 sourceModel, modelRef(targetModel), null,
-                FetchType.LAZY, new CascadeType[]{}
+                FetchType.EAGER, new CascadeType[]{}
         );
         hasMany.createMiddleTable(metadataManager);
         sourceModel.addDataField(hasMany);

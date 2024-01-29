@@ -6,6 +6,8 @@ import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.HasMany;
+import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.query.ConcreteSqlBuilder;
 import com.iostate.orca.query.SqlBuilder;
 import com.iostate.orca.query.predicate.Predicate;
@@ -72,6 +74,7 @@ class QueryContext {
 abstract class QueryNode {
     private final QueryNode parentNode;
     protected final EntityModel entityModel;
+    protected final QueryContext queryContext;
     protected final String tableAlias;
     protected final List<SelectedField> selectedFields = new ArrayList<>();
     protected final List<QueryJoinNode> joins = new ArrayList<>();
@@ -81,6 +84,7 @@ abstract class QueryNode {
     protected QueryNode(QueryNode parentNode, EntityModel entityModel, QueryContext queryContext) {
         this.parentNode = parentNode;
         this.entityModel = entityModel;
+        this.queryContext = queryContext;
         this.tableAlias = queryContext.tableAliasGenerator.generate();
         buildSubtree(queryContext);
     }
@@ -219,21 +223,42 @@ class QueryJoinNode extends QueryNode {
     }
 
     void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
-        String joinCondition;
-        if (associationField.hasColumn()) {
-            joinCondition = parentTableAlias + "." + associationField.getColumnName() + " = "
-                    + tableAlias + "." + entityModel.getIdField().getColumnName();
+        EntityModel parentModel = associationField.getSourceModel();
+        MiddleTable middleTable;
+        if (associationField instanceof HasMany &&
+                (middleTable = ((HasMany) associationField).getMiddleTable()) != null) {
+            String middleTableAlias = queryContext.tableAliasGenerator.generate();
+            sqlBuilder.addTableClause(leftJoinClause(
+                    new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
+                    new JoinTable(middleTable.getTableName(), middleTableAlias, middleTable.getSourceIdColumnName())
+            ));
+            sqlBuilder.addTableClause(leftJoinClause(
+                    new JoinTable(middleTable.getTableName(), middleTableAlias, middleTable.getTargetIdColumnName()),
+                    new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
+            ));
         } else {
-            joinCondition = parentTableAlias + "." + associationField.getSourceModel().getIdField().getColumnName() + " = "
-                    + tableAlias + "." + entityModel.findFieldByName(associationField.getMappedByFieldName()).getColumnName();
+            if (associationField.hasColumn()) {
+                sqlBuilder.addTableClause(leftJoinClause(
+                        new JoinTable(parentModel.getTableName(), parentTableAlias, associationField.getColumnName()),
+                        new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
+                ));
+            } else {
+                Field mappedByField = entityModel.findFieldByName(associationField.getMappedByFieldName());
+                sqlBuilder.addTableClause(leftJoinClause(
+                        new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
+                        new JoinTable(entityModel.getTableName(), tableAlias, mappedByField.getColumnName())
+                ));
+            }
         }
-        // TODO many-to-many
-        sqlBuilder.addTableClause(
-                " LEFT JOIN " + entityModel.getTableName() + " " + tableAlias +
-                        " ON " + joinCondition);
+
         for (QueryJoinNode join : joins) {
             join.buildTableClauses(sqlBuilder, tableAlias);
         }
+    }
+
+    private String leftJoinClause(JoinTable src, JoinTable tgt) {
+        return " LEFT JOIN " + tgt.name + " " + tgt.alias + " ON " +
+                src.alias + "." + src.column + "=" + tgt.alias + "." + tgt.column;
     }
 }
 
@@ -267,5 +292,17 @@ class SelectedField {
             index = columnIndexGenerator.generate();
         }
         return index;
+    }
+}
+
+class JoinTable {
+    final String name;
+    final String alias;
+    final String column;
+
+    JoinTable(String name, String alias, String column) {
+        this.name = name;
+        this.alias = alias;
+        this.column = column;
     }
 }
