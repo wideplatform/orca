@@ -10,6 +10,7 @@ import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.HasMany;
@@ -180,17 +181,15 @@ public class EntityManagerImpl implements EntityManager {
                             // else: remain null if targets is empty
                         } else if (a instanceof HasMany) {
                             Object id = idField.getValue(po);
-                            List<PersistentObject> targets;
-                            if (mappedByField != null) {
-                                // one-to-many
-                                targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
-                                for (PersistentObject target : targets) {
-                                    mappedByField.setValue(target, po);
-                                }
-                            } else {
-                                // many-to-many
-                                targets = sqlHelper.findByRelation(((HasMany) a).getMiddleTable(), id);
+                            List<PersistentObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
+                            for (PersistentObject target : targets) {
+                                mappedByField.setValue(target, po);
                             }
+                            //TODO should also load target's associations
+                            a.setValue(po, targets);
+                        } else if (a instanceof HasAndBelongsToMany) {
+                            Object id = idField.getValue(po);
+                            List<PersistentObject> targets = sqlHelper.findByRelation(((HasAndBelongsToMany) a).getMiddleTable(), id);
                             //TODO should also load target's associations
                             a.setValue(po, targets);
                         } else {

@@ -15,6 +15,7 @@ dataFields:
 - name: "parent"
   columnName: "parent_id"
   dataTypeName: "ParentEntity"
+  associationType: "BelongsTo"
   targetModelName: "ParentEntity"
   fetchType: "EAGER"
   nullable: false

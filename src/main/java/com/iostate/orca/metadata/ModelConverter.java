@@ -42,17 +42,25 @@ public class ModelConverter {
                             .map(CascadeType::valueOf)
                             .toArray(CascadeType[]::new);
 
-            if (fieldDto.getDataTypeName().startsWith("<")) {
-                HasMany field = new HasMany(
+            String associationType = fieldDto.getAssociationType();
+            if ("HasMany".equals(associationType)) {
+                checkPrecondition(fieldDto.getMappedByFieldName() != null,
+                        String.format("HasMany association %s of model %s must have a mappedByField", fieldDto.getName(), sourceModel.getName()));
+                return new HasMany(
                         fieldDto.getName(), sourceModel,
                         targetModelRef, fieldDto.getMappedByFieldName(),
                         fetchType, cascadeTypes
                 );
-                if (field.getMappedByFieldName() == null) {
-                    field.createMiddleTable(metadataManager);
-                }
-                return field;
-            } else if (fieldDto.getColumnName() == null) {
+            } else if ("HasAndBelongsToMany".equals(associationType)) {
+                checkPrecondition(fieldDto.getMappedByFieldName() == null,
+                        String.format("HasAndBelongsToMany association %s of model %s must not have a mappedByField", fieldDto.getName(), sourceModel.getName()));
+                return new HasAndBelongsToMany(
+                        fieldDto.getName(), metadataManager, sourceModel,
+                        targetModelRef, fetchType, cascadeTypes
+                );
+            } else if ("HasOne".equals(associationType)) {
+                checkPrecondition(fieldDto.getColumnName() == null,
+                        String.format("HasOne association %s of model %s must not have a column", fieldDto.getName(), sourceModel.getName()));
                 return new HasOne(
                         fieldDto.getName(),
                         sourceModel,
@@ -62,17 +70,29 @@ public class ModelConverter {
                         fetchType,
                         cascadeTypes
                 );
-            } else {
+            } else if ("BelongsTo".equals(associationType)) {
+                checkPrecondition(fieldDto.getColumnName() != null,
+                        String.format("BelongsTo association %s of model %s must have a column", fieldDto.getName(), sourceModel.getName()));
                 return new BelongsTo(
-                            fieldDto.getName(),
-                            fieldDto.getColumnName(),
-                            sourceModel,
-                            targetModelRef,
+                        fieldDto.getName(),
+                        fieldDto.getColumnName(),
+                        sourceModel,
+                        targetModelRef,
                         fieldDto.isNullable(),
-                            fetchType,
-                            cascadeTypes
-                    );
+                        fetchType,
+                        cascadeTypes
+                );
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "Field %s of model %s has unknown type", fieldDto.getName(), sourceModel.getName()
+                ));
             }
+        }
+    }
+
+    private void checkPrecondition(boolean expectation, String message) {
+        if (!expectation) {
+            throw new IllegalArgumentException(message);
         }
     }
 }

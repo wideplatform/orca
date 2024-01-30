@@ -15,6 +15,7 @@ dataFields:
 - name: "target"
   columnName: "target_id"
   dataTypeName: "TargetEntity"
+  associationType: "BelongsTo"
   targetModelName: "TargetEntity"
   fetchType: "LAZY"
   cascadeTypes: []

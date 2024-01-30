@@ -69,6 +69,7 @@ public abstract class AssociationField extends AbstractField {
     public final FieldDto toDto() {
         FieldDto dto = new FieldDto();
         dto.setName(getName());
+        dto.setAssociationType(getClass().getSimpleName());
         dto.setColumnName(getColumnName());
         dto.setDataTypeName(getDataType().name());
         dto.setTargetModelName(getTargetModelRef().getName());

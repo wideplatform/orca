@@ -6,7 +6,7 @@ import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasMany;
+import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.query.ConcreteSqlBuilder;
 import com.iostate.orca.query.SqlBuilder;
@@ -91,6 +91,10 @@ abstract class QueryNode {
 
     private void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
+            // SimpleField and BelongsTo
+            if (field.hasColumn()) {
+                selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
+            }
             // all eager associations
             if (field.isAssociation()) {
                 AssociationField af = (AssociationField) field;
@@ -101,11 +105,6 @@ abstract class QueryNode {
                         joins.add(new QueryJoinNode(this, af, queryContext));
                     }
                 }
-            }
-
-            // SimpleField and BelongsTo
-            if (field.hasColumn()) {
-                selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
             }
         }
     }
@@ -124,6 +123,7 @@ abstract class QueryNode {
 
     void buildSelectColumns(SqlBuilder sqlBuilder) {
         for (SelectedField sf : selectedFields) {
+            sf.getIndex();
             sqlBuilder.addSelectColumn(tableAlias, sf.getField().getColumnName());
         }
         for (QueryJoinNode join : joins) {
@@ -204,6 +204,9 @@ class QueryJoinNode extends QueryNode {
     void mapRow(ResultSet rs, PersistentObject parent) throws SQLException {
         QueryResultMapper mapper = new QueryResultMapper(entityModel, selectedFields);
         PersistentObject po = mapper.mapRow(rs);
+        if (po == null) {
+            return;
+        }
         {
             PersistentObject prev = idsToPos.putIfAbsent(entityModel.getIdField().getValue(po), po);
             if (prev != null) {
@@ -228,9 +231,8 @@ class QueryJoinNode extends QueryNode {
 
     void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
         EntityModel parentModel = associationField.getSourceModel();
-        MiddleTable middleTable;
-        if (associationField instanceof HasMany &&
-                (middleTable = ((HasMany) associationField).getMiddleTable()) != null) {
+        if (associationField instanceof HasAndBelongsToMany) {
+            MiddleTable middleTable = ((HasAndBelongsToMany) associationField).getMiddleTable();
             String middleTableAlias = queryContext.tableAliasGenerator.generate();
             sqlBuilder.addTableClause(leftJoinClause(
                     new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
@@ -240,19 +242,17 @@ class QueryJoinNode extends QueryNode {
                     new JoinTable(middleTable.getTableName(), middleTableAlias, middleTable.getTargetIdColumnName()),
                     new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
             ));
+        } else if (associationField.hasColumn()) {
+            sqlBuilder.addTableClause(leftJoinClause(
+                    new JoinTable(parentModel.getTableName(), parentTableAlias, associationField.getColumnName()),
+                    new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
+            ));
         } else {
-            if (associationField.hasColumn()) {
-                sqlBuilder.addTableClause(leftJoinClause(
-                        new JoinTable(parentModel.getTableName(), parentTableAlias, associationField.getColumnName()),
-                        new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
-                ));
-            } else {
-                Field mappedByField = entityModel.findFieldByName(associationField.getMappedByFieldName());
-                sqlBuilder.addTableClause(leftJoinClause(
-                        new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
-                        new JoinTable(entityModel.getTableName(), tableAlias, mappedByField.getColumnName())
-                ));
-            }
+            Field mappedByField = entityModel.findFieldByName(associationField.getMappedByFieldName());
+            sqlBuilder.addTableClause(leftJoinClause(
+                    new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
+                    new JoinTable(entityModel.getTableName(), tableAlias, mappedByField.getColumnName())
+            ));
         }
 
         for (QueryJoinNode join : joins) {

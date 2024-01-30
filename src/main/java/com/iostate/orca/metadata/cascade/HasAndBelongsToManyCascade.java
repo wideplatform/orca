@@ -4,23 +4,23 @@ package com.iostate.orca.metadata.cascade;
 import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.CascadeConfig;
-import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasMany;
-import com.iostate.orca.metadata.inverse.DirectInverse;
+import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.inverse.IndirectInverse;
 import com.iostate.orca.metadata.inverse.Inverse;
 
 import java.util.Collection;
 import java.util.Objects;
 
-public class HasManyCascade implements Cascade {
+public class HasAndBelongsToManyCascade implements Cascade {
 
-    private final HasMany field;
+    private final HasAndBelongsToMany field;
     private final Collection<PersistentObject> values;
     private final CascadeConfig cascadeConfig;
 
-    public HasManyCascade(HasMany field,
-                          Collection<PersistentObject> values,
-                          CascadeConfig cascadeConfig) {
+    public HasAndBelongsToManyCascade(
+            HasAndBelongsToMany field,
+            Collection<PersistentObject> values,
+            CascadeConfig cascadeConfig) {
         this.field = Objects.requireNonNull(field);
         this.values = Objects.requireNonNull(values);
         this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
@@ -56,7 +56,6 @@ public class HasManyCascade implements Cascade {
 
     @Override
     public Inverse getInverse(EntityManager entityManager) {
-        Field mappedByField = field.getTargetModelRef().model().findFieldByName(field.getMappedByFieldName());
-        return new DirectInverse(mappedByField, values);
+        return new IndirectInverse(field.getMiddleTable(), values, entityManager);
     }
 }

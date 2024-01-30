@@ -5,6 +5,7 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.EntityModelRef;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
+import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.metadata.HasMany;
@@ -129,13 +130,12 @@ public class EntityModelTest {
     public void testManyToMany() throws IOException {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
-        HasMany hasMany = new HasMany(
-                "targets",
-                sourceModel, modelRef(targetModel), null,
+        HasAndBelongsToMany hasAndBelongsToMany = new HasAndBelongsToMany(
+                "targets", metadataManager,
+                sourceModel, modelRef(targetModel),
                 FetchType.EAGER, new CascadeType[]{}
         );
-        hasMany.createMiddleTable(metadataManager);
-        sourceModel.addDataField(hasMany);
+        sourceModel.addDataField(hasAndBelongsToMany);
 
         exportCode("manytomany", sourceModel, targetModel);
     }

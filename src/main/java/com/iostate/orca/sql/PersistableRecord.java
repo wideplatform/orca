@@ -6,8 +6,6 @@ import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.HasManyCascade;
-import com.iostate.orca.metadata.cascade.HasOneCascade;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,8 +21,7 @@ class PersistableRecord {
 
     private final LinkedHashMap<String, Object> columnValues = new LinkedHashMap<>();
 
-    private final Collection<HasOneCascade> hasOneCascades = new ArrayList<>();
-    private final Collection<HasManyCascade> hasManyCascades = new ArrayList<>();
+    private final Collection<Cascade> cascades = new ArrayList<>();
 
     PersistableRecord(Collection<Field> fields, PersistentObject entity, EntityManager entityManager) {
         this.entity = Objects.requireNonNull(entity);
@@ -59,12 +56,7 @@ class PersistableRecord {
                 );
             }
 
-            Cascade cascade = assoc.getCascade(entity);
-            if (cascade instanceof HasOneCascade) {
-                hasOneCascades.add((HasOneCascade) cascade);
-            } else if (cascade instanceof HasManyCascade) {
-                hasManyCascades.add((HasManyCascade) cascade);
-            }
+            cascades.add(assoc.getCascade(entity));
         } else {
             columnValues.put(field.getColumnName(), field.getValue(entity));
         }
@@ -78,11 +70,7 @@ class PersistableRecord {
     }
 
     void postPersist() {
-        hasOneCascades.forEach(cascade -> {
-            cascade.getInverse(entityManager).fill(entity);
-            cascade.persist(entityManager);
-        });
-        hasManyCascades.forEach(cascade -> {
+        cascades.forEach(cascade -> {
             cascade.getInverse(entityManager).fill(entity);
             cascade.persist(entityManager);
         });
@@ -92,7 +80,6 @@ class PersistableRecord {
     }
 
     void postUpdate() {
-        hasOneCascades.forEach(cascade -> cascade.merge(entityManager));
-        hasManyCascades.forEach(cascade -> cascade.merge(entityManager));
+        cascades.forEach(cascade -> cascade.merge(entityManager));
     }
 }

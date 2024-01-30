@@ -14,6 +14,7 @@ dataFields:
   nullable: true
 - name: "child"
   dataTypeName: "ChildEntity"
+  associationType: "HasOne"
   targetModelName: "ChildEntity"
   mappedByFieldName: "parent"
   fetchType: "EAGER"

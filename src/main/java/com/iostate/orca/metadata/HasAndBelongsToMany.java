@@ -3,20 +3,22 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.HasManyCascade;
+import com.iostate.orca.metadata.cascade.HasAndBelongsToManyCascade;
 
 import java.util.Collection;
 
-public class HasMany extends AssociationField {
+public class HasAndBelongsToMany extends AssociationField {
 
     private final DataType dataType;
+    private final MiddleTable middleTable;
 
-    public HasMany(
-            String name,
-            EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
+    public HasAndBelongsToMany(
+            String name, MetadataManager metadataManager,
+            EntityModel sourceModel, EntityModelRef targetModelRef,
             FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, sourceModel, targetModelRef, mappedByFieldName, false, fetchType, cascadeTypes);
+        super(name, sourceModel, targetModelRef, null, false, fetchType, cascadeTypes);
         this.dataType = new ReferenceDataType(targetModelRef, true);
+        this.middleTable = new MiddleTable(new EntityModelRef(sourceModel.getName(), metadataManager), targetModelRef);
     }
 
     @Override
@@ -32,7 +34,7 @@ public class HasMany extends AssociationField {
     @SuppressWarnings("unchecked")
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new HasManyCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
+        return new HasAndBelongsToManyCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
     }
 
     @Override
@@ -43,5 +45,9 @@ public class HasMany extends AssociationField {
     @Override
     public boolean isPlural() {
         return true;
+    }
+
+    public MiddleTable getMiddleTable() {
+        return middleTable;
     }
 }

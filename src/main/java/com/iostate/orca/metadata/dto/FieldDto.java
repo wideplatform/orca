@@ -8,6 +8,7 @@ public class FieldDto {
     private String dataTypeName;
     private boolean isNullable;
     // Association-only
+    private String associationType;
     private String targetModelName;
     private String mappedByFieldName;
     private String fetchType;
@@ -43,6 +44,14 @@ public class FieldDto {
 
     public void setNullable(boolean nullable) {
         isNullable = nullable;
+    }
+
+    public String getAssociationType() {
+        return associationType;
+    }
+
+    public void setAssociationType(String associationType) {
+        this.associationType = associationType;
     }
 
     public String getTargetModelName() {
