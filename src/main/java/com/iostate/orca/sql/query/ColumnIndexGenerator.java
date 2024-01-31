@@ -1,11 +1,21 @@
 package com.iostate.orca.sql.query;
 
-public class ColumnIndexGenerator {
+import com.iostate.orca.metadata.Field;
 
-    private int index;
+import java.util.ArrayList;
+import java.util.List;
 
-    int generate() {
-        index++;
-        return index;
+class ColumnIndexGenerator {
+
+    private List<SelectedField> selectedFields = new ArrayList<>();
+
+    SelectedField newSelectedField(Field field, String tableAlias) {
+        SelectedField sf = new SelectedField(field, tableAlias, selectedFields.size() + 1);
+        selectedFields.add(sf);
+        return sf;
+    }
+
+    public List<SelectedField> getSelectedFields() {
+        return selectedFields;
     }
 }

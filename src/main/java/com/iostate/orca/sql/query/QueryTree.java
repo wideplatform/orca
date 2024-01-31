@@ -24,10 +24,11 @@ import java.util.Optional;
 /** Entrance of object-oriented query model */
 public class QueryTree {
     private final QueryRootNode root;
+    private final QueryContext queryContext = new QueryContext();
     private final List<Predicate> filters = new ArrayList<>();
 
     public QueryTree(EntityModel entityModel) {
-        root = new QueryRootNode(entityModel);
+        root = new QueryRootNode(entityModel, queryContext);
     }
 
     public void addFilter(Predicate filter) {
@@ -37,7 +38,10 @@ public class QueryTree {
     public SqlObject toSqlObject() {
         ConcreteSqlBuilder sqlBuilder = new ConcreteSqlBuilder(this);
         sqlBuilder.addString("SELECT ");
-        root.buildSelectColumns(sqlBuilder);
+        for (SelectedField sf : queryContext.columnIndexGenerator.getSelectedFields()) {
+            sqlBuilder.addSelectColumn(sf.getTableAlias(), sf.getField().getColumnName());
+        }
+
         sqlBuilder.addString(" FROM ");
         root.buildTableClauses(sqlBuilder);
         if (filters.isEmpty()) {
@@ -93,7 +97,7 @@ abstract class QueryNode {
         for (Field field : entityModel.allFields()) {
             // SimpleField and BelongsTo
             if (field.hasColumn()) {
-                selectedFields.add(new SelectedField(field, queryContext.columnIndexGenerator));
+                selectedFields.add(queryContext.columnIndexGenerator.newSelectedField(field, tableAlias));
             }
             // all eager associations
             if (field.isAssociation()) {
@@ -119,16 +123,6 @@ abstract class QueryNode {
             ancestor = ancestor.parentNode;
         }
         return false;
-    }
-
-    void buildSelectColumns(SqlBuilder sqlBuilder) {
-        for (SelectedField sf : selectedFields) {
-            sf.getIndex();
-            sqlBuilder.addSelectColumn(tableAlias, sf.getField().getColumnName());
-        }
-        for (QueryJoinNode join : joins) {
-            join.buildSelectColumns(sqlBuilder);
-        }
     }
 
     String resolveObjectPath(List<String> levels, int offset) {
@@ -158,8 +152,8 @@ class QueryRootNode extends QueryNode {
     // Handle duplicate data in cartesian product
     private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
-    QueryRootNode(EntityModel entityModel) {
-        super(null, entityModel, new QueryContext());
+    QueryRootNode(EntityModel entityModel, QueryContext queryContext) {
+        super(null, entityModel, queryContext);
     }
 
     void buildTableClauses(SqlBuilder sqlBuilder) {
@@ -274,28 +268,6 @@ class QueryAddition {
     QueryAddition(QueryNode parentNode, AssociationField associationField) {
         this.parentNode = parentNode;
         this.associationField = associationField;
-    }
-}
-
-class SelectedField {
-    private final Field field;
-    private final ColumnIndexGenerator columnIndexGenerator;
-    private int index;
-
-    SelectedField(Field field, ColumnIndexGenerator columnIndexGenerator) {
-        this.field = field;
-        this.columnIndexGenerator = columnIndexGenerator;
-    }
-
-    public Field getField() {
-        return field;
-    }
-
-    int getIndex() {
-        if (index == 0) {
-            index = columnIndexGenerator.generate();
-        }
-        return index;
     }
 }
 
