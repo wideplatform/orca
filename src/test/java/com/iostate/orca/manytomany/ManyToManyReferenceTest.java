@@ -16,6 +16,31 @@ public class ManyToManyReferenceTest extends TestBase {
     }
 
     @Test
+    public void testCreateSourceOnly() {
+        SourceEntity source = new SourceEntity();
+
+        entityManager.persist(source);
+
+        SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
+        assertNotNull(resultSource.getId());
+        assertEquals(0, resultSource.getTargets().size());
+    }
+
+    @Test
+    public void testUpdateSourceOnly() {
+        SourceEntity source = new SourceEntity();
+        entityManager.persist(source);
+
+        source.setString("updated");
+        entityManager.update(source);
+
+        SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
+        assertNotNull(resultSource.getId());
+        assertEquals(0, resultSource.getTargets().size());
+        assertEquals("updated", resultSource.getString());
+    }
+    
+    @Test
     public void testCreateStandalone() {
         List<TargetEntity> targets = Arrays.asList(new TargetEntity(), new TargetEntity());
         targets.forEach(entityManager::persist);

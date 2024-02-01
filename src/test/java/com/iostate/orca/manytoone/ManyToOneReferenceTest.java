@@ -13,6 +13,31 @@ public class ManyToOneReferenceTest extends TestBase {
     }
 
     @Test
+    public void testCreateSourceOnly() {
+        SourceEntity source = new SourceEntity();
+
+        entityManager.persist(source);
+
+        SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
+        assertNotNull(resultSource.getId());
+        assertNull(resultSource.getTarget());
+    }
+
+    @Test
+    public void testUpdateSourceOnly() {
+        SourceEntity source = new SourceEntity();
+        entityManager.persist(source);
+
+        source.setString("updated");
+        entityManager.update(source);
+
+        SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
+        assertNotNull(resultSource.getId());
+        assertNull(resultSource.getTarget());
+        assertEquals("updated", resultSource.getString());
+    }
+
+    @Test
     public void testCreateStandalone() {
         TargetEntity target = new TargetEntity();
         entityManager.persist(target);

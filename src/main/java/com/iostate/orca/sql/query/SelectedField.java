@@ -3,6 +3,7 @@ package com.iostate.orca.sql.query;
 import com.iostate.orca.metadata.Field;
 
 class SelectedField {
+
     private final Field field;
     private final String tableAlias;
     private final int index;
@@ -13,11 +14,11 @@ class SelectedField {
         this.index = index;
     }
 
-    public Field getField() {
+     Field getField() {
         return field;
     }
 
-    public String getTableAlias() {
+     String getTableAlias() {
         return tableAlias;
     }
 

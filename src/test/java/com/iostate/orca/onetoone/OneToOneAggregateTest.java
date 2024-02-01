@@ -13,6 +13,34 @@ public class OneToOneAggregateTest extends TestBase {
     }
 
     @Test
+    public void testCreateParentOnly() {
+        ParentEntity preparedParent = new ParentEntity();
+
+        entityManager.persist(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        ChildEntity child = resultParent.getChild();
+        assertNull(child);
+    }
+
+    @Test
+    public void testUpdateParentOnly() {
+        ParentEntity preparedParent = new ParentEntity();
+        entityManager.persist(preparedParent);
+
+        preparedParent.setString("updated");
+
+        entityManager.update(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        ChildEntity child = resultParent.getChild();
+        assertNull(child);
+        assertEquals("updated", resultParent.getString());
+    }
+
+    @Test
     public void testCreateAll() {
         ParentEntity preparedParent = prepare();
 
@@ -40,7 +68,6 @@ public class OneToOneAggregateTest extends TestBase {
         ChildEntity child = resultParent.getChild();
         assertNotNull(child);
         assertNotNull(child.getId());
-
         assertEquals("updated", resultParent.getString());
         assertEquals(1, child.getInteger().intValue());
     }

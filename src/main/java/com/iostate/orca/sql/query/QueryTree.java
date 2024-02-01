@@ -80,10 +80,11 @@ abstract class QueryNode {
     protected final EntityModel entityModel;
     protected final QueryContext queryContext;
     protected final String tableAlias;
-    protected final List<SelectedField> selectedFields = new ArrayList<>();
+    protected final FieldSelection fieldSelection = new FieldSelection();
     protected final List<QueryJoinNode> joins = new ArrayList<>();
     // TODO fire additional queries to load other association fields which are not joinable
     protected final List<QueryAddition> additions = new ArrayList<>();
+    protected final QueryResultMapper mapper;
 
     protected QueryNode(QueryNode parentNode, EntityModel entityModel, QueryContext queryContext) {
         this.parentNode = parentNode;
@@ -91,13 +92,14 @@ abstract class QueryNode {
         this.queryContext = queryContext;
         this.tableAlias = queryContext.tableAliasGenerator.generate();
         buildSubtree(queryContext);
+        this.mapper = new QueryResultMapper(entityModel, fieldSelection);
     }
 
     private void buildSubtree(QueryContext queryContext) {
         for (Field field : entityModel.allFields()) {
             // SimpleField and BelongsTo
             if (field.hasColumn()) {
-                selectedFields.add(queryContext.columnIndexGenerator.newSelectedField(field, tableAlias));
+                fieldSelection.add(queryContext.columnIndexGenerator.newSelectedField(field, tableAlias));
             }
             // all eager associations
             if (field.isAssociation()) {
@@ -164,15 +166,17 @@ class QueryRootNode extends QueryNode {
     }
 
     List<PersistentObject> mapRows(ResultSet rs) throws SQLException {
-        QueryResultMapper mapper = new QueryResultMapper(entityModel, selectedFields);
         while (rs.next()) {
-            PersistentObject po = mapper.mapRow(rs);
-            {
-                PersistentObject prev = idsToPos.putIfAbsent(entityModel.getIdField().getValue(po), po);
-                if (prev != null) {
-                    po = prev;
-                }
+            Object id = mapper.getId(rs);
+            PersistentObject prev = idsToPos.get(id);
+            PersistentObject po;
+            if (prev != null) {
+                po = prev;
+            } else {
+                po = mapper.mapRow(rs);
+                idsToPos.put(id, po);
             }
+
             for (QueryJoinNode join : joins) {
                 join.mapRow(rs, po);
             }
@@ -196,27 +200,30 @@ class QueryJoinNode extends QueryNode {
     }
 
     void mapRow(ResultSet rs, PersistentObject parent) throws SQLException {
-        QueryResultMapper mapper = new QueryResultMapper(entityModel, selectedFields);
-        PersistentObject po = mapper.mapRow(rs);
-        if (po == null) {
+        Object id = mapper.getId(rs);
+        if (!mapper.isValidId(id)) {
+            // Skip empty sub-record in left join
             return;
         }
-        {
-            PersistentObject prev = idsToPos.putIfAbsent(entityModel.getIdField().getValue(po), po);
-            if (prev != null) {
-                po = prev;
-            } else {
-                if (associationField.isSingular()) {
-                    associationField.setValue(parent, po);
-                } else {
-                    List<PersistentObject> list = (List<PersistentObject>) associationField.getValue(parent);
-                    if (list == null) {
-                        list = new ArrayList<>();
-                        associationField.setValue(parent, list);
-                    }
-                    list.add(po);
-                }
+
+        PersistentObject prev = idsToPos.get(id);
+        PersistentObject po;
+        if (prev != null) {
+            po = prev;
+        } else {
+            po = mapper.mapRow(rs);
+            idsToPos.put(id, po);
+        }
+
+        if (associationField.isSingular()) {
+            associationField.setValue(parent, po);
+        } else {
+            List<PersistentObject> list = (List<PersistentObject>) associationField.getValue(parent);
+            if (list == null) {
+                list = new ArrayList<>();
+                associationField.setValue(parent, list);
             }
+            list.add(po);
         }
         for (QueryJoinNode join : joins) {
             join.mapRow(rs, po);

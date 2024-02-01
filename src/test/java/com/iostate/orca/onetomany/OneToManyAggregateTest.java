@@ -13,6 +13,32 @@ public class OneToManyAggregateTest extends TestBase {
     }
 
     @Test
+    public void testCreateParentOnly() {
+        ParentEntity preparedParent = new ParentEntity();
+
+        entityManager.persist(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        assertEquals(0, resultParent.getChildren().size());
+    }
+
+    @Test
+    public void testUpdateParentOnly() {
+        ParentEntity preparedParent = new ParentEntity();
+        entityManager.persist(preparedParent);
+
+        preparedParent.setString("updated");
+
+        entityManager.update(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        assertEquals(0, resultParent.getChildren().size());
+        assertEquals("updated", resultParent.getString());
+    }
+
+    @Test
     public void testCreateAll() {
         ParentEntity preparedParent = prepare();
 
