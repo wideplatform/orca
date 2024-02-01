@@ -6,6 +6,7 @@ import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
 import com.iostate.orca.api.exception.PersistenceException;
+import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
@@ -169,17 +170,43 @@ public class SqlHelper {
         return new PersistableRecord(fields, po, entityManager);
     }
 
-    public void delete(EntityModel entityModel, Object id) {
+    public void deleteEntity(EntityModel entityModel, Object entity) {
+        Object id = entityModel.getIdField().getValue(entity);
+        if (shouldCascadeOnEntityDelete(entityModel)) {
+            PersistableRecord record = extractDataToUpdate(entityModel, (PersistentObject) entity);
+            record.preDelete();
+            sqlDelete(entityModel, id);
+            record.postDelete();
+        } else {
+            sqlDelete(entityModel, id);
+        }
+    }
+
+    public void deleteById(EntityModel entityModel, Object id) {
+        if (shouldCascadeOnEntityDelete(entityModel)) {
+            PersistentObject po = findById(entityModel, id);
+            PersistableRecord record = extractDataToUpdate(entityModel, po);
+            record.preDelete();
+            sqlDelete(entityModel, id);
+            record.postDelete();
+        } else {
+            sqlDelete(entityModel, id);
+        }
+    }
+
+    private void sqlDelete(EntityModel entityModel, Object id) {
         String sql = String.format("DELETE FROM %s WHERE %s = ?",
                 entityModel.getTableName(), entityModel.getIdField().getColumnName());
-
         try {
             executeDML(sql, new Object[]{id});
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_REMOVE, e);
         }
+    }
 
-        //TODO cascade delete
+    private static boolean shouldCascadeOnEntityDelete(EntityModel entityModel) {
+        return entityModel.getDataFields().stream()
+                .anyMatch(f -> f instanceof AssociationField && ((AssociationField) f).cascadeConfig().isRemove());
     }
 
     public int executeDML(String sql, Object[] args) throws SQLException {

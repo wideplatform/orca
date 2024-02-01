@@ -82,4 +82,11 @@ class PersistableRecord {
     void postUpdate() {
         cascades.forEach(cascade -> cascade.merge(entityManager));
     }
+
+    public void preDelete() {
+        cascades.forEach(cascade -> cascade.remove(entityManager));
+    }
+
+    public void postDelete() {
+    }
 }

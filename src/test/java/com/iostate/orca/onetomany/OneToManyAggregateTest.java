@@ -3,6 +3,8 @@ package com.iostate.orca.onetomany;
 import com.iostate.orca.TestBase;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.IntSupplier;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OneToManyAggregateTest extends TestBase {
@@ -77,6 +79,22 @@ public class OneToManyAggregateTest extends TestBase {
         assertEquals("updated", resultParent.getString());
         assertEquals(1, child1.getInteger());
         assertEquals(2, child2.getInteger());
+    }
+
+    @Test
+    public void testDeleteAll() {
+        ParentEntity preparedParent = prepare();
+        entityManager.persist(preparedParent);
+        IntSupplier childrenCount = () -> entityManager.findBy(
+                ChildEntity.class, "parent.id", preparedParent.getId()
+        ).size();
+        assertEquals(2, childrenCount.getAsInt());
+
+        entityManager.remove(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNull(resultParent);
+        assertEquals(0, childrenCount.getAsInt());
     }
 
     private ParentEntity prepare() {

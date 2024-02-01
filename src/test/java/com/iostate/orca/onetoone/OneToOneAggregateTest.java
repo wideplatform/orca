@@ -3,6 +3,8 @@ package com.iostate.orca.onetoone;
 import com.iostate.orca.TestBase;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.IntSupplier;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OneToOneAggregateTest extends TestBase {
@@ -70,6 +72,22 @@ public class OneToOneAggregateTest extends TestBase {
         assertNotNull(child.getId());
         assertEquals("updated", resultParent.getString());
         assertEquals(1, child.getInteger().intValue());
+    }
+
+    @Test
+    public void testDeleteAll() {
+        ParentEntity preparedParent = prepare();
+        entityManager.persist(preparedParent);
+        IntSupplier childrenCount = () -> entityManager.findBy(
+                ChildEntity.class, "parent.id", preparedParent.getId()
+        ).size();
+        assertEquals(1, childrenCount.getAsInt());
+
+        entityManager.remove(preparedParent);
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNull(resultParent);
+        assertEquals(0, childrenCount.getAsInt());
     }
 
     @Test

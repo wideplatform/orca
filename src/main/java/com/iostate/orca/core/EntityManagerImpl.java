@@ -85,14 +85,16 @@ public class EntityManagerImpl implements EntityManager {
         }
 
         EntityModel entityModel = getEntityModel(entityClass);
-        sqlHelper.delete(entityModel, id);
+        sqlHelper.deleteById(entityModel, id);
     }
 
     @Override
     public void remove(Object entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("entity is null");
+        }
         EntityModel entityModel = getEntityModel(entity.getClass());
-        Object id = entityModel.getIdField().getValue(entity);
-        sqlHelper.delete(entityModel, id);
+        sqlHelper.deleteEntity(entityModel, entity);
     }
 
     @Override
