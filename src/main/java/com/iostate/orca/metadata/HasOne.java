@@ -28,7 +28,7 @@ public class HasOne extends AssociationField {
 
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new HasOneCascade(this, (PersistentObject) getValue(entity), cascadeConfig());
+        return new HasOneCascade(this, entity, cascadeConfig());
     }
 
     @Override

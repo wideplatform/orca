@@ -59,13 +59,13 @@ public class ManyToManyReferenceTest extends TestBase {
 
     @Test
     public void testCreateStandaloneWithInvalidReferenceFails() {
-        List<TargetEntity> targets = Arrays.asList(
-                new TargetEntity(), new TargetEntity());
+        List<TargetEntity> targets = Arrays.asList(new TargetEntity(), new TargetEntity());
 
         SourceEntity source = new SourceEntity();
         source.setTargets(targets);
 
-        assertThrows(PersistenceException.class, () -> entityManager.persist(source));
+        String message = assertThrows(PersistenceException.class, () -> entityManager.persist(source)).getMessage();
+        assertEquals("Failed to relate non-persisted TargetEntity to SourceEntity without cascading", message);
     }
 
     @Test

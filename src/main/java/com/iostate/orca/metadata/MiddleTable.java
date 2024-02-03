@@ -1,9 +1,8 @@
 package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.api.PersistentObject;
-import com.iostate.orca.sql.SqlHelper;
+import com.iostate.orca.api.exception.PersistenceException;
 
 import java.sql.SQLException;
 
@@ -43,8 +42,6 @@ public class MiddleTable {
     }
 
     public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
-        //TODO check existence
-        String sql = "INSERT INTO " + getTableName() + "(source_id, target_id) VALUES(?,?)";
         Object sourceId = sourceModelRef.model().getIdField().getValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to insert a relationship, sourceId is null");
@@ -53,17 +50,31 @@ public class MiddleTable {
         if (targetId == null) {
             throw new PersistenceException("Failed to insert a relationship, targetId is null");
         }
+        Object[] args = {sourceId, targetId};
+
+        String select = "SELECT count(1) FROM " + getTableName() + " WHERE source_id = ? AND target_id = ?";
         try {
-            entityManager.executeDML(sql, new Object[]{sourceId, targetId});
+            long count = entityManager.getSqlHelper().executeCount(select, args);
+            if (count > 0) {
+                return;
+            }
         } catch (SQLException e) {
             throw new PersistenceException(
-                    String.format("Failed to delete the relationship (sourceId=%s, targetId=%s)", sourceId, targetId),
+                    String.format("Failed to query the relationship (sourceId=%s, targetId=%s)", sourceId, targetId),
+                    e);
+        }
+
+        String insert = "INSERT INTO " + getTableName() + "(source_id, target_id) VALUES(?,?)";
+        try {
+            entityManager.getSqlHelper().executeDML(insert, args);
+        } catch (SQLException e) {
+            throw new PersistenceException(
+                    String.format("Failed to insert the relationship (sourceId=%s, targetId=%s)", sourceId, targetId),
                     e);
         }
     }
 
-    public void remove(PersistentObject source, PersistentObject target, SqlHelper sqlHelper) {
-        String sql = "DELETE FROM " + getTableName() + " WHERE source_id = ? AND target_id = ?";
+    public void remove(PersistentObject source, PersistentObject target, EntityManager entityManager) {
         Object sourceId = sourceModelRef.model().getIdField().getValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to delete a relationship, sourceId is null");
@@ -72,8 +83,9 @@ public class MiddleTable {
         if (targetId == null) {
             throw new PersistenceException("Failed to delete a relationship, targetId is null");
         }
+        String sql = "DELETE FROM " + getTableName() + " WHERE source_id = ? AND target_id = ?";
         try {
-            sqlHelper.executeDML(sql, new Object[]{sourceId, targetId});
+            entityManager.getSqlHelper().executeDML(sql, new Object[]{sourceId, targetId});
         } catch (SQLException e) {
             throw new PersistenceException(
                     String.format("Failed to delete the relationship (sourceId=%s, targetId=%s)", sourceId, targetId),

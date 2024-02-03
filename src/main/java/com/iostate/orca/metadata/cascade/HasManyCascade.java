@@ -6,8 +6,6 @@ import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasMany;
-import com.iostate.orca.metadata.inverse.DirectInverse;
-import com.iostate.orca.metadata.inverse.Inverse;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -15,48 +13,47 @@ import java.util.Objects;
 public class HasManyCascade implements Cascade {
 
     private final HasMany field;
-    private final Collection<PersistentObject> values;
+    private final PersistentObject source;
+    private final Collection<PersistentObject> targets;
     private final CascadeConfig cascadeConfig;
 
     public HasManyCascade(HasMany field,
-                          Collection<PersistentObject> values,
+                          PersistentObject source,
                           CascadeConfig cascadeConfig) {
         this.field = Objects.requireNonNull(field);
-        this.values = Objects.requireNonNull(values);
+        this.source = Objects.requireNonNull(source);
+        //noinspection unchecked
+        this.targets = (Collection<PersistentObject>) field.getValue(source);
         this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
     }
 
     @Override
     public void persist(EntityManager entityManager) {
-        if (cascadeConfig.isPersist() && values != null) {
-            for (Object value : values) {
+        if (targets != null && cascadeConfig.isPersist()) {
+            Field mappedByField = field.getMappedByField();
+            for (Object target : targets) {
+                mappedByField.setValue(target, source);
                 // Should use merge?
-                entityManager.merge(value);
+                entityManager.merge(target);
             }
         }
     }
 
     @Override
     public void merge(EntityManager entityManager) {
-        if (cascadeConfig.isMerge() && values != null) {
-            for (Object value : values) {
-                entityManager.merge(value);
+        if (targets != null && cascadeConfig.isMerge()) {
+            for (Object target : targets) {
+                entityManager.merge(target);
             }
         }
     }
 
     @Override
     public void remove(EntityManager entityManager) {
-        if (cascadeConfig.isRemove() && values != null) {
-            for (Object value : values) {
-                entityManager.remove(value);
+        if (targets != null && cascadeConfig.isRemove()) {
+            for (Object target : targets) {
+                entityManager.remove(target);
             }
         }
-    }
-
-    @Override
-    public Inverse getInverse(EntityManager entityManager) {
-        Field mappedByField = field.getTargetModelRef().model().findFieldByName(field.getMappedByFieldName());
-        return new DirectInverse(mappedByField, values);
     }
 }

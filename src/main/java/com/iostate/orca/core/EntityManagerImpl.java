@@ -11,13 +11,12 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.sql.SqlHelper;
 
 import javax.persistence.EntityNotFoundException;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -212,8 +211,8 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public int executeDML(String sql, Object[] args) throws SQLException {
-        return sqlHelper.executeDML(sql, args);
+    public SqlHelper getSqlHelper() {
+        return sqlHelper;
     }
 
     private EntityModel getEntityModel(Class<?> entityClass) {

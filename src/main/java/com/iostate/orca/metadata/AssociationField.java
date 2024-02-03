@@ -16,7 +16,7 @@ public abstract class AssociationField extends AbstractField {
     private final FetchType fetchType;
     private final CascadeType[] cascadeTypes;
 
-    private final transient CascadeConfig cascadeConfig;
+    private final CascadeConfig cascadeConfig;
 
     public AssociationField(String name, EntityModel sourceModel,
                             EntityModelRef targetModelRef, String mappedByFieldName,
@@ -64,6 +64,10 @@ public abstract class AssociationField extends AbstractField {
     public abstract boolean isSingular();
 
     public abstract boolean isPlural();
+
+    public Field getMappedByField() {
+        return targetModelRef.model().findFieldByName(mappedByFieldName);
+    }
 
     @Override
     public final FieldDto toDto() {

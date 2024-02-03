@@ -70,10 +70,7 @@ class PersistableRecord {
     }
 
     void postPersist() {
-        cascades.forEach(cascade -> {
-            cascade.getInverse(entityManager).fill(entity);
-            cascade.persist(entityManager);
-        });
+        cascades.forEach(cascade -> cascade.persist(entityManager));
     }
 
     void preUpdate() {

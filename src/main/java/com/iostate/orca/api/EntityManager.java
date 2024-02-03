@@ -1,8 +1,8 @@
 package com.iostate.orca.api;
 
 import com.iostate.orca.metadata.EntityModel;
+import com.iostate.orca.sql.SqlHelper;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface EntityManager {
@@ -29,5 +29,5 @@ public interface EntityManager {
 
     <T> T ref(Class<T> entityClass, Object id);
 
-    int executeDML(String sql, Object[] args) throws SQLException;
+    SqlHelper getSqlHelper();
 }

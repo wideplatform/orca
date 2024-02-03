@@ -5,8 +5,6 @@ import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.cascade.Cascade;
 import com.iostate.orca.metadata.cascade.HasManyCascade;
 
-import java.util.Collection;
-
 public class HasMany extends AssociationField {
 
     private final DataType dataType;
@@ -29,10 +27,9 @@ public class HasMany extends AssociationField {
         return dataType;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Cascade getCascade(PersistentObject entity) {
-        return new HasManyCascade(this, (Collection<PersistentObject>) getValue(entity), cascadeConfig());
+        return new HasManyCascade(this, entity, cascadeConfig());
     }
 
     @Override
