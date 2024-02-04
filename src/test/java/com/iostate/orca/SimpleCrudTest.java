@@ -36,7 +36,8 @@ public class SimpleCrudTest extends TestBase {
 
     @Test
     public void testCreateNullFails() {
-        assertThrows(IllegalArgumentException.class, () -> entityManager.persist(null));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> entityManager.persist(null));
+        assertEquals("entity is null", e.getMessage());
     }
 
     @Test
@@ -44,7 +45,8 @@ public class SimpleCrudTest extends TestBase {
         SimpleEntity entity = new SimpleEntity();
 
         entityManager.persist(entity);
-        assertThrows(IllegalStateException.class, () -> entityManager.persist(entity));
+        Exception e = assertThrows(IllegalStateException.class, () -> entityManager.persist(entity));
+        assertEquals("entity is already persisted thus unable to persist", e.getMessage());
     }
 
     @Test
@@ -58,7 +60,8 @@ public class SimpleCrudTest extends TestBase {
 
     @Test
     public void testRetrieveNullFails() {
-        assertThrows(IllegalArgumentException.class, () -> entityManager.find(SimpleEntity.class, null));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> entityManager.find(SimpleEntity.class, null));
+        assertEquals("id is null", e.getMessage());
     }
 
     @Test
@@ -78,7 +81,8 @@ public class SimpleCrudTest extends TestBase {
 
     @Test
     public void testUpdateNullFails() {
-        assertThrows(IllegalArgumentException.class, () -> entityManager.update(null));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> entityManager.update(null));
+        assertEquals("entity is null", e.getMessage());
     }
 
     @Test
@@ -86,7 +90,8 @@ public class SimpleCrudTest extends TestBase {
         SimpleEntity entity = new SimpleEntity();
         entity.setId(1L);
 
-        assertThrows(IllegalStateException.class, () -> entityManager.update(entity));
+        Exception e = assertThrows(IllegalStateException.class, () -> entityManager.update(entity));
+        assertEquals("entity is not persisted thus unable to update", e.getMessage());
     }
 
     @Test
@@ -128,7 +133,8 @@ public class SimpleCrudTest extends TestBase {
 
     @Test
     public void testRemoveNullFails() {
-        assertThrows(IllegalArgumentException.class, () -> entityManager.remove(SimpleEntity.class, null));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> entityManager.remove(SimpleEntity.class, null));
+        assertEquals("id is null", e.getMessage());
     }
 
     private SimpleEntity prepare() {

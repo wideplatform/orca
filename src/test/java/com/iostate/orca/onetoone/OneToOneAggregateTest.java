@@ -37,13 +37,13 @@ public class OneToOneAggregateTest extends TestBase {
 
         ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
         assertNotNull(resultParent.getId());
+        assertEquals("updated", resultParent.getString());
         ChildEntity child = resultParent.getChild();
         assertNull(child);
-        assertEquals("updated", resultParent.getString());
     }
 
     @Test
-    public void testCreateAll() {
+    public void testCreateParentShouldCascade() {
         ParentEntity preparedParent = prepare();
 
         entityManager.persist(preparedParent);
@@ -56,7 +56,7 @@ public class OneToOneAggregateTest extends TestBase {
     }
 
     @Test
-    public void testUpdateAll() {
+    public void testUpdateParentShouldCascade() {
         ParentEntity preparedParent = prepare();
         entityManager.persist(preparedParent);
 
@@ -67,15 +67,14 @@ public class OneToOneAggregateTest extends TestBase {
 
         ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
         assertNotNull(resultParent.getId());
-        ChildEntity child = resultParent.getChild();
-        assertNotNull(child);
-        assertNotNull(child.getId());
         assertEquals("updated", resultParent.getString());
+        ChildEntity child = resultParent.getChild();
+        assertNotNull(child.getId());
         assertEquals(1, child.getInteger().intValue());
     }
 
     @Test
-    public void testDeleteAll() {
+    public void testDeleteParentShouldCascade() {
         ParentEntity preparedParent = prepare();
         entityManager.persist(preparedParent);
         IntSupplier childrenCount = () -> entityManager.findBy(
@@ -88,6 +87,39 @@ public class OneToOneAggregateTest extends TestBase {
         ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
         assertNull(resultParent);
         assertEquals(0, childrenCount.getAsInt());
+    }
+
+    @Test
+    public void testUpdateChildShouldNotCascade() {
+        ParentEntity preparedParent = prepare();
+        entityManager.persist(preparedParent);
+
+        preparedParent.setString("updated");
+        preparedParent.getChild().setInteger(1);
+
+        entityManager.update(preparedParent.getChild());
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        // Not updated
+        assertNull(resultParent.getString());
+        ChildEntity child = resultParent.getChild();
+        assertNotNull(child.getId());
+        // Updated
+        assertEquals(1, child.getInteger().intValue());
+    }
+
+    @Test
+    public void testDeleteChildShouldNotCascade() {
+        ParentEntity preparedParent = prepare();
+        entityManager.persist(preparedParent);
+
+        entityManager.remove(preparedParent.getChild());
+
+        ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
+        assertNotNull(resultParent.getId());
+        ChildEntity child = resultParent.getChild();
+        assertNull(child);
     }
 
     @Test

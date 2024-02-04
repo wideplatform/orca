@@ -41,7 +41,7 @@ public class OneToManyAggregateTest extends TestBase {
     }
 
     @Test
-    public void testCreateAll() {
+    public void testCreateParentShouldCascade() {
         ParentEntity preparedParent = prepare();
 
         entityManager.persist(preparedParent);
@@ -57,7 +57,7 @@ public class OneToManyAggregateTest extends TestBase {
     }
 
     @Test
-    public void testUpdateAll() {
+    public void testUpdateParentShouldCascade() {
         ParentEntity preparedParent = prepare();
         entityManager.persist(preparedParent);
 
@@ -82,7 +82,7 @@ public class OneToManyAggregateTest extends TestBase {
     }
 
     @Test
-    public void testDeleteAll() {
+    public void testDeleteParentShouldCascade() {
         ParentEntity preparedParent = prepare();
         entityManager.persist(preparedParent);
         IntSupplier childrenCount = () -> entityManager.findBy(
