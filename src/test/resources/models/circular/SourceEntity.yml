@@ -1,0 +1,21 @@
+---
+name: "SourceEntity"
+tableName: "source_entity"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "string"
+  columnName: "string"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "targets"
+  dataTypeName: "<TargetEntity>"
+  associationType: "HasAndBelongsToMany"
+  targetModelName: "TargetEntity"
+  fetchType: "EAGER"
+  nullable: false
+linkedClassName: "com.iostate.orca.circular.SourceEntity"

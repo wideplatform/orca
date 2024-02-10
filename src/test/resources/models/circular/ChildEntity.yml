@@ -1,0 +1,24 @@
+---
+name: "ChildEntity"
+tableName: "child_entity"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "integer"
+  columnName: "integer"
+  dataTypeName: "INT"
+  nullable: true
+- name: "parent"
+  columnName: "parent_id"
+  dataTypeName: "ParentEntity"
+  associationType: "BelongsTo"
+  targetModelName: "ParentEntity"
+  fetchType: "EAGER"
+  cascadeTypes:
+  - "ALL"
+  nullable: false
+linkedClassName: "com.iostate.orca.circular.ChildEntity"

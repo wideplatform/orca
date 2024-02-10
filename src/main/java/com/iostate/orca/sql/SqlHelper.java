@@ -12,7 +12,6 @@ import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.query.predicate.Predicates;
 import com.iostate.orca.sql.query.QueryTree;
-import com.iostate.orca.sql.query.SqlObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -229,14 +228,9 @@ public class SqlHelper {
     public PersistentObject findById(EntityModel entityModel, Object id) {
         QueryTree queryTree = new QueryTree(entityModel);
         queryTree.addFilter(Predicates.equal("id", id));
-        SqlObject sqlObject = queryTree.toSqlObject();
 
-        try {
-            List<PersistentObject> records = query(
-                    sqlObject.getSql(),
-                    sqlObject.getArguments(),
-                    queryTree
-            );
+        try{
+            List<PersistentObject> records = queryTree.execute(connection());
             if (records.isEmpty()) {
                 return null;
             } else if (records.size() == 1) {
@@ -252,14 +246,9 @@ public class SqlHelper {
     public List<PersistentObject> findBy(EntityModel entityModel, String objectPath, Object value) {
         QueryTree queryTree = new QueryTree(entityModel);
         queryTree.addFilter(Predicates.equal(objectPath, value));
-        SqlObject sqlObject = queryTree.toSqlObject();
 
         try {
-            return query(
-                    sqlObject.getSql(),
-                    sqlObject.getArguments(),
-                    queryTree
-            );
+            return queryTree.execute(connection());
         } catch (SQLException e) {
             throw new PersistenceException(FAIL_FIND, e);
         }
@@ -312,26 +301,6 @@ public class SqlHelper {
         }
     }
 
-    private List<PersistentObject> query(
-            String sql, Object[] args, QueryTree queryTree) throws SQLException {
-        if (sql == null) {
-            throw new IllegalArgumentException("sql is null");
-        }
-
-        try (PreparedStatement ps = connection().prepareStatement(sql)) {
-            if (args != null) {
-                for (int i = 0; i < args.length; i++) {
-                    ps.setObject(i + 1, args[i]);
-                }
-            }
-
-            logSql(sql, args);
-            try (ResultSet rs = ps.executeQuery()) {
-                return queryTree.mapRows(rs);
-            }
-        }
-    }
-
     public long executeCount(String sql, Object[] args) throws SQLException {
         if (sql == null) {
             throw new IllegalArgumentException("sql is null");
@@ -354,6 +323,7 @@ public class SqlHelper {
         }
     }
 
+    // TODO connection management
     private Connection connection() {
         try {
             return connectionProvider.getConnection();

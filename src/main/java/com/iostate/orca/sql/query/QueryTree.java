@@ -11,28 +11,41 @@ import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.query.ConcreteSqlBuilder;
 import com.iostate.orca.query.SqlBuilder;
 import com.iostate.orca.query.predicate.Predicate;
+import com.iostate.orca.query.predicate.Predicates;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-/** Entrance of object-oriented query model */
+/**
+ * Entrance of object-oriented query model
+ */
 public class QueryTree {
+    private final QueryContext queryContext;
     private final QueryRootNode root;
-    private final QueryContext queryContext = new QueryContext();
     private final List<Predicate> filters = new ArrayList<>();
 
     public QueryTree(EntityModel entityModel) {
+        this(entityModel, new CacheContext());
+    }
+
+    public QueryTree(EntityModel entityModel, CacheContext cacheContext) {
+        queryContext = new QueryContext(cacheContext);
         root = new QueryRootNode(entityModel, queryContext);
     }
 
-    public void addFilter(Predicate filter) {
+    public QueryTree addFilter(Predicate filter) {
         filters.add(filter);
+        return this;
     }
 
     public SqlObject toSqlObject() {
@@ -60,8 +73,30 @@ public class QueryTree {
         return new SqlObject(sqlBuilder.toSql(), sqlBuilder.getArguments().toArray());
     }
 
-    public List<PersistentObject> mapRows(ResultSet rs) throws SQLException {
-        return root.mapRows(rs);
+    public List<PersistentObject> execute(Connection connection) throws SQLException {
+        SqlObject sqlObject = toSqlObject();
+        String sql = sqlObject.getSql();
+        Object[] args = sqlObject.getArguments();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            if (args != null) {
+                for (int i = 0; i < args.length; i++) {
+                    ps.setObject(i + 1, args[i]);
+                }
+            }
+
+            logSql(sql, args);
+            try (ResultSet rs = ps.executeQuery()) {
+                root.mapRows(rs);
+            }
+        }
+
+        Collection<PersistentObject> results = root.complete(connection);
+        return new ArrayList<>(results);
+    }
+
+    private void logSql(String sql, Object[] args) {
+        System.out.printf("SQL: %s, args: %s\n", sql, Arrays.toString(args));
     }
 
     public String resolveObjectPath(String objectPath) {
@@ -71,8 +106,13 @@ public class QueryTree {
 }
 
 class QueryContext {
+    final CacheContext cacheContext;
     final TableAliasGenerator tableAliasGenerator = new TableAliasGenerator();
     final ColumnIndexGenerator columnIndexGenerator = new ColumnIndexGenerator();
+
+    QueryContext(CacheContext cacheContext) {
+        this.cacheContext = cacheContext;
+    }
 }
 
 abstract class QueryNode {
@@ -82,8 +122,7 @@ abstract class QueryNode {
     protected final String tableAlias;
     protected final FieldSelection fieldSelection = new FieldSelection();
     protected final List<QueryJoinNode> joins = new ArrayList<>();
-    // TODO fire additional queries to load other association fields which are not joinable
-    protected final List<QueryAddition> additions = new ArrayList<>();
+    protected final List<AdditionTree> additions = new ArrayList<>();
     protected final QueryResultMapper mapper;
 
     protected QueryNode(QueryNode parentNode, EntityModel entityModel, QueryContext queryContext) {
@@ -106,7 +145,7 @@ abstract class QueryNode {
                 AssociationField af = (AssociationField) field;
                 if (af.getFetchType() == FetchType.EAGER) {
                     if (isCircular(af)) {
-                        additions.add(new QueryAddition(this, af));
+                        additions.add(new AdditionTree(af, queryContext.cacheContext));
                     } else {
                         joins.add(new QueryJoinNode(this, af, queryContext));
                     }
@@ -151,8 +190,7 @@ abstract class QueryNode {
 }
 
 class QueryRootNode extends QueryNode {
-    // Handle duplicate data in cartesian product
-    private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
+    private final List<PersistentObject> results = new ArrayList<>();
 
     QueryRootNode(EntityModel entityModel, QueryContext queryContext) {
         super(null, entityModel, queryContext);
@@ -165,30 +203,41 @@ class QueryRootNode extends QueryNode {
         }
     }
 
-    List<PersistentObject> mapRows(ResultSet rs) throws SQLException {
+    void mapRows(ResultSet rs) throws SQLException {
         while (rs.next()) {
             Object id = mapper.getId(rs);
-            PersistentObject prev = idsToPos.get(id);
-            PersistentObject po;
+            PersistentObject prev = queryContext.cacheContext.get(entityModel, id);
+            PersistentObject current;
             if (prev != null) {
-                po = prev;
+                current = prev;
             } else {
-                po = mapper.mapRow(rs);
-                idsToPos.put(id, po);
+                current = mapper.mapRow(rs);
+                results.add(current);
+                queryContext.cacheContext.put(entityModel, id, current);
+                for (AdditionTree addition : additions) {
+                    addition.addSource(current);
+                }
             }
 
             for (QueryJoinNode join : joins) {
-                join.mapRow(rs, po);
+                join.mapRow(rs, current);
             }
         }
-        return new ArrayList<>(idsToPos.values());
+    }
+
+    Collection<PersistentObject> complete(Connection connection) throws SQLException {
+        for (AdditionTree addition : additions) {
+            addition.execute(connection);
+        }
+        for (QueryJoinNode join : joins) {
+            join.complete(connection);
+        }
+        return results;
     }
 }
 
 class QueryJoinNode extends QueryNode {
     private final AssociationField associationField;
-    // Handle duplicate data in cartesian product
-    private final Map<Object, PersistentObject> idsToPos = new LinkedHashMap<>();
 
     QueryJoinNode(QueryNode parentNode, AssociationField associationField, QueryContext queryContext) {
         super(parentNode, associationField.getTargetModelRef().model(), queryContext);
@@ -206,27 +255,31 @@ class QueryJoinNode extends QueryNode {
             return;
         }
 
-        PersistentObject prev = idsToPos.get(id);
-        PersistentObject po;
+        PersistentObject prev = queryContext.cacheContext.get(entityModel, id);
+        PersistentObject current;
         if (prev != null) {
-            po = prev;
+            current = prev;
         } else {
-            po = mapper.mapRow(rs);
-            idsToPos.put(id, po);
+            current = mapper.mapRow(rs);
+            queryContext.cacheContext.put(entityModel, id, current);
+            for (AdditionTree addition : additions) {
+                addition.addSource(current);
+            }
         }
 
         if (associationField.isSingular()) {
-            associationField.setValue(parent, po);
+            associationField.setValue(parent, current);
         } else {
             List<PersistentObject> list = (List<PersistentObject>) associationField.getValue(parent);
             if (list == null) {
                 list = new ArrayList<>();
                 associationField.setValue(parent, list);
             }
-            list.add(po);
+            list.add(current);
         }
+
         for (QueryJoinNode join : joins) {
-            join.mapRow(rs, po);
+            join.mapRow(rs, current);
         }
     }
 
@@ -236,23 +289,23 @@ class QueryJoinNode extends QueryNode {
             MiddleTable middleTable = ((HasAndBelongsToMany) associationField).getMiddleTable();
             String middleTableAlias = queryContext.tableAliasGenerator.generate();
             sqlBuilder.addTableClause(leftJoinClause(
-                    new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
-                    new JoinTable(middleTable.getTableName(), middleTableAlias, middleTable.getSourceIdColumnName())
+                    new JoinableTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
+                    new JoinableTable(middleTable.getTableName(), middleTableAlias, middleTable.getSourceIdColumnName())
             ));
             sqlBuilder.addTableClause(leftJoinClause(
-                    new JoinTable(middleTable.getTableName(), middleTableAlias, middleTable.getTargetIdColumnName()),
-                    new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
+                    new JoinableTable(middleTable.getTableName(), middleTableAlias, middleTable.getTargetIdColumnName()),
+                    new JoinableTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
             ));
         } else if (associationField.hasColumn()) {
             sqlBuilder.addTableClause(leftJoinClause(
-                    new JoinTable(parentModel.getTableName(), parentTableAlias, associationField.getColumnName()),
-                    new JoinTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
+                    new JoinableTable(parentModel.getTableName(), parentTableAlias, associationField.getColumnName()),
+                    new JoinableTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
             ));
         } else {
             Field mappedByField = entityModel.findFieldByName(associationField.getMappedByFieldName());
             sqlBuilder.addTableClause(leftJoinClause(
-                    new JoinTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
-                    new JoinTable(entityModel.getTableName(), tableAlias, mappedByField.getColumnName())
+                    new JoinableTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
+                    new JoinableTable(entityModel.getTableName(), tableAlias, mappedByField.getColumnName())
             ));
         }
 
@@ -261,29 +314,116 @@ class QueryJoinNode extends QueryNode {
         }
     }
 
-    private String leftJoinClause(JoinTable src, JoinTable tgt) {
+    private String leftJoinClause(JoinableTable src, JoinableTable tgt) {
         return " LEFT JOIN " + tgt.name + " " + tgt.alias + " ON " +
                 src.alias + "." + src.column + "=" + tgt.alias + "." + tgt.column;
     }
-}
 
-// Not a node
-class QueryAddition {
-    private final QueryNode parentNode;
-    private final AssociationField associationField;
-
-    QueryAddition(QueryNode parentNode, AssociationField associationField) {
-        this.parentNode = parentNode;
-        this.associationField = associationField;
+    public void complete(Connection connection) throws SQLException {
+        for (AdditionTree addition : additions) {
+            addition.execute(connection);
+        }
+        for (QueryJoinNode join : joins) {
+            join.complete(connection);
+        }
     }
 }
 
-class JoinTable {
+class AdditionTree {
+    private final AssociationField associationField;
+    private final EntityModel targetModel;
+    private final CacheContext cacheContext;
+
+    private final List<PersistentObject> sources = new ArrayList<>();
+
+    AdditionTree(AssociationField associationField, CacheContext cacheContext) {
+        this.associationField = associationField;
+        this.targetModel = associationField.getTargetModelRef().model();
+        this.cacheContext = cacheContext;
+    }
+
+    void addSource(PersistentObject source) {
+        sources.add(source);
+    }
+
+    void execute(Connection connection) throws SQLException {
+        if (sources.isEmpty()) {
+            return;
+        }
+        if (associationField.hasColumn()) {
+            executeForColumnedField(connection);
+        } else {
+            executeForMappedField(connection);
+        }
+    }
+
+    private void executeForColumnedField(Connection connection) throws SQLException {
+        Field targetIdField = targetModel.getIdField();
+        // Multiple sources may point to the same target
+        MultiMap<Object, PersistentObject> groupedSources = new MultiMap<>();
+        for (PersistentObject source : sources) {
+            Object fkValue = associationField.getForeignKeyValue(source);
+            if (fkValue != null && cacheContext.get(targetModel, fkValue) == null) {
+                groupedSources.put(fkValue, source);
+            }
+        }
+
+        if (groupedSources.isEmpty()) {
+            return;
+        }
+
+        Predicate filter = Predicates.in(targetIdField.getName(), groupedSources.keySet());
+        List<PersistentObject> targets = new QueryTree(targetModel, cacheContext)
+                .addFilter(filter)
+                .execute(connection);
+        for (PersistentObject target : targets) {
+            Object fkValue = targetIdField.getValue(target);
+            for (PersistentObject source : groupedSources.get(fkValue)) {
+                associationField.setValue(source, target);
+            }
+        }
+    }
+
+    private void executeForMappedField(Connection connection) throws SQLException {
+        Field sourceIdField = associationField.getSourceModel().getIdField();
+
+        Map<Object, PersistentObject> idsToSources = new HashMap<>();
+        for (PersistentObject source : sources) {
+            Object id = sourceIdField.getValue(source);
+            idsToSources.put(id, source);
+        }
+
+        if (idsToSources.isEmpty()) {
+            return;
+        }
+
+        Field fkField = associationField.getMappedByField();
+        Predicate filter = Predicates.in(fkField.getName(), idsToSources.keySet());
+        List<PersistentObject> targets = new QueryTree(targetModel, cacheContext)
+                .addFilter(filter)
+                .execute(connection);
+        // Multiple targets may point to the same source
+        Map<Object, List<PersistentObject>> groupedTargets = targets.stream()
+                .collect(Collectors.groupingBy(t -> t.getForeignKeyValue(fkField.getColumnName())));
+        groupedTargets.forEach((key, group) -> {
+            PersistentObject source = idsToSources.get(key);
+            if (associationField.isPlural()) {
+                associationField.setValue(source, group);
+            } else {
+                if (group.size() > 0) {
+                    associationField.setValue(source, group.get(0));
+                }
+            }
+        });
+    }
+}
+
+class JoinableTable {
     final String name;
     final String alias;
     final String column;
 
-    JoinTable(String name, String alias, String column) {
+    JoinableTable(String name, String alias, String column) {
         this.name = name;
         this.alias = alias;
         this.column = column;

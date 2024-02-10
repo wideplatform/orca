@@ -32,10 +32,16 @@ class QueryResultMapper implements ResultMapper {
         for (SelectedField sf : fieldSelection.getSelectedFields()) {
             Field field = sf.getField();
             if (field.isAssociation()) {
-                AssociationField af = (AssociationField) field;
-                Object value = TypeHandlers.INSTANCE.find(af.getTargetModelRef().model().getIdField().getDataType())
+                EntityModel targetModel = ((AssociationField) field).getTargetModelRef().model();
+                Field targetIdField = targetModel.getIdField();
+                Object targetId = TypeHandlers.INSTANCE.find(targetIdField.getDataType())
                         .getValue(rs, sf.getIndex());
-                po.setForeignKeyValue(af.getColumnName(), value);
+                if (isValidId(targetId)) {
+                    po.setForeignKeyValue(field.getColumnName(), targetId);
+                    PersistentObject target = targetModel.newInstance();
+                    targetIdField.setValue(target, targetId);
+                    po.setFieldValue(field.getName(), target);
+                }
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType())
                         .getValue(rs, sf.getIndex());

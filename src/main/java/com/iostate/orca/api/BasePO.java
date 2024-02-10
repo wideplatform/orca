@@ -21,13 +21,13 @@ public abstract class BasePO implements PersistentObject {
     }
 
     @Override
-    public Object getForeignKeyValue(String key) {
-        return _foreignKeyValues.get(key);
+    public Object getForeignKeyValue(String name) {
+        return _foreignKeyValues.get(name);
     }
 
     @Override
-    public void setForeignKeyValue(String key, Object value) {
-        _foreignKeyValues.put(key, value);
+    public void setForeignKeyValue(String name, Object value) {
+        _foreignKeyValues.put(name, value);
     }
 
     @Override

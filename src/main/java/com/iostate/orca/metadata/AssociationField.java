@@ -85,4 +85,8 @@ public abstract class AssociationField extends AbstractField {
         }
         return dto;
     }
+
+    public Object getForeignKeyValue(PersistentObject entity) {
+        return entity.getForeignKeyValue(getColumnName());
+    }
 }

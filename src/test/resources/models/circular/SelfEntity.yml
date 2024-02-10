@@ -1,0 +1,29 @@
+---
+name: "SelfEntity"
+tableName: "self_entity"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "string"
+  columnName: "string"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "target"
+  dataTypeName: "SelfEntity"
+  associationType: "HasOne"
+  targetModelName: "SelfEntity"
+  mappedByFieldName: "source"
+  fetchType: "EAGER"
+  nullable: true
+- name: "source"
+  columnName: "source_id"
+  dataTypeName: "SelfEntity"
+  associationType: "BelongsTo"
+  targetModelName: "SelfEntity"
+  fetchType: "EAGER"
+  nullable: true
+linkedClassName: "com.iostate.orca.circular.SelfEntity"

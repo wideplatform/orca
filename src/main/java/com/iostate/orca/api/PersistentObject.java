@@ -6,7 +6,7 @@ public interface PersistentObject extends TrackedObject {
 
     void setPersisted(boolean persisted);
 
-    Object getForeignKeyValue(String key);
+    Object getForeignKeyValue(String name);
 
-    void setForeignKeyValue(String key, Object value);
+    void setForeignKeyValue(String name, Object value);
 }
