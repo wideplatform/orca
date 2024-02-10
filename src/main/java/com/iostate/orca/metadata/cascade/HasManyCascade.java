@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class HasManyCascade implements Cascade {
 
-    private final HasMany field;
+    private final Field mappedByField;
     private final PersistentObject source;
     private final Collection<PersistentObject> targets;
     private final CascadeConfig cascadeConfig;
@@ -20,7 +20,7 @@ public class HasManyCascade implements Cascade {
     public HasManyCascade(HasMany field,
                           PersistentObject source,
                           CascadeConfig cascadeConfig) {
-        this.field = Objects.requireNonNull(field);
+        this.mappedByField = Objects.requireNonNull(field).getMappedByField();
         this.source = Objects.requireNonNull(source);
         //noinspection unchecked
         this.targets = (Collection<PersistentObject>) field.getValue(source);
@@ -29,30 +29,43 @@ public class HasManyCascade implements Cascade {
 
     @Override
     public void persist(EntityManager entityManager) {
-        if (targets != null && cascadeConfig.isPersist()) {
-            Field mappedByField = field.getMappedByField();
-            for (Object target : targets) {
-                mappedByField.setValue(target, source);
-                // Should use merge?
-                entityManager.merge(target);
+        if (targets != null) {
+            for (PersistentObject target : targets) {
+                if (!mappedByField.isUpdated(target)) {
+                    mappedByField.setValue(target, source);
+                }
+                if (cascadeConfig.isPersist()) {
+                    // Should use merge?
+                    entityManager.merge(target);
+                }
             }
         }
     }
 
     @Override
     public void merge(EntityManager entityManager) {
-        if (targets != null && cascadeConfig.isMerge()) {
-            for (Object target : targets) {
-                entityManager.merge(target);
+        if (targets != null) {
+            for (PersistentObject target : targets) {
+                if (!mappedByField.isUpdated(target)) {
+                    mappedByField.setValue(target, source);
+                }
+                if (cascadeConfig.isMerge()) {
+                    entityManager.merge(target);
+                }
             }
         }
     }
 
     @Override
     public void remove(EntityManager entityManager) {
-        if (targets != null && cascadeConfig.isRemove()) {
-            for (Object target : targets) {
-                entityManager.remove(target);
+        if (targets != null) {
+            for (PersistentObject target : targets) {
+                if (mappedByField.isNullable()) {
+                    mappedByField.setValue(target, null);
+                }
+                if (cascadeConfig.isRemove()) {
+                    entityManager.remove(target);
+                }
             }
         }
     }

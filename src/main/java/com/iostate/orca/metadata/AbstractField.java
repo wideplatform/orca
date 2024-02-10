@@ -57,6 +57,11 @@ public abstract class AbstractField implements Field {
     }
 
     @Override
+    public boolean isUpdated(PersistentObject entity) {
+        return entity.get_updatedFields().contains(name);
+    }
+
+    @Override
     public String toString() {
         return String.format("%s{name='%s', dataType=%s}", getClass().getSimpleName(), name, getDataType());
     }

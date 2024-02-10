@@ -1,5 +1,6 @@
 package com.iostate.orca.metadata;
 
+import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.dto.FieldDto;
 
 public interface Field {
@@ -24,6 +25,8 @@ public interface Field {
     Object getValue(Object entity);
 
     void setValue(Object entity, Object value);
+
+    boolean isUpdated(PersistentObject entity);
 
     FieldDto toDto();
 }

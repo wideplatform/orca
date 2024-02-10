@@ -12,6 +12,24 @@ public class SelfReferenceTest extends TestBase {
     }
 
     @Test
+    public void testCreateWithForwardReference() {
+        SelfEntity preparedSource = new SelfEntity();
+        SelfEntity preparedTarget = new SelfEntity();
+        // Save with source->target forward reference
+        preparedSource.setTarget(preparedTarget);
+
+        entityManager.persist(preparedSource);
+        entityManager.persist(preparedTarget);
+
+        SelfEntity foundSource = entityManager.find(SelfEntity.class, preparedSource.getId());
+        assertEquals(preparedSource.getId(), foundSource.getId());
+        assertNotNull(foundSource.getTarget());
+        assertEquals(preparedTarget.getId(), foundSource.getTarget().getId());
+        assertNotNull(foundSource.getTarget().getSource());
+        assertEquals(preparedSource.getId(), foundSource.getTarget().getSource().getId());
+    }
+
+    @Test
     public void testCreateWithBackwardReference() {
         SelfEntity preparedSource = new SelfEntity();
         SelfEntity preparedTarget = new SelfEntity();
