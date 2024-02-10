@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("manytoone")
 public class TargetEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private Integer integer;
+    private Integer intValue;
 
     public Long getId() {
         return id;
@@ -20,13 +20,13 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public Integer getInteger() {
-        return integer;
+    public Integer getIntValue() {
+        return intValue;
     }
 
-    public void setInteger(Integer integer) {
-        this.integer = integer;
-        markUpdatedField("integer");
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        markUpdatedField("intValue");
     }
 
     private static final Map<String, Function<TargetEntity, Object>> GETTERS;
@@ -34,7 +34,7 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<TargetEntity, Object>> getters = new HashMap<>();
         getters.put("id", TargetEntity::getId);
-        getters.put("integer", TargetEntity::getInteger);
+        getters.put("intValue", TargetEntity::getIntValue);
         GETTERS = Collections.unmodifiableMap(getters);
     }
 
@@ -43,7 +43,7 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<TargetEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("integer", (object, value) -> object.setInteger((Integer) value));
+        setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }
 

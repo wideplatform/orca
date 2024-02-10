@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("manytomany")
 public class SourceEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private String string;
+    private String strValue;
     private java.util.List<TargetEntity> targets = new java.util.ArrayList<>();
 
     public Long getId() {
@@ -21,13 +21,13 @@ public class SourceEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public String getString() {
-        return string;
+    public String getStrValue() {
+        return strValue;
     }
 
-    public void setString(String string) {
-        this.string = string;
-        markUpdatedField("string");
+    public void setStrValue(String strValue) {
+        this.strValue = strValue;
+        markUpdatedField("strValue");
     }
     public java.util.List<TargetEntity> getTargets() {
         return targets;
@@ -43,7 +43,7 @@ public class SourceEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<SourceEntity, Object>> getters = new HashMap<>();
         getters.put("id", SourceEntity::getId);
-        getters.put("string", SourceEntity::getString);
+        getters.put("strValue", SourceEntity::getStrValue);
         getters.put("targets", SourceEntity::getTargets);
         GETTERS = Collections.unmodifiableMap(getters);
     }
@@ -53,7 +53,7 @@ public class SourceEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<SourceEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("string", (object, value) -> object.setString((String) value));
+        setters.put("strValue", (object, value) -> object.setStrValue((String) value));
         setters.put("targets", (object, value) -> object.setTargets((java.util.List<TargetEntity>) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }

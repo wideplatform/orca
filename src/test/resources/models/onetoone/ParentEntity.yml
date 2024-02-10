@@ -8,8 +8,8 @@ idField:
   dataTypeName: "LONG"
   nullable: true
 dataFields:
-- name: "string"
-  columnName: "string"
+- name: "strValue"
+  columnName: "str_value"
   dataTypeName: "STRING"
   nullable: true
 - name: "child"

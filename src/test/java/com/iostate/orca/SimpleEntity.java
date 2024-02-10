@@ -10,10 +10,10 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("")
 public class SimpleEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private Boolean bool;
-    private Integer integer;
-    private String string;
-    private java.time.Instant dt;
+    private Boolean boolValue;
+    private Integer intValue;
+    private String strValue;
+    private java.time.Instant dtValue;
 
     public Long getId() {
         return id;
@@ -23,37 +23,37 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public Boolean getBool() {
-        return bool;
+    public Boolean getBoolValue() {
+        return boolValue;
     }
 
-    public void setBool(Boolean bool) {
-        this.bool = bool;
-        markUpdatedField("bool");
+    public void setBoolValue(Boolean boolValue) {
+        this.boolValue = boolValue;
+        markUpdatedField("boolValue");
     }
-    public Integer getInteger() {
-        return integer;
-    }
-
-    public void setInteger(Integer integer) {
-        this.integer = integer;
-        markUpdatedField("integer");
-    }
-    public String getString() {
-        return string;
+    public Integer getIntValue() {
+        return intValue;
     }
 
-    public void setString(String string) {
-        this.string = string;
-        markUpdatedField("string");
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        markUpdatedField("intValue");
     }
-    public java.time.Instant getDt() {
-        return dt;
+    public String getStrValue() {
+        return strValue;
     }
 
-    public void setDt(java.time.Instant dt) {
-        this.dt = dt;
-        markUpdatedField("dt");
+    public void setStrValue(String strValue) {
+        this.strValue = strValue;
+        markUpdatedField("strValue");
+    }
+    public java.time.Instant getDtValue() {
+        return dtValue;
+    }
+
+    public void setDtValue(java.time.Instant dtValue) {
+        this.dtValue = dtValue;
+        markUpdatedField("dtValue");
     }
 
     private static final Map<String, Function<SimpleEntity, Object>> GETTERS;
@@ -61,10 +61,10 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<SimpleEntity, Object>> getters = new HashMap<>();
         getters.put("id", SimpleEntity::getId);
-        getters.put("bool", SimpleEntity::getBool);
-        getters.put("integer", SimpleEntity::getInteger);
-        getters.put("string", SimpleEntity::getString);
-        getters.put("dt", SimpleEntity::getDt);
+        getters.put("boolValue", SimpleEntity::getBoolValue);
+        getters.put("intValue", SimpleEntity::getIntValue);
+        getters.put("strValue", SimpleEntity::getStrValue);
+        getters.put("dtValue", SimpleEntity::getDtValue);
         GETTERS = Collections.unmodifiableMap(getters);
     }
 
@@ -73,10 +73,10 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<SimpleEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("bool", (object, value) -> object.setBool((Boolean) value));
-        setters.put("integer", (object, value) -> object.setInteger((Integer) value));
-        setters.put("string", (object, value) -> object.setString((String) value));
-        setters.put("dt", (object, value) -> object.setDt((java.time.Instant) value));
+        setters.put("boolValue", (object, value) -> object.setBoolValue((Boolean) value));
+        setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
+        setters.put("strValue", (object, value) -> object.setStrValue((String) value));
+        setters.put("dtValue", (object, value) -> object.setDtValue((java.time.Instant) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }
 

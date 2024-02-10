@@ -27,17 +27,17 @@ public class SimpleEntityModelTest extends EntityModelGenerationTestBase {
 
     private EntityModel modelSimpleEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field boolField = new SimpleField("bool", "bool", SimpleDataType.BOOLEAN, false, true);
-        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
-        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
-        Field datetimeField = new SimpleField("dt", "dt", SimpleDataType.DATETIME, false, true);
+        Field boolField = new SimpleField("boolValue", "bool_value", SimpleDataType.BOOLEAN, false, true);
+        Field intField = new SimpleField("intValue", "int_value", SimpleDataType.INT, false, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
+        Field datetimeField = new SimpleField("dtValue", "dt_value", SimpleDataType.DATETIME, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "SimpleEntity", "simple_entity",
                 "auto", idField);
         entityModel.addDataField(boolField);
-        entityModel.addDataField(integerField);
-        entityModel.addDataField(stringField);
+        entityModel.addDataField(intField);
+        entityModel.addDataField(strField);
         entityModel.addDataField(datetimeField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;

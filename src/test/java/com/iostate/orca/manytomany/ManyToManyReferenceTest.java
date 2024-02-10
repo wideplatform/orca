@@ -31,13 +31,13 @@ public class ManyToManyReferenceTest extends TestBase {
         SourceEntity source = new SourceEntity();
         entityManager.persist(source);
 
-        source.setString("updated");
+        source.setStrValue("updated");
         entityManager.update(source);
 
         SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
         assertNotNull(resultSource.getId());
         assertEquals(0, resultSource.getTargets().size());
-        assertEquals("updated", resultSource.getString());
+        assertEquals("updated", resultSource.getStrValue());
     }
     
     @Test
@@ -72,19 +72,19 @@ public class ManyToManyReferenceTest extends TestBase {
     public void testUpdateStandalone() {
         SourceEntity preparedParent = preparePersisted();
 
-        preparedParent.setString("updated");
-        preparedParent.getTargets().get(0).setInteger(1);
-        preparedParent.getTargets().get(1).setInteger(2);
+        preparedParent.setStrValue("updated");
+        preparedParent.getTargets().get(0).setIntValue(1);
+        preparedParent.getTargets().get(1).setIntValue(2);
 
         entityManager.update(preparedParent);
 
         SourceEntity resultSource = entityManager.find(SourceEntity.class, preparedParent.getId());
         assertNotNull(resultSource.getId());
-        assertEquals("updated", resultSource.getString());
+        assertEquals("updated", resultSource.getStrValue());
         // not updated
         List<TargetEntity> resultTargets = resultSource.getTargets();
-        assertEquals(0, resultTargets.get(0).getInteger());
-        assertEquals(0, resultTargets.get(1).getInteger());
+        assertEquals(0, resultTargets.get(0).getIntValue());
+        assertEquals(0, resultTargets.get(1).getIntValue());
     }
 
     private SourceEntity preparePersisted() {

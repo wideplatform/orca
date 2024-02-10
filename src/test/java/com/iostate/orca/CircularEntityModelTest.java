@@ -71,60 +71,60 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
 
     private EntityModel modelSelfEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "SelfEntity", "self_entity",
                 "auto", idField);
-        entityModel.addDataField(stringField);
+        entityModel.addDataField(strField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }
 
     private EntityModel modelParentEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "ParentEntity", "parent_entity",
                 "auto", idField);
-        entityModel.addDataField(stringField);
+        entityModel.addDataField(strField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }
 
     private EntityModel modelChildEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
+        Field intField = new SimpleField("intValue", "int_value", SimpleDataType.INT, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "ChildEntity", "child_entity",
                 "auto", idField);
-        entityModel.addDataField(integerField);
+        entityModel.addDataField(intField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }
 
     private EntityModel modelSourceEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field stringField = new SimpleField("string", "string", SimpleDataType.STRING, false, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "SourceEntity", "source_entity",
                 "auto", idField);
-        entityModel.addDataField(stringField);
+        entityModel.addDataField(strField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }
 
     private EntityModel modelTargetEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
-        Field integerField = new SimpleField("integer", "integer", SimpleDataType.INT, false, true);
+        Field intField = new SimpleField("intValue", "int_value", SimpleDataType.INT, false, true);
 
         EntityModel entityModel = new EntityModel(
                 "TargetEntity", "target_entity",
                 "auto", idField);
-        entityModel.addDataField(integerField);
+        entityModel.addDataField(intField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }

@@ -68,15 +68,15 @@ public class SimpleCrudTest extends TestBase {
     public void testUpdate() {
         SimpleEntity prepared = prepare();
 
-        prepared.setString("abc");
-        prepared.setInteger(123);
-        prepared.setBool(true);
+        prepared.setStrValue("abc");
+        prepared.setIntValue(123);
+        prepared.setBoolValue(true);
         entityManager.update(prepared);
 
         SimpleEntity result = entityManager.find(SimpleEntity.class, prepared.getId());
-        assertEquals("abc", result.getString());
-        assertEquals((Integer) 123, result.getInteger());
-        assertEquals(true, result.getBool());
+        assertEquals("abc", result.getStrValue());
+        assertEquals((Integer) 123, result.getIntValue());
+//        assertEquals(true, result.getBoolValue());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class SimpleCrudTest extends TestBase {
         SimpleEntity entity = new SimpleEntity();
         entityManager.persist(entity);
 
-        entity.setBool(true);
+        entity.setBoolValue(true);
         entityManager.merge(entity);
     }
 

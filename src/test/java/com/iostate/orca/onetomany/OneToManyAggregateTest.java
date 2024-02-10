@@ -30,14 +30,14 @@ public class OneToManyAggregateTest extends TestBase {
         ParentEntity preparedParent = new ParentEntity();
         entityManager.persist(preparedParent);
 
-        preparedParent.setString("updated");
+        preparedParent.setStrValue("updated");
 
         entityManager.update(preparedParent);
 
         ParentEntity resultParent = entityManager.find(ParentEntity.class, preparedParent.getId());
         assertNotNull(resultParent.getId());
         assertEquals(0, resultParent.getChildren().size());
-        assertEquals("updated", resultParent.getString());
+        assertEquals("updated", resultParent.getStrValue());
     }
 
     @Test
@@ -61,9 +61,9 @@ public class OneToManyAggregateTest extends TestBase {
         ParentEntity preparedParent = prepare();
         entityManager.persist(preparedParent);
 
-        preparedParent.setString("updated");
-        preparedParent.getChildren().get(0).setInteger(1);
-        preparedParent.getChildren().get(1).setInteger(2);
+        preparedParent.setStrValue("updated");
+        preparedParent.getChildren().get(0).setIntValue(1);
+        preparedParent.getChildren().get(1).setIntValue(2);
 
         entityManager.update(preparedParent);
 
@@ -76,9 +76,9 @@ public class OneToManyAggregateTest extends TestBase {
         assertNotNull(child2.getId());
         assertNotEquals(child1.getId(), child2.getId());
 
-        assertEquals("updated", resultParent.getString());
-        assertEquals(1, child1.getInteger());
-        assertEquals(2, child2.getInteger());
+        assertEquals("updated", resultParent.getStrValue());
+        assertEquals(1, child1.getIntValue());
+        assertEquals(2, child2.getIntValue());
     }
 
     @Test

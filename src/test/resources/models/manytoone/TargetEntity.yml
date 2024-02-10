@@ -8,8 +8,8 @@ idField:
   dataTypeName: "LONG"
   nullable: true
 dataFields:
-- name: "integer"
-  columnName: "integer"
+- name: "intValue"
+  columnName: "int_value"
   dataTypeName: "INT"
   nullable: true
 linkedClassName: "com.iostate.orca.manytoone.TargetEntity"

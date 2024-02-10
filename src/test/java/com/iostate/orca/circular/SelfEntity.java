@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("circular")
 public class SelfEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private String string;
+    private String strValue;
     private SelfEntity target;
     private SelfEntity source;
 
@@ -22,13 +22,13 @@ public class SelfEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public String getString() {
-        return string;
+    public String getStrValue() {
+        return strValue;
     }
 
-    public void setString(String string) {
-        this.string = string;
-        markUpdatedField("string");
+    public void setStrValue(String strValue) {
+        this.strValue = strValue;
+        markUpdatedField("strValue");
     }
     public SelfEntity getTarget() {
         return target;
@@ -52,7 +52,7 @@ public class SelfEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<SelfEntity, Object>> getters = new HashMap<>();
         getters.put("id", SelfEntity::getId);
-        getters.put("string", SelfEntity::getString);
+        getters.put("strValue", SelfEntity::getStrValue);
         getters.put("target", SelfEntity::getTarget);
         getters.put("source", SelfEntity::getSource);
         GETTERS = Collections.unmodifiableMap(getters);
@@ -63,7 +63,7 @@ public class SelfEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<SelfEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("string", (object, value) -> object.setString((String) value));
+        setters.put("strValue", (object, value) -> object.setStrValue((String) value));
         setters.put("target", (object, value) -> object.setTarget((SelfEntity) value));
         setters.put("source", (object, value) -> object.setSource((SelfEntity) value));
         SETTERS = Collections.unmodifiableMap(setters);

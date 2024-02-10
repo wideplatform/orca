@@ -333,6 +333,10 @@ public class SqlHelper {
     }
 
     private void logSql(String sql, Object[] args) {
-        System.out.printf("SQL: %s, args: %s\n", sql, Arrays.toString(args));
+        if (args == null) {
+            System.out.println("SQL: " + sql);
+        } else {
+            System.out.printf("SQL: %s, args: %s\n", sql, Arrays.toString(args));
+        }
     }
 }

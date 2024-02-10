@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("circular")
 public class TargetEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private Integer integer;
+    private Integer intValue;
     private java.util.List<SourceEntity> sources = new java.util.ArrayList<>();
 
     public Long getId() {
@@ -21,13 +21,13 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public Integer getInteger() {
-        return integer;
+    public Integer getIntValue() {
+        return intValue;
     }
 
-    public void setInteger(Integer integer) {
-        this.integer = integer;
-        markUpdatedField("integer");
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        markUpdatedField("intValue");
     }
     public java.util.List<SourceEntity> getSources() {
         return sources;
@@ -43,7 +43,7 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<TargetEntity, Object>> getters = new HashMap<>();
         getters.put("id", TargetEntity::getId);
-        getters.put("integer", TargetEntity::getInteger);
+        getters.put("intValue", TargetEntity::getIntValue);
         getters.put("sources", TargetEntity::getSources);
         GETTERS = Collections.unmodifiableMap(getters);
     }
@@ -53,7 +53,7 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<TargetEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("integer", (object, value) -> object.setInteger((Integer) value));
+        setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
         setters.put("sources", (object, value) -> object.setSources((java.util.List<SourceEntity>) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }

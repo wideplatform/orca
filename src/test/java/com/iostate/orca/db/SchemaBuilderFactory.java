@@ -7,6 +7,8 @@ public class SchemaBuilderFactory {
                 return new AnsiSchemaBuilder();
             case H2:
                 return new H2SchemaBuilder();
+            case MYSQL:
+                return new MysqlSchemaBuilder();
             default:
                 throw new IllegalArgumentException(String.valueOf(dbType));
         }

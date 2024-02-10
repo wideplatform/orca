@@ -19,6 +19,6 @@ public class EntityKeyMapper implements KeyMapper {
     public Object mapKey(ResultSet keySet) throws SQLException {
         Field idField = model.getIdField();
         return TypeHandlers.INSTANCE.find(idField.getDataType())
-                .getValue(keySet, idField.getColumnName());
+                .getValue(keySet, 1);
     }
 }

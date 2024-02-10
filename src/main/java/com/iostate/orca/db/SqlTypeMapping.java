@@ -20,9 +20,9 @@ class SqlTypeMapping {
     private static final Map<DataType, String> sqlTypes = new HashMap<>();
 
     static {
-        sqlTypes.put(SimpleDataType.STRING, "NVARCHAR(255)");
-        sqlTypes.put(SimpleDataType.LONG, "NUMBER");
-        sqlTypes.put(SimpleDataType.INT, "NUMBER");
+        sqlTypes.put(SimpleDataType.STRING, "VARCHAR(255)");
+        sqlTypes.put(SimpleDataType.LONG, "BIGINT");
+        sqlTypes.put(SimpleDataType.INT, "INTEGER");
         sqlTypes.put(SimpleDataType.DATETIME, "DATETIME");
         sqlTypes.put(SimpleDataType.DATE, "DATE");
         sqlTypes.put(SimpleDataType.BOOLEAN, "BOOLEAN");

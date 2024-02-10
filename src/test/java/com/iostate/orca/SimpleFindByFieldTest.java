@@ -18,10 +18,10 @@ public class SimpleFindByFieldTest extends TestBase {
         SimpleEntity blank = new SimpleEntity();
         entityManager.persist(blank);
         SimpleEntity po = new SimpleEntity();
-        po.setString("v");
+        po.setStrValue("v");
         entityManager.persist(po);
 
-        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "string", "v");
+        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "strValue", "v");
         assertEquals(1, result.size());
         assertEquals(po.getId(), result.get(0).getId());
     }
@@ -31,10 +31,10 @@ public class SimpleFindByFieldTest extends TestBase {
         SimpleEntity blank = new SimpleEntity();
         entityManager.persist(blank);
         SimpleEntity po = new SimpleEntity();
-        po.setInteger(123);
+        po.setIntValue(123);
         entityManager.persist(po);
 
-        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "integer", 123);
+        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "intValue", 123);
         assertEquals(1, result.size());
         assertEquals(po.getId(), result.get(0).getId());
     }
@@ -44,10 +44,10 @@ public class SimpleFindByFieldTest extends TestBase {
         SimpleEntity blank = new SimpleEntity();
         entityManager.persist(blank);
         SimpleEntity po = new SimpleEntity();
-        po.setBool(true);
+        po.setBoolValue(true);
         entityManager.persist(po);
 
-        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "bool", true);
+        List<SimpleEntity> result = entityManager.findBy(SimpleEntity.class, "boolValue", true);
         assertEquals(1, result.size());
         assertEquals(po.getId(), result.get(0).getId());
     }

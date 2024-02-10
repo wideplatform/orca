@@ -8,20 +8,20 @@ idField:
   dataTypeName: "LONG"
   nullable: true
 dataFields:
-- name: "bool"
-  columnName: "bool"
+- name: "boolValue"
+  columnName: "bool_value"
   dataTypeName: "BOOLEAN"
   nullable: true
-- name: "integer"
-  columnName: "integer"
+- name: "intValue"
+  columnName: "int_value"
   dataTypeName: "INT"
   nullable: true
-- name: "string"
-  columnName: "string"
+- name: "strValue"
+  columnName: "str_value"
   dataTypeName: "STRING"
   nullable: true
-- name: "dt"
-  columnName: "dt"
+- name: "dtValue"
+  columnName: "dt_value"
   dataTypeName: "DATETIME"
   nullable: true
 linkedClassName: "com.iostate.orca.SimpleEntity"

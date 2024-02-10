@@ -28,13 +28,13 @@ public class ManyToOneReferenceTest extends TestBase {
         SourceEntity source = new SourceEntity();
         entityManager.persist(source);
 
-        source.setString("updated");
+        source.setStrValue("updated");
         entityManager.update(source);
 
         SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
         assertNotNull(resultSource.getId());
         assertNull(resultSource.getTarget());
-        assertEquals("updated", resultSource.getString());
+        assertEquals("updated", resultSource.getStrValue());
     }
 
     @Test
@@ -57,17 +57,17 @@ public class ManyToOneReferenceTest extends TestBase {
     public void testUpdateStandalone() {
         SourceEntity preparedSource = preparePersisted();
 
-        preparedSource.setString("updated");
-        preparedSource.getTarget().setInteger(1);
+        preparedSource.setStrValue("updated");
+        preparedSource.getTarget().setIntValue(1);
 
         entityManager.update(preparedSource);
 
         SourceEntity resultSource = entityManager.find(SourceEntity.class, preparedSource.getId());
         assertNotNull(resultSource.getId());
-        assertEquals("updated", resultSource.getString());
+        assertEquals("updated", resultSource.getStrValue());
         // not updated
         TargetEntity target = resultSource.getTarget();
-        assertEquals(0, target.getInteger().intValue());
+        assertEquals(0, target.getIntValue().intValue());
     }
 
     private SourceEntity preparePersisted() {

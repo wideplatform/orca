@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("circular")
 public class ChildEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private Integer integer;
+    private Integer intValue;
     private ParentEntity parent;
 
     public Long getId() {
@@ -21,13 +21,13 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public Integer getInteger() {
-        return integer;
+    public Integer getIntValue() {
+        return intValue;
     }
 
-    public void setInteger(Integer integer) {
-        this.integer = integer;
-        markUpdatedField("integer");
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
+        markUpdatedField("intValue");
     }
     public ParentEntity getParent() {
         return parent;
@@ -43,7 +43,7 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<ChildEntity, Object>> getters = new HashMap<>();
         getters.put("id", ChildEntity::getId);
-        getters.put("integer", ChildEntity::getInteger);
+        getters.put("intValue", ChildEntity::getIntValue);
         getters.put("parent", ChildEntity::getParent);
         GETTERS = Collections.unmodifiableMap(getters);
     }
@@ -53,7 +53,7 @@ public class ChildEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<ChildEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("integer", (object, value) -> object.setInteger((Integer) value));
+        setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
         setters.put("parent", (object, value) -> object.setParent((ParentEntity) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }

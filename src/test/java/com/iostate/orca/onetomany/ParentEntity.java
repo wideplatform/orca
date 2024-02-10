@@ -10,7 +10,7 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("onetomany")
 public class ParentEntity extends com.iostate.orca.api.BasePO {
     private Long id;
-    private String string;
+    private String strValue;
     private java.util.List<ChildEntity> children = new java.util.ArrayList<>();
 
     public Long getId() {
@@ -21,13 +21,13 @@ public class ParentEntity extends com.iostate.orca.api.BasePO {
         this.id = id;
         markUpdatedField("id");
     }
-    public String getString() {
-        return string;
+    public String getStrValue() {
+        return strValue;
     }
 
-    public void setString(String string) {
-        this.string = string;
-        markUpdatedField("string");
+    public void setStrValue(String strValue) {
+        this.strValue = strValue;
+        markUpdatedField("strValue");
     }
     public java.util.List<ChildEntity> getChildren() {
         return children;
@@ -43,7 +43,7 @@ public class ParentEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, Function<ParentEntity, Object>> getters = new HashMap<>();
         getters.put("id", ParentEntity::getId);
-        getters.put("string", ParentEntity::getString);
+        getters.put("strValue", ParentEntity::getStrValue);
         getters.put("children", ParentEntity::getChildren);
         GETTERS = Collections.unmodifiableMap(getters);
     }
@@ -53,7 +53,7 @@ public class ParentEntity extends com.iostate.orca.api.BasePO {
     static {
         Map<String, BiConsumer<ParentEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
-        setters.put("string", (object, value) -> object.setString((String) value));
+        setters.put("strValue", (object, value) -> object.setStrValue((String) value));
         setters.put("children", (object, value) -> object.setChildren((java.util.List<ChildEntity>) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }

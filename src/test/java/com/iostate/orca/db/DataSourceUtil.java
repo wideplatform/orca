@@ -22,7 +22,7 @@ public class DataSourceUtil {
         Properties prop = new PropertiesReader().read(String.format("db-%s.properties", dbType));
         Connection connection = DriverManager.getConnection(
                 prop.getProperty("database.url"),
-                prop.getProperty("database.userName"),
+                prop.getProperty("database.username"),
                 prop.getProperty("database.password"));
 
         String schema = prop.getProperty("database.schema");
