@@ -181,7 +181,7 @@ abstract class QueryNode {
             Optional<QueryJoinNode> join = joins.stream()
                     .filter(j -> j.getAssociationField().getName().equals(name))
                     .findFirst();
-            if (join.isEmpty()) {
+            if (!join.isPresent()) {
                 throw InvalidObjectPathException.fieldNotFound(levels, name);
             }
             return join.get().resolveObjectPath(levels, offset + 1);
@@ -227,7 +227,7 @@ class QueryRootNode extends QueryNode {
 
     Collection<PersistentObject> complete(Connection connection) throws SQLException {
         for (AdditionTree addition : additions) {
-            addition.execute(connection);
+            addition.complete(connection);
         }
         for (QueryJoinNode join : joins) {
             join.complete(connection);
@@ -321,7 +321,7 @@ class QueryJoinNode extends QueryNode {
 
     public void complete(Connection connection) throws SQLException {
         for (AdditionTree addition : additions) {
-            addition.execute(connection);
+            addition.complete(connection);
         }
         for (QueryJoinNode join : joins) {
             join.complete(connection);
@@ -346,7 +346,7 @@ class AdditionTree {
         sources.add(source);
     }
 
-    void execute(Connection connection) throws SQLException {
+    void complete(Connection connection) throws SQLException {
         if (sources.isEmpty()) {
             return;
         }

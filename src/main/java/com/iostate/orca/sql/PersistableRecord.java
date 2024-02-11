@@ -27,33 +27,23 @@ class PersistableRecord {
         this.entity = Objects.requireNonNull(entity);
         this.entityManager = Objects.requireNonNull(entityManager);
         for (Field field : fields) {
-            add(field, entity);
+            add(field);
         }
     }
 
-    private void add(Field field, PersistentObject entity) {
+    private void add(Field field) {
         if (field.isAssociation()) {
             AssociationField assoc = (AssociationField) field;
-
             if (assoc instanceof BelongsTo) {
-                Field targetIdField = assoc.getTargetModelRef().model().getIdField();
-                Object targetEntity = field.getValue(entity);
-                if (targetEntity != null) {
-                    Object targetId = targetIdField.getValue(targetEntity);
-                    columnValues.put(field.getColumnName(), targetId);
+                Object target = assoc.getValue(entity);
+                if (target != null) {
+                    Field targetIdField = assoc.getTargetModelRef().model().getIdField();
+                    Object targetId = targetIdField.getValue(target);
+                    // This entry will be refreshed after cascading
+                    // When persisting with generated ID, current value is a null
+                    // When persisting with given ID or updating, current value is a non-null ID
+                    columnValues.put(assoc.getColumnName(), targetId);
                 }
-                // Complete
-                return;
-            }
-
-            if (assoc.hasColumn()) {
-                // This entry will be refreshed after cascading
-                // When persisting with generated ID, current value is a null
-                // When persisting with given ID or updating, current value is a non-null ID
-                columnValues.put(
-                        assoc.getColumnName(),
-                        assoc.getTargetModelRef().model().getIdField().getValue(entity)
-                );
             }
 
             cascades.add(assoc.getCascade(entity));
