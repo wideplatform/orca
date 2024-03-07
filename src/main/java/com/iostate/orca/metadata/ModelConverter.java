@@ -52,11 +52,10 @@ public class ModelConverter {
                         fetchType, cascadeTypes
                 );
             } else if ("HasAndBelongsToMany".equals(associationType)) {
-                checkPrecondition(fieldDto.getMappedByFieldName() == null,
-                        String.format("HasAndBelongsToMany association %s of model %s must not have a mappedByField", fieldDto.getName(), sourceModel.getName()));
                 return new HasAndBelongsToMany(
                         fieldDto.getName(), metadataManager, sourceModel,
-                        targetModelRef, fetchType, cascadeTypes
+                        targetModelRef, fieldDto.getMappedByFieldName(),
+                        fetchType, cascadeTypes
                 );
             } else if ("HasOne".equals(associationType)) {
                 checkPrecondition(fieldDto.getColumnName() == null,

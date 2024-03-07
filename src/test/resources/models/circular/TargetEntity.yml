@@ -16,6 +16,7 @@ dataFields:
   dataTypeName: "<SourceEntity>"
   associationType: "HasAndBelongsToMany"
   targetModelName: "SourceEntity"
+  mappedByFieldName: "targets"
   fetchType: "EAGER"
   nullable: false
 linkedClassName: "com.iostate.orca.circular.TargetEntity"

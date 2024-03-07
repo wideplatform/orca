@@ -42,11 +42,11 @@ public class MiddleTable {
     }
 
     public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
-        Object sourceId = sourceModelRef.model().getIdField().getValue(source);
+        Object sourceId = sourceModelRef.model().getIdValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to insert a relationship, sourceId is null");
         }
-        Object targetId = targetModelRef.model().getIdField().getValue(target);
+        Object targetId = targetModelRef.model().getIdValue(target);
         if (targetId == null) {
             throw new PersistenceException("Failed to insert a relationship, targetId is null");
         }
@@ -75,11 +75,11 @@ public class MiddleTable {
     }
 
     public void remove(PersistentObject source, PersistentObject target, EntityManager entityManager) {
-        Object sourceId = sourceModelRef.model().getIdField().getValue(source);
+        Object sourceId = sourceModelRef.model().getIdValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to delete a relationship, sourceId is null");
         }
-        Object targetId = targetModelRef.model().getIdField().getValue(target);
+        Object targetId = targetModelRef.model().getIdValue(target);
         if (targetId == null) {
             throw new PersistenceException("Failed to delete a relationship, targetId is null");
         }

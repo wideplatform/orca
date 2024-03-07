@@ -7,11 +7,10 @@ import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
-import com.iostate.orca.metadata.MiddleTable;
+import com.iostate.orca.metadata.MiddleTableImage;
 import com.iostate.orca.query.ConcreteSqlBuilder;
 import com.iostate.orca.query.SqlBuilder;
 import com.iostate.orca.query.predicate.Predicate;
-import com.iostate.orca.query.predicate.Predicates;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,11 +19,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Entrance of object-oriented query model
@@ -96,7 +94,7 @@ public class QueryTree {
     }
 
     private void logSql(String sql, Object[] args) {
-        System.out.printf("SQL: %s, args: %s\n", sql, Arrays.toString(args));
+        System.out.printf("QueryTree SQL: %s, args: %s\n", sql, Arrays.toString(args));
     }
 
     public String resolveObjectPath(String objectPath) {
@@ -107,11 +105,16 @@ public class QueryTree {
 
 class QueryContext {
     final CacheContext cacheContext;
+    final CacheContext preCacheContext = new CacheContext();
     final TableAliasGenerator tableAliasGenerator = new TableAliasGenerator();
     final ColumnIndexGenerator columnIndexGenerator = new ColumnIndexGenerator();
 
     QueryContext(CacheContext cacheContext) {
         this.cacheContext = cacheContext;
+    }
+
+    void commitCache() {
+        cacheContext.merge(preCacheContext);
     }
 }
 
@@ -190,7 +193,7 @@ abstract class QueryNode {
 }
 
 class QueryRootNode extends QueryNode {
-    private final List<PersistentObject> results = new ArrayList<>();
+    private final Map<Object, PersistentObject> results = new LinkedHashMap<>();
 
     QueryRootNode(EntityModel entityModel, QueryContext queryContext) {
         super(null, entityModel, queryContext);
@@ -206,33 +209,37 @@ class QueryRootNode extends QueryNode {
     void mapRows(ResultSet rs) throws SQLException {
         while (rs.next()) {
             Object id = mapper.getId(rs);
-            PersistentObject prev = queryContext.cacheContext.get(entityModel, id);
-            PersistentObject current;
-            if (prev != null) {
-                current = prev;
-            } else {
-                current = mapper.mapRow(rs);
-                results.add(current);
-                queryContext.cacheContext.put(entityModel, id, current);
+            PersistentObject cached = queryContext.cacheContext.get(entityModel, id);
+            if (cached != null) {
+                results.put(id, cached);
+                continue;
+            }
+
+            PersistentObject prev = results.get(id);
+            PersistentObject current = prev == null ? mapper.mapRow(rs) : prev;
+            for (QueryJoinNode join : joins) {
+                join.mapRow(rs, current);
+            }
+
+            if (prev == null) {
+                results.put(id, current);
+                queryContext.preCacheContext.put(entityModel, id, current);
                 for (AdditionTree addition : additions) {
                     addition.addSource(current);
                 }
-            }
-
-            for (QueryJoinNode join : joins) {
-                join.mapRow(rs, current);
             }
         }
     }
 
     Collection<PersistentObject> complete(Connection connection) throws SQLException {
+        queryContext.commitCache();
         for (AdditionTree addition : additions) {
             addition.complete(connection);
         }
         for (QueryJoinNode join : joins) {
             join.complete(connection);
         }
-        return results;
+        return results.values();
     }
 }
 
@@ -286,14 +293,14 @@ class QueryJoinNode extends QueryNode {
     void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
         EntityModel parentModel = associationField.getSourceModel();
         if (associationField instanceof HasAndBelongsToMany) {
-            MiddleTable middleTable = ((HasAndBelongsToMany) associationField).getMiddleTable();
+            MiddleTableImage middle = ((HasAndBelongsToMany) associationField).middleTableImage();
             String middleTableAlias = queryContext.tableAliasGenerator.generate();
             sqlBuilder.addTableClause(leftJoinClause(
                     new JoinableTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),
-                    new JoinableTable(middleTable.getTableName(), middleTableAlias, middleTable.getSourceIdColumnName())
+                    new JoinableTable(middle.getTableName(), middleTableAlias, middle.getSourceIdColumn())
             ));
             sqlBuilder.addTableClause(leftJoinClause(
-                    new JoinableTable(middleTable.getTableName(), middleTableAlias, middleTable.getTargetIdColumnName()),
+                    new JoinableTable(middle.getTableName(), middleTableAlias, middle.getTargetIdColumn()),
                     new JoinableTable(entityModel.getTableName(), tableAlias, entityModel.getIdField().getColumnName())
             ));
         } else if (associationField.hasColumn()) {
@@ -326,95 +333,6 @@ class QueryJoinNode extends QueryNode {
         for (QueryJoinNode join : joins) {
             join.complete(connection);
         }
-    }
-}
-
-class AdditionTree {
-    private final AssociationField associationField;
-    private final EntityModel targetModel;
-    private final CacheContext cacheContext;
-
-    private final List<PersistentObject> sources = new ArrayList<>();
-
-    AdditionTree(AssociationField associationField, CacheContext cacheContext) {
-        this.associationField = associationField;
-        this.targetModel = associationField.getTargetModelRef().model();
-        this.cacheContext = cacheContext;
-    }
-
-    void addSource(PersistentObject source) {
-        sources.add(source);
-    }
-
-    void complete(Connection connection) throws SQLException {
-        if (sources.isEmpty()) {
-            return;
-        }
-        if (associationField.hasColumn()) {
-            executeForColumnedField(connection);
-        } else {
-            executeForMappedField(connection);
-        }
-    }
-
-    private void executeForColumnedField(Connection connection) throws SQLException {
-        Field targetIdField = targetModel.getIdField();
-        // Multiple sources may point to the same target
-        MultiMap<Object, PersistentObject> groupedSources = new MultiMap<>();
-        for (PersistentObject source : sources) {
-            Object fkValue = associationField.getForeignKeyValue(source);
-            if (fkValue != null && cacheContext.get(targetModel, fkValue) == null) {
-                groupedSources.put(fkValue, source);
-            }
-        }
-
-        if (groupedSources.isEmpty()) {
-            return;
-        }
-
-        Predicate filter = Predicates.in(targetIdField.getName(), groupedSources.keySet());
-        List<PersistentObject> targets = new QueryTree(targetModel, cacheContext)
-                .addFilter(filter)
-                .execute(connection);
-        for (PersistentObject target : targets) {
-            Object fkValue = targetIdField.getValue(target);
-            for (PersistentObject source : groupedSources.get(fkValue)) {
-                associationField.setValue(source, target);
-            }
-        }
-    }
-
-    private void executeForMappedField(Connection connection) throws SQLException {
-        Field sourceIdField = associationField.getSourceModel().getIdField();
-
-        Map<Object, PersistentObject> idsToSources = new HashMap<>();
-        for (PersistentObject source : sources) {
-            Object id = sourceIdField.getValue(source);
-            idsToSources.put(id, source);
-        }
-
-        if (idsToSources.isEmpty()) {
-            return;
-        }
-
-        Field fkField = associationField.getMappedByField();
-        Predicate filter = Predicates.in(fkField.getName(), idsToSources.keySet());
-        List<PersistentObject> targets = new QueryTree(targetModel, cacheContext)
-                .addFilter(filter)
-                .execute(connection);
-        // Multiple targets may point to the same source
-        Map<Object, List<PersistentObject>> groupedTargets = targets.stream()
-                .collect(Collectors.groupingBy(t -> t.getForeignKeyValue(fkField.getColumnName())));
-        groupedTargets.forEach((key, group) -> {
-            PersistentObject source = idsToSources.get(key);
-            if (associationField.isPlural()) {
-                associationField.setValue(source, group);
-            } else {
-                if (group.size() > 0) {
-                    associationField.setValue(source, group.get(0));
-                }
-            }
-        });
     }
 }
 

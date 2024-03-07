@@ -12,4 +12,12 @@ dataFields:
   columnName: "int_value"
   dataTypeName: "INT"
   nullable: true
+- name: "sources"
+  dataTypeName: "<SourceEntity>"
+  associationType: "HasAndBelongsToMany"
+  targetModelName: "SourceEntity"
+  mappedByFieldName: "targets"
+  fetchType: "EAGER"
+  cascadeTypes: []
+  nullable: false
 linkedClassName: "com.iostate.orca.manytomany.TargetEntity"

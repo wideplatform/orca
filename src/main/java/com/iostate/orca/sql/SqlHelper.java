@@ -41,7 +41,7 @@ public class SqlHelper {
     }
 
     public void insert(EntityModel entityModel, PersistentObject po) {
-        final boolean isIdAssigned = getId(entityModel, po) != null;
+        final boolean isIdAssigned = entityModel.getIdValue(po) != null;
 
         if (!isIdAssigned && !entityModel.isIdGenerated()) {
             throw new PersistenceException(FAIL_PERSIST + ", no id and no generator, entityName=" + entityModel.getName());
@@ -82,10 +82,6 @@ public class SqlHelper {
         po.setPersisted(true);
 
         record.postPersist();
-    }
-
-    private Object getId(EntityModel entityModel, PersistentObject po) {
-        return entityModel.getIdField().getValue(po);
     }
 
     private void setId(EntityModel entityModel, PersistentObject po, Object id) {
@@ -145,7 +141,7 @@ public class SqlHelper {
         String sql = String.format("UPDATE %s SET %s WHERE %s = ?",
                 entityModel.getTableName(), columnsToUpdate, entityModel.getIdField().getColumnName());
 
-        Object id = getId(entityModel, po);
+        Object id = entityModel.getIdValue(po);
 
         Object[] args = Stream.concat(record.getColumnValues().values().stream(), Stream.of(id))
                 .toArray();

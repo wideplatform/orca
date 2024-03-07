@@ -7,7 +7,7 @@ import java.util.List;
 
 class ColumnIndexGenerator {
 
-    private List<SelectedField> selectedFields = new ArrayList<>();
+    private final List<SelectedField> selectedFields = new ArrayList<>();
 
     SelectedField newSelectedField(Field field, String tableAlias) {
         SelectedField sf = new SelectedField(field, tableAlias, selectedFields.size() + 1);

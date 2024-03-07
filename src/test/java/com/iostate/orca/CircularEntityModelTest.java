@@ -57,12 +57,12 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
         EntityModel targetModel = modelTargetEntity();
         sourceModel.addDataField(new HasAndBelongsToMany(
                 "targets", metadataManager,
-                sourceModel, modelRef(targetModel),
+                sourceModel, modelRef(targetModel), null,
                 FetchType.EAGER, null
         ));
         targetModel.addDataField(new HasAndBelongsToMany(
                 "sources", metadataManager,
-                targetModel, modelRef(sourceModel),
+                targetModel, modelRef(sourceModel), "targets",
                 FetchType.EAGER, null
         ));
 

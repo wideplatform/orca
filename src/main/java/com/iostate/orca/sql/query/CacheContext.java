@@ -14,4 +14,8 @@ public class CacheContext {
     public PersistentObject get(EntityModel entityModel, Object id) {
         return byIdCache.get(entityModel, id);
     }
+
+    void merge(CacheContext other) {
+        byIdCache.merge(other.byIdCache);
+    }
 }

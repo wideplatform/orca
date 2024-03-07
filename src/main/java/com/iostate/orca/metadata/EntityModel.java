@@ -46,6 +46,10 @@ public class EntityModel extends Model {
         }
     }
 
+    public Object getIdValue(PersistentObject po) {
+        return getIdField().getValue(po);
+    }
+
     public final EntityModelDto toDto() {
         EntityModelDto dto = new EntityModelDto();
         dto.setName(getName());

@@ -12,11 +12,15 @@ public class HasAndBelongsToMany extends AssociationField {
 
     public HasAndBelongsToMany(
             String name, MetadataManager metadataManager,
-            EntityModel sourceModel, EntityModelRef targetModelRef,
+            EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             FetchType fetchType, CascadeType[] cascadeTypes) {
-        super(name, sourceModel, targetModelRef, null, false, fetchType, cascadeTypes);
+        super(name, sourceModel, targetModelRef, mappedByFieldName, false, fetchType, cascadeTypes);
         this.dataType = new ReferenceDataType(targetModelRef, true);
-        this.middleTable = new MiddleTable(new EntityModelRef(sourceModel.getName(), metadataManager), targetModelRef);
+        if (mappedByFieldName == null) {
+            this.middleTable = new MiddleTable(new EntityModelRef(sourceModel.getName(), metadataManager), targetModelRef);
+        } else {
+            this.middleTable = null;
+        }
     }
 
     @Override
@@ -47,5 +51,9 @@ public class HasAndBelongsToMany extends AssociationField {
 
     public MiddleTable getMiddleTable() {
         return middleTable;
+    }
+
+    public MiddleTableImage middleTableImage() {
+        return new MiddleTableImage(this);
     }
 }

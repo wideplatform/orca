@@ -2,6 +2,7 @@ package com.iostate.orca.sql.query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,14 @@ public class MultiMap<K, V> {
 
     public Set<K> keySet() {
         return map.keySet();
+    }
+
+    public Set<V> valueSet() {
+        Set<V> collected = new HashSet<>();
+        for (List<V> list : map.values()) {
+            collected.addAll(list);
+        }
+        return collected;
     }
 
     public boolean isEmpty() {

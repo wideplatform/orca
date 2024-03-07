@@ -76,12 +76,16 @@ public class AssociatedEntityModelTest extends EntityModelGenerationTestBase {
     public void testManyToMany() throws IOException {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
-        HasAndBelongsToMany hasAndBelongsToMany = new HasAndBelongsToMany(
+        sourceModel.addDataField(new HasAndBelongsToMany(
                 "targets", metadataManager,
-                sourceModel, modelRef(targetModel),
+                sourceModel, modelRef(targetModel), null,
                 FetchType.EAGER, new CascadeType[]{}
-        );
-        sourceModel.addDataField(hasAndBelongsToMany);
+        ));
+        targetModel.addDataField(new HasAndBelongsToMany(
+                "sources", metadataManager,
+                targetModel, modelRef(sourceModel), "targets",
+                FetchType.EAGER, new CascadeType[]{}
+        ));
 
         exportCode("manytomany", sourceModel, targetModel);
     }
