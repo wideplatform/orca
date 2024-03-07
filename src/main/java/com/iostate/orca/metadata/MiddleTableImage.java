@@ -1,33 +1,55 @@
 package com.iostate.orca.metadata;
 
+import com.iostate.orca.api.EntityManager;
+import com.iostate.orca.api.PersistentObject;
+
 public class MiddleTableImage {
-    private final String tableName;
-    private final String sourceIdColumn;
-    private final String targetIdColumn;
+    private final boolean isOwning;
+    private final MiddleTable middleTable;
 
     MiddleTableImage(HasAndBelongsToMany mm) {
-        if (mm.getMappedByFieldName() != null) {
-            MiddleTable middleTable = ((HasAndBelongsToMany) mm.getMappedByField()).getMiddleTable();
-            tableName = middleTable.getTableName();
-            sourceIdColumn = middleTable.getTargetIdColumnName();
-            targetIdColumn = middleTable.getSourceIdColumnName();
+        if (mm.getMappedByFieldName() == null) {
+            isOwning = true;
+            middleTable = mm.getMiddleTable();
         } else {
-            MiddleTable middleTable = mm.getMiddleTable();
-            tableName = middleTable.getTableName();
-            sourceIdColumn = middleTable.getSourceIdColumnName();
-            targetIdColumn = middleTable.getTargetIdColumnName();
+            isOwning = false;
+            middleTable = ((HasAndBelongsToMany) mm.getMappedByField()).getMiddleTable();
         }
     }
 
     public String getTableName() {
-        return tableName;
+        return middleTable.getTableName();
     }
 
     public String getSourceIdColumn() {
-        return sourceIdColumn;
+        if (isOwning) {
+            return middleTable.getSourceIdColumnName();
+        } else {
+            return middleTable.getTargetIdColumnName();
+        }
     }
 
     public String getTargetIdColumn() {
-        return targetIdColumn;
+        if (isOwning) {
+            return middleTable.getTargetIdColumnName();
+        } else {
+            return middleTable.getSourceIdColumnName();
+        }
+    }
+
+    public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
+        if (isOwning) {
+            middleTable.put(source, target, entityManager);
+        } else {
+            middleTable.put(target, source, entityManager);
+        }
+    }
+
+    public void remove(PersistentObject source, PersistentObject target, EntityManager entityManager) {
+        if (isOwning) {
+            middleTable.remove(source, target, entityManager);
+        } else {
+            middleTable.remove(target, source, entityManager);
+        }
     }
 }

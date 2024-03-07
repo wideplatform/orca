@@ -71,7 +71,7 @@ public class HasAndBelongsToManyCascade implements Cascade {
     private void middleTablePut(EntityManager entityManager) {
         for (PersistentObject target : targets) {
             if (target.isPersisted()) {
-                field.getMiddleTable().put(source, target, entityManager);
+                field.middleTableImage().put(source, target, entityManager);
             } else {
                 throw new PersistenceException(
                         String.format("Failed to relate non-persisted %s to %s without cascading",
@@ -83,7 +83,7 @@ public class HasAndBelongsToManyCascade implements Cascade {
     private void middleTableRemove(EntityManager entityManager) {
         for (PersistentObject target : targets) {
             if (target.isPersisted()) {
-                field.getMiddleTable().remove(source, target, entityManager);
+                field.middleTableImage().remove(source, target, entityManager);
             }
         }
     }
