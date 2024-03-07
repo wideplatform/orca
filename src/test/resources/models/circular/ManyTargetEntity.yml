@@ -1,0 +1,22 @@
+---
+name: "ManyTargetEntity"
+tableName: "many_target_entity"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "intValue"
+  columnName: "int_value"
+  dataTypeName: "INT"
+  nullable: true
+- name: "sources"
+  dataTypeName: "<ManySourceEntity>"
+  associationType: "HasAndBelongsToMany"
+  targetModelName: "ManySourceEntity"
+  mappedByFieldName: "targets"
+  fetchType: "EAGER"
+  nullable: false
+linkedClassName: "com.iostate.orca.circular.ManyTargetEntity"

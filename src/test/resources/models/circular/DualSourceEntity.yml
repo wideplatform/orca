@@ -1,0 +1,29 @@
+---
+name: "DualSourceEntity"
+tableName: "dual_source_entity"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "strValue"
+  columnName: "str_value"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "target1"
+  dataTypeName: "DualTargetEntity"
+  associationType: "HasOne"
+  targetModelName: "DualTargetEntity"
+  mappedByFieldName: "source1"
+  fetchType: "EAGER"
+  nullable: true
+- name: "target2"
+  dataTypeName: "DualTargetEntity"
+  associationType: "HasOne"
+  targetModelName: "DualTargetEntity"
+  mappedByFieldName: "source2"
+  fetchType: "EAGER"
+  nullable: true
+linkedClassName: "com.iostate.orca.circular.DualSourceEntity"

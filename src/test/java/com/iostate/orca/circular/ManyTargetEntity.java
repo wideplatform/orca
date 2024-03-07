@@ -8,10 +8,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("circular")
-public class TargetEntity extends com.iostate.orca.api.BasePO {
+public class ManyTargetEntity extends com.iostate.orca.api.BasePO {
     private Long id;
     private Integer intValue;
-    private java.util.List<SourceEntity> sources = new java.util.ArrayList<>();
+    private java.util.List<ManySourceEntity> sources = new java.util.ArrayList<>();
 
     public Long getId() {
         return id;
@@ -29,32 +29,32 @@ public class TargetEntity extends com.iostate.orca.api.BasePO {
         this.intValue = intValue;
         markUpdatedField("intValue");
     }
-    public java.util.List<SourceEntity> getSources() {
+    public java.util.List<ManySourceEntity> getSources() {
         return sources;
     }
 
-    public void setSources(java.util.List<SourceEntity> sources) {
+    public void setSources(java.util.List<ManySourceEntity> sources) {
         this.sources = sources;
         markUpdatedField("sources");
     }
 
-    private static final Map<String, Function<TargetEntity, Object>> GETTERS;
+    private static final Map<String, Function<ManyTargetEntity, Object>> GETTERS;
 
     static {
-        Map<String, Function<TargetEntity, Object>> getters = new HashMap<>();
-        getters.put("id", TargetEntity::getId);
-        getters.put("intValue", TargetEntity::getIntValue);
-        getters.put("sources", TargetEntity::getSources);
+        Map<String, Function<ManyTargetEntity, Object>> getters = new HashMap<>();
+        getters.put("id", ManyTargetEntity::getId);
+        getters.put("intValue", ManyTargetEntity::getIntValue);
+        getters.put("sources", ManyTargetEntity::getSources);
         GETTERS = Collections.unmodifiableMap(getters);
     }
 
-    private static final Map<String, BiConsumer<TargetEntity, Object>> SETTERS;
+    private static final Map<String, BiConsumer<ManyTargetEntity, Object>> SETTERS;
 
     static {
-        Map<String, BiConsumer<TargetEntity, Object>> setters = new HashMap<>();
+        Map<String, BiConsumer<ManyTargetEntity, Object>> setters = new HashMap<>();
         setters.put("id", (object, value) -> object.setId((Long) value));
         setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
-        setters.put("sources", (object, value) -> object.setSources((java.util.List<SourceEntity>) value));
+        setters.put("sources", (object, value) -> object.setSources((java.util.List<ManySourceEntity>) value));
         SETTERS = Collections.unmodifiableMap(setters);
     }
 

@@ -52,13 +52,14 @@ class QueryResultMapper implements ResultMapper {
         return po;
     }
 
-    public Object getId(ResultSet rs) throws SQLException {
+    Object getId(ResultSet rs) throws SQLException {
         SelectedField sf = fieldSelection.getIdField();
         return TypeHandlers.INSTANCE.find(sf.getField().getDataType())
                 .getValue(rs, sf.getIndex());
     }
 
-    public boolean isValidId(Object id) {
+    // TODO is there a better solution?
+    boolean isValidId(Object id) {
         if (id == null) {
             return false;
         } else if (id instanceof Number) {

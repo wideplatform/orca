@@ -34,7 +34,35 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
     }
 
     @Test
-    public void testOneToManyToOne() throws IOException {
+    public void testOneToOneDualAssociations() throws IOException {
+        EntityModel sourceModel = modelDualSourceEntity();
+        EntityModel targetModel = modelDualTargetEntity();
+        sourceModel.addDataField(new HasOne(
+                "target1",
+                sourceModel, modelRef(targetModel), "source1",
+                true, FetchType.EAGER, null
+        ));
+        sourceModel.addDataField(new HasOne(
+                "target2",
+                sourceModel, modelRef(targetModel), "source2",
+                true, FetchType.EAGER, null
+        ));
+        targetModel.addDataField(new BelongsTo(
+                "source1", "source1",
+                targetModel, modelRef(sourceModel),
+                true, FetchType.EAGER, null
+        ));
+        targetModel.addDataField(new BelongsTo(
+                "source2", "source2",
+                targetModel, modelRef(sourceModel),
+                true, FetchType.EAGER, null
+        ));
+
+        exportCode("circular", sourceModel, targetModel);
+    }
+
+    @Test
+    public void testOneToManyAggregate() throws IOException {
         EntityModel parentModel = modelParentEntity();
         EntityModel childModel = modelChildEntity();
         parentModel.addDataField(new HasMany(
@@ -52,9 +80,9 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
     }
 
     @Test
-    public void testManyToManyToMany() throws IOException {
-        EntityModel sourceModel = modelSourceEntity();
-        EntityModel targetModel = modelTargetEntity();
+    public void testManyToManyReference() throws IOException {
+        EntityModel sourceModel = modelManySourceEntity();
+        EntityModel targetModel = modelManyTargetEntity();
         sourceModel.addDataField(new HasAndBelongsToMany(
                 "targets", metadataManager,
                 sourceModel, modelRef(targetModel), null,
@@ -75,6 +103,30 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
 
         EntityModel entityModel = new EntityModel(
                 "SelfEntity", "self_entity",
+                "auto", idField);
+        entityModel.addDataField(strField);
+        metadataManager.addEntityModel(entityModel);
+        return entityModel;
+    }
+
+    private EntityModel modelDualSourceEntity() {
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
+
+        EntityModel entityModel = new EntityModel(
+                "DualSourceEntity", "dual_source_entity",
+                "auto", idField);
+        entityModel.addDataField(strField);
+        metadataManager.addEntityModel(entityModel);
+        return entityModel;
+    }
+
+    private EntityModel modelDualTargetEntity() {
+        Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
+        Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
+
+        EntityModel entityModel = new EntityModel(
+                "DualTargetEntity", "dual_target_entity",
                 "auto", idField);
         entityModel.addDataField(strField);
         metadataManager.addEntityModel(entityModel);
@@ -105,24 +157,24 @@ public class CircularEntityModelTest extends EntityModelGenerationTestBase {
         return entityModel;
     }
 
-    private EntityModel modelSourceEntity() {
+    private EntityModel modelManySourceEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
         Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
 
         EntityModel entityModel = new EntityModel(
-                "SourceEntity", "source_entity",
+                "ManySourceEntity", "many_source_entity",
                 "auto", idField);
         entityModel.addDataField(strField);
         metadataManager.addEntityModel(entityModel);
         return entityModel;
     }
 
-    private EntityModel modelTargetEntity() {
+    private EntityModel modelManyTargetEntity() {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
         Field intField = new SimpleField("intValue", "int_value", SimpleDataType.INT, false, true);
 
         EntityModel entityModel = new EntityModel(
-                "TargetEntity", "target_entity",
+                "ManyTargetEntity", "many_target_entity",
                 "auto", idField);
         entityModel.addDataField(intField);
         metadataManager.addEntityModel(entityModel);

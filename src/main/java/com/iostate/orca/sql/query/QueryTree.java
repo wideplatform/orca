@@ -277,6 +277,7 @@ class QueryJoinNode extends QueryNode {
         if (associationField.isSingular()) {
             associationField.setValue(parent, current);
         } else {
+            //noinspection unchecked
             List<PersistentObject> list = (List<PersistentObject>) associationField.getValue(parent);
             if (list == null) {
                 list = new ArrayList<>();
