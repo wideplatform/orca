@@ -59,7 +59,9 @@ public abstract class TestBase {
     }
 
     @AfterEach
-    public void teardown() {
+    public void teardown() throws Exception {
+        dbInitializer.close();
+
         metadataManager = null;
         dbInitializer = null;
         entityManager = null;

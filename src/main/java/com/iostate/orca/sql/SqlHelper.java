@@ -319,7 +319,7 @@ public class SqlHelper {
         }
     }
 
-    // TODO connection management
+    // Connection lifecycle management is delegated to the application framework like Spring
     private Connection connection() {
         try {
             return connectionProvider.getConnection();

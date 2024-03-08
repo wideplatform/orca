@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class DbInitializer {
 
     private MetadataManager metadataManager;
-    private ConnectionProvider connectionProvider;
+    private TestConnectionProvider connectionProvider;
 
     public DbInitializer(MetadataManager metadataManager) {
         this.metadataManager = metadataManager;
@@ -17,11 +17,15 @@ public class DbInitializer {
 
     public void execute() throws IOException, SQLException {
         String dbType = System.getProperty("mdp.db.type", "h2");
-        connectionProvider = DataSourceWrapper.of(DataSourceUtil.create(dbType));
+        connectionProvider = TestConnectionProvider.of(DataSourceUtil.create(dbType));
         SchemaBuilderFactory.make(DbType.of(dbType)).build(connectionProvider, metadataManager);
     }
 
     public ConnectionProvider getConnectionProvider() {
         return connectionProvider;
+    }
+
+    public void close() throws SQLException {
+        connectionProvider.closeConnection();
     }
 }
