@@ -21,7 +21,7 @@ public class SimpleEntityModelTest extends EntityModelGenerationTestBase {
         assertEquals("SimpleEntity", entityModel.getName());
         assertEquals("simple_entity", entityModel.getTableName());
         Collection<Field> allFields = entityModel.allFields();
-        assertEquals(5, allFields.size());
+        assertEquals(7, allFields.size());
         assertEquals(entityModel.getIdField(), allFields.iterator().next());
     }
 
@@ -29,6 +29,8 @@ public class SimpleEntityModelTest extends EntityModelGenerationTestBase {
         Field idField = new SimpleField("id", "id", SimpleDataType.LONG, true, true);
         Field boolField = new SimpleField("boolValue", "bool_value", SimpleDataType.BOOLEAN, false, true);
         Field intField = new SimpleField("intValue", "int_value", SimpleDataType.INT, false, true);
+        Field longField = new SimpleField("longValue", "long_value", SimpleDataType.LONG, false, true);
+        Field decField = new SimpleField("decValue", "dec_value", SimpleDataType.DECIMAL, false, true);
         Field strField = new SimpleField("strValue", "str_value", SimpleDataType.STRING, false, true);
         Field datetimeField = new SimpleField("dtValue", "dt_value", SimpleDataType.DATETIME, false, true);
 
@@ -37,6 +39,8 @@ public class SimpleEntityModelTest extends EntityModelGenerationTestBase {
                 "auto", idField);
         entityModel.addDataField(boolField);
         entityModel.addDataField(intField);
+        entityModel.addDataField(longField);
+        entityModel.addDataField(decField);
         entityModel.addDataField(strField);
         entityModel.addDataField(datetimeField);
         metadataManager.addEntityModel(entityModel);

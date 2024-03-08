@@ -12,6 +12,8 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
     private Long id;
     private Boolean boolValue;
     private Integer intValue;
+    private Long longValue;
+    private java.math.BigDecimal decValue;
     private String strValue;
     private java.time.Instant dtValue;
 
@@ -39,6 +41,22 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
         this.intValue = intValue;
         markUpdatedField("intValue");
     }
+    public Long getLongValue() {
+        return longValue;
+    }
+
+    public void setLongValue(Long longValue) {
+        this.longValue = longValue;
+        markUpdatedField("longValue");
+    }
+    public java.math.BigDecimal getDecValue() {
+        return decValue;
+    }
+
+    public void setDecValue(java.math.BigDecimal decValue) {
+        this.decValue = decValue;
+        markUpdatedField("decValue");
+    }
     public String getStrValue() {
         return strValue;
     }
@@ -63,6 +81,8 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
         getters.put("id", SimpleEntity::getId);
         getters.put("boolValue", SimpleEntity::getBoolValue);
         getters.put("intValue", SimpleEntity::getIntValue);
+        getters.put("longValue", SimpleEntity::getLongValue);
+        getters.put("decValue", SimpleEntity::getDecValue);
         getters.put("strValue", SimpleEntity::getStrValue);
         getters.put("dtValue", SimpleEntity::getDtValue);
         GETTERS = Collections.unmodifiableMap(getters);
@@ -75,6 +95,8 @@ public class SimpleEntity extends com.iostate.orca.api.BasePO {
         setters.put("id", (object, value) -> object.setId((Long) value));
         setters.put("boolValue", (object, value) -> object.setBoolValue((Boolean) value));
         setters.put("intValue", (object, value) -> object.setIntValue((Integer) value));
+        setters.put("longValue", (object, value) -> object.setLongValue((Long) value));
+        setters.put("decValue", (object, value) -> object.setDecValue((java.math.BigDecimal) value));
         setters.put("strValue", (object, value) -> object.setStrValue((String) value));
         setters.put("dtValue", (object, value) -> object.setDtValue((java.time.Instant) value));
         SETTERS = Collections.unmodifiableMap(setters);

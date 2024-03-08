@@ -16,6 +16,14 @@ dataFields:
   columnName: "int_value"
   dataTypeName: "INT"
   nullable: true
+- name: "longValue"
+  columnName: "long_value"
+  dataTypeName: "LONG"
+  nullable: true
+- name: "decValue"
+  columnName: "dec_value"
+  dataTypeName: "DECIMAL"
+  nullable: true
 - name: "strValue"
   columnName: "str_value"
   dataTypeName: "STRING"

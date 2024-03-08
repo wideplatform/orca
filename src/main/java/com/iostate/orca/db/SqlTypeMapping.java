@@ -20,12 +20,13 @@ class SqlTypeMapping {
     private static final Map<DataType, String> sqlTypes = new HashMap<>();
 
     static {
-        sqlTypes.put(SimpleDataType.STRING, "VARCHAR(255)");
-        sqlTypes.put(SimpleDataType.LONG, "BIGINT");
+        sqlTypes.put(SimpleDataType.BOOLEAN, "BOOLEAN");
         sqlTypes.put(SimpleDataType.INT, "INTEGER");
+        sqlTypes.put(SimpleDataType.LONG, "BIGINT");
+        sqlTypes.put(SimpleDataType.DECIMAL, "DECIMAL(18,8)");
+        sqlTypes.put(SimpleDataType.STRING, "VARCHAR(255)");
         sqlTypes.put(SimpleDataType.DATETIME, "DATETIME");
         sqlTypes.put(SimpleDataType.DATE, "DATE");
-        sqlTypes.put(SimpleDataType.BOOLEAN, "BOOLEAN");
     }
 
     static String sqlType(Field field) {

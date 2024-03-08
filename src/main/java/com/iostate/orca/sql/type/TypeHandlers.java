@@ -17,6 +17,10 @@ public enum TypeHandlers {
         classTypeHandlerMap.put(SimpleDataType.LONG, new LongTypeHandler());
 
         classTypeHandlerMap.put(SimpleDataType.INT, new IntTypeHandler());
+
+        classTypeHandlerMap.put(SimpleDataType.DECIMAL, new BigDecimalTypeHandler());
+
+        classTypeHandlerMap.put(SimpleDataType.STRING, new StringTypeHandler());
     }
 
     private final TypeHandler<Object> defaultTypeHandler = new ObjectTypeHandler();

@@ -3,6 +3,8 @@ package com.iostate.orca;
 import com.iostate.orca.api.exception.PersistenceException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleCrudTest extends TestBase {
@@ -68,15 +70,19 @@ public class SimpleCrudTest extends TestBase {
     public void testUpdate() {
         SimpleEntity prepared = prepare();
 
-        prepared.setStrValue("abc");
-        prepared.setIntValue(123);
         prepared.setBoolValue(true);
+        prepared.setIntValue(123);
+        prepared.setLongValue(123L);
+        prepared.setDecValue(new BigDecimal("1.23"));
+        prepared.setStrValue("abc");
         entityManager.update(prepared);
 
         SimpleEntity result = entityManager.find(SimpleEntity.class, prepared.getId());
-        assertEquals("abc", result.getStrValue());
+        assertEquals(true, result.getBoolValue());
         assertEquals((Integer) 123, result.getIntValue());
-//        assertEquals(true, result.getBoolValue());
+        assertEquals((Long) 123L, result.getLongValue());
+        assertEquals(0, new BigDecimal("1.23").compareTo(result.getDecValue()));
+        assertEquals("abc", result.getStrValue());
     }
 
     @Test
