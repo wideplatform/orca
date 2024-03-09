@@ -1,8 +1,5 @@
 package com.iostate.orca.api;
 
-import com.iostate.orca.metadata.EntityModel;
-import com.iostate.orca.sql.SqlHelper;
-
 import java.util.List;
 
 public interface EntityManager {
@@ -21,13 +18,9 @@ public interface EntityManager {
 
     <T> T find(Class<T> entityClass, Object id);
 
-    PersistentObject find(EntityModel entityModel, Object id);
-
     <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue);
 
     <T> T fetch(Class<T> entityClass, Object id);
 
     <T> T ref(Class<T> entityClass, Object id);
-
-    SqlHelper getSqlHelper();
 }

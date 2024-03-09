@@ -2,6 +2,7 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.core.InternalEntityManager;
 
 public class MiddleTableImage {
     private final boolean isOwning;
@@ -39,17 +40,17 @@ public class MiddleTableImage {
 
     public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
         if (isOwning) {
-            middleTable.put(source, target, entityManager);
+            middleTable.put(source, target, (InternalEntityManager) entityManager);
         } else {
-            middleTable.put(target, source, entityManager);
+            middleTable.put(target, source, (InternalEntityManager) entityManager);
         }
     }
 
     public void remove(PersistentObject source, PersistentObject target, EntityManager entityManager) {
         if (isOwning) {
-            middleTable.remove(source, target, entityManager);
+            middleTable.remove(source, target, (InternalEntityManager) entityManager);
         } else {
-            middleTable.remove(target, source, entityManager);
+            middleTable.remove(target, source, (InternalEntityManager) entityManager);
         }
     }
 }

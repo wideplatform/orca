@@ -1,8 +1,8 @@
 package com.iostate.orca.metadata;
 
-import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.api.exception.PersistenceException;
+import com.iostate.orca.core.InternalEntityManager;
 
 import java.sql.SQLException;
 
@@ -41,7 +41,7 @@ public class MiddleTable {
         return "target_id";
     }
 
-    public void put(PersistentObject source, PersistentObject target, EntityManager entityManager) {
+    public void put(PersistentObject source, PersistentObject target, InternalEntityManager entityManager) {
         Object sourceId = sourceModelRef.model().getIdValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to insert a relationship, sourceId is null");
@@ -74,7 +74,7 @@ public class MiddleTable {
         }
     }
 
-    public void remove(PersistentObject source, PersistentObject target, EntityManager entityManager) {
+    public void remove(PersistentObject source, PersistentObject target, InternalEntityManager entityManager) {
         Object sourceId = sourceModelRef.model().getIdValue(source);
         if (sourceId == null) {
             throw new PersistenceException("Failed to delete a relationship, sourceId is null");

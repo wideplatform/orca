@@ -1,7 +1,7 @@
 package com.iostate.orca.metadata;
 
-import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.exception.PersistenceException;
 
 import java.util.Objects;
 

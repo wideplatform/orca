@@ -1,8 +1,8 @@
 package com.iostate.orca.query.predicate;
 
 import com.iostate.orca.query.SqlBuilder;
-import com.iostate.orca.query.expression.PathNavigation;
 import com.iostate.orca.query.expression.Expression;
+import com.iostate.orca.query.expression.PathNavigation;
 import com.iostate.orca.query.expression.SingleValueBinding;
 
 class Equal extends AbstractPredicate {

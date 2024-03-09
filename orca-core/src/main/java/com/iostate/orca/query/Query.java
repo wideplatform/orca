@@ -1,8 +1,8 @@
 package com.iostate.orca.query;
 
+import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.MetadataManager;
-import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.query.predicate.Predicate;
 
 public class Query<T> {

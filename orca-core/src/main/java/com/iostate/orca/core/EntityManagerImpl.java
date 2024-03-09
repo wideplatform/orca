@@ -1,8 +1,8 @@
 package com.iostate.orca.core;
 
 import com.iostate.orca.api.ConnectionProvider;
-import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.AssociationField;
@@ -16,12 +16,11 @@ import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.sql.SqlHelper;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class EntityManagerImpl implements EntityManager {
+public class EntityManagerImpl implements InternalEntityManager {
 
     private final MetadataManager metadataManager;
 
