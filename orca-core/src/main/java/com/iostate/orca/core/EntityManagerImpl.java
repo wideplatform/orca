@@ -1,6 +1,7 @@
 package com.iostate.orca.core;
 
 import com.iostate.orca.api.ConnectionProvider;
+import com.iostate.orca.api.MapBackedPO;
 import com.iostate.orca.api.PersistentObject;
 import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
@@ -41,7 +42,7 @@ public class EntityManagerImpl implements InternalEntityManager {
             throw new IllegalStateException("entity is already persisted thus unable to persist");
         }
 
-        EntityModel entityModel = getEntityModel(entity.getClass());
+        EntityModel entityModel = getEntityModel((PersistentObject) entity);
         sqlHelper.insert(entityModel, (PersistentObject) entity);
 
 //    refresh(entity);
@@ -57,7 +58,7 @@ public class EntityManagerImpl implements InternalEntityManager {
             throw new IllegalStateException("entity is not persisted thus unable to update");
         }
 
-        EntityModel entityModel = getEntityModel(entity.getClass());
+        EntityModel entityModel = getEntityModel((PersistentObject) entity);
         sqlHelper.update(entityModel, (PersistentObject) entity);
 
 //    refresh(entity);
@@ -82,7 +83,7 @@ public class EntityManagerImpl implements InternalEntityManager {
             throw new IllegalArgumentException("id is null");
         }
 
-        EntityModel entityModel = getEntityModel(entityClass);
+        EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
         sqlHelper.deleteById(entityModel, id);
     }
 
@@ -91,7 +92,7 @@ public class EntityManagerImpl implements InternalEntityManager {
         if (entity == null) {
             throw new IllegalArgumentException("entity is null");
         }
-        EntityModel entityModel = getEntityModel(entity.getClass());
+        EntityModel entityModel = getEntityModel((PersistentObject) entity);
         sqlHelper.deleteEntity(entityModel, entity);
     }
 
@@ -101,7 +102,7 @@ public class EntityManagerImpl implements InternalEntityManager {
             throw new IllegalArgumentException("entity is null");
         }
 
-        EntityModel entityModel = getEntityModel(entity.getClass());
+        EntityModel entityModel = getEntityModel((PersistentObject) entity);
         Object id = entityModel.getIdField().getValue(entity);
         if (id == null) {
             throw new EntityNotFoundException("entityName=" + entityModel.getName() + ", id is null");
@@ -121,20 +122,23 @@ public class EntityManagerImpl implements InternalEntityManager {
 
     @Override
     public <T> T find(Class<T> entityClass, Object id) {
-        if (id == null) {
-            throw new IllegalArgumentException("id is null");
-        }
-
-        EntityModel entityModel = getEntityModel(entityClass);
-        PersistentObject po = find(entityModel, id);
-
+        EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
         //noinspection unchecked
-        return (T) po;
+        return (T) find(entityModel, id);
+    }
+
+    @Override
+    public PersistentObject find(String modelName, Object id) {
+        EntityModel entityModel = metadataManager.findEntityByName(modelName);
+        return find(entityModel, id);
     }
 
     @Override
     public PersistentObject find(EntityModel entityModel, Object id) {
         Objects.requireNonNull(entityModel);
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
         PersistentObject po = sqlHelper.findById(entityModel, id);
         loadAllLazy(entityModel, Collections.singletonList(po));
         return po;
@@ -142,11 +146,21 @@ public class EntityManagerImpl implements InternalEntityManager {
 
     @Override
     public <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue) {
-        EntityModel entityModel = getEntityModel(entityClass);
+        EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
+        //noinspection unchecked
+        return (List<T>) findBy(entityModel, objectPath, fieldValue);
+    }
+
+    @Override
+    public List<PersistentObject> findBy(String modelName, String objectPath, Object fieldValue) {
+        EntityModel entityModel = metadataManager.findEntityByName(modelName);
+        return findBy(entityModel, objectPath, fieldValue);
+    }
+
+    private List<PersistentObject> findBy(EntityModel entityModel, String objectPath, Object fieldValue) {
         List<PersistentObject> pos = sqlHelper.findBy(entityModel, objectPath, fieldValue);
         loadAllLazy(entityModel, pos);
-        //noinspection unchecked
-        return (List<T>) pos;
+        return pos;
     }
 
     // TODO implement real lazy loading in generated code
@@ -214,8 +228,12 @@ public class EntityManagerImpl implements InternalEntityManager {
         return sqlHelper;
     }
 
-    private EntityModel getEntityModel(Class<?> entityClass) {
-        return metadataManager.findEntityByClass(entityClass);
+    private EntityModel getEntityModel(PersistentObject entity) {
+        if (entity instanceof MapBackedPO) {
+            return metadataManager.findEntityByName(((MapBackedPO) entity).getModelName());
+        } else {
+            return metadataManager.findEntityByClass(entity.getClass());
+        }
     }
 
     private boolean isPersisted(Object entity) {

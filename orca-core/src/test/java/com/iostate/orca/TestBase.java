@@ -1,15 +1,12 @@
 package com.iostate.orca;
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.Namespace;
 import com.iostate.orca.core.EntityManagerImpl;
 import com.iostate.orca.db.DbInitializer;
 import com.iostate.orca.metadata.MetadataManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -30,13 +27,7 @@ public abstract class TestBase {
     public void setup() throws Exception {
         metadataManager = new MetadataManager();
         for (Class<?> entityClass : entities()) {
-            String namespace = entityClass.getAnnotation(Namespace.class).value();
-            String directory = namespace.isEmpty() ? "" : namespace + '/';
-            String path = "models/" + directory + entityClass.getSimpleName() + ".yml";
-            try (InputStream in = getClass().getClassLoader().getResourceAsStream(path)) {
-                byte[] bytes = in.readAllBytes();
-                metadataManager.loadEntityModel(new String(bytes, StandardCharsets.UTF_8));
-            }
+            metadataManager.findEntityByClass(entityClass);
         }
 
         dbInitializer = new DbInitializer(metadataManager);

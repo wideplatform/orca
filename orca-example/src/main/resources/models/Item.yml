@@ -1,0 +1,31 @@
+---
+name: "Item"
+tableName: "item"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "name"
+  columnName: "name"
+  dataTypeName: "STRING"
+  nullable: false
+- name: "visible"
+  columnName: "visible"
+  dataTypeName: "BOOLEAN"
+  nullable: false
+- name: "quantity"
+  columnName: "quantity"
+  dataTypeName: "INT"
+  nullable: false
+- name: "price"
+  columnName: "price"
+  dataTypeName: "DECIMAL"
+  nullable: false
+- name: "created_at"
+  columnName: "created_at"
+  dataTypeName: "DATETIME"
+  nullable: true
+linkedClassName: "com.iostate.example.persistence.entity.Item"

@@ -34,4 +34,9 @@ public class MapBackedPO extends BasePO {
         }
         markUpdatedField(name);
     }
+
+    @Override
+    public String toString() {
+        return modelName + "{" + valueMap + "}";
+    }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.iostate.orca.api.BasePO;
+import com.iostate.orca.api.Namespace;
 import com.iostate.orca.metadata.dto.EntityModelDto;
 import com.iostate.orca.metadata.view.ViewModel;
 import freemarker.template.Configuration;
@@ -14,7 +15,9 @@ import freemarker.template.TemplateExceptionHandler;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,9 +48,30 @@ public class MetadataManager {
         codeTemplateConfig.setFallbackOnNullLoopVariable(false);
     }
 
-    public void loadEntityModel(String yaml) throws JsonProcessingException {
+    private String resolveModelName(Class<?> entityClass) {
+        String namespace = entityClass.getAnnotation(Namespace.class).value();
+        String directory = namespace.isEmpty() ? "" : namespace + '/';
+        return directory + entityClass.getSimpleName();
+    }
+
+    private EntityModel loadEntityModelByName(String name) {
+        String path = "models/" + name + ".yml";
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (in == null) {
+                return null;
+            }
+            byte[] bytes = in.readAllBytes();
+            return loadEntityModelFromYaml(new String(bytes, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private EntityModel loadEntityModelFromYaml(String yaml) throws JsonProcessingException {
         EntityModelDto entityModelDto = yamlMapper.readValue(yaml, EntityModelDto.class);
-        addEntityModel(new ModelConverter(this).entityModel(entityModelDto));
+        EntityModel entityModel = new ModelConverter(this).entityModel(entityModelDto);
+        addEntityModel(entityModel);
+        return entityModel;
     }
 
     public void addEntityModel(EntityModel entityModel) {
@@ -67,11 +91,16 @@ public class MetadataManager {
     }
 
     public EntityModel findEntityByName(String name) {
-        return entityModelMap.get(name);
+        EntityModel entityModel = entityModelMap.get(name);
+        if (entityModel != null) {
+            return entityModel;
+        } else {
+            return loadEntityModelByName(name);
+        }
     }
 
     public EntityModel findEntityByClass(Class<?> cls) {
-        return findEntityByName(cls.getSimpleName());
+        return findEntityByName(resolveModelName(cls));
     }
 
     public ViewModel findViewByName(String name) {
@@ -79,7 +108,7 @@ public class MetadataManager {
     }
 
     public ViewModel findViewByClass(Class<?> cls) {
-        return findViewByName(cls.getSimpleName());
+        return findViewByName(resolveModelName(cls));
     }
 
     public String generateYaml(EntityModel entityModel) throws JsonProcessingException {
