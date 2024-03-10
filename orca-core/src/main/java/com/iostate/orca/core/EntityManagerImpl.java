@@ -214,16 +214,6 @@ public class EntityManagerImpl implements InternalEntityManager {
     }
 
     @Override
-    public <T> T fetch(Class<T> entityClass, Object id) {
-        return null;
-    }
-
-    @Override
-    public <T> T ref(Class<T> entityClass, Object id) {
-        return null;
-    }
-
-    @Override
     public SqlHelper getSqlHelper() {
         return sqlHelper;
     }

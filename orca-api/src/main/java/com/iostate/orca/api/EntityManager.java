@@ -23,8 +23,4 @@ public interface EntityManager {
     <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue);
 
     List<PersistentObject> findBy(String modelName, String objectPath, Object fieldValue);
-
-    <T> T fetch(Class<T> entityClass, Object id);
-
-    <T> T ref(Class<T> entityClass, Object id);
 }
