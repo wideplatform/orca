@@ -3,7 +3,7 @@ package com.iostate.example.persistence;
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.db.DbType;
 import com.iostate.orca.db.SchemaBuilderFactory;
-import com.iostate.orca.metadata.CodeUtils;
+import com.iostate.orca.utils.CodeUtils;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.MetadataManager;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.iostate.orca.metadata;
+package com.iostate.orca.utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

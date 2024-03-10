@@ -14,7 +14,7 @@ public class HasMany extends AssociationField {
             EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             FetchType fetchType, CascadeType[] cascadeTypes) {
         super(name, sourceModel, targetModelRef, mappedByFieldName, false, fetchType, cascadeTypes);
-        this.dataType = new ReferenceDataType(targetModelRef, true);
+        this.dataType = new ReferentialDataType(targetModelRef, true);
     }
 
     @Override

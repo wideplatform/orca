@@ -1,10 +1,10 @@
 package com.iostate.orca.metadata;
 
-public class ReferenceDataType implements DataType {
+public class ReferentialDataType implements DataType {
     private final EntityModelRef targetModelRef;
     private final boolean isPlural;
 
-    public ReferenceDataType(EntityModelRef targetModelRef, boolean isPlural) {
+    public ReferentialDataType(EntityModelRef targetModelRef, boolean isPlural) {
         this.targetModelRef = targetModelRef;
         this.isPlural = isPlural;
     }

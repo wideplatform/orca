@@ -16,7 +16,7 @@ public class BelongsTo extends AssociationField {
             boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
         super(name, sourceModel, targetModelRef, null, isNullable, fetchType, cascadeTypes);
         this.columnName = columnName;
-        this.dataType = new ReferenceDataType(targetModelRef, false);
+        this.dataType = new ReferentialDataType(targetModelRef, false);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class HasOne extends AssociationField {
             EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             boolean isNullable, FetchType fetchType, CascadeType[] cascadeTypes) {
         super(name, sourceModel, targetModelRef, mappedByFieldName, isNullable, fetchType, cascadeTypes);
-        this.dataType = new ReferenceDataType(targetModelRef, false);
+        this.dataType = new ReferentialDataType(targetModelRef, false);
     }
 
     @Override
