@@ -8,7 +8,6 @@ import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.MiddleTableImage;
-import com.iostate.orca.query.ConcreteSqlBuilder;
 import com.iostate.orca.query.SqlBuilder;
 import com.iostate.orca.query.predicate.Predicate;
 

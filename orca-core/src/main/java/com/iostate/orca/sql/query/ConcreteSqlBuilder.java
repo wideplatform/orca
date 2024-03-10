@@ -1,6 +1,6 @@
-package com.iostate.orca.query;
+package com.iostate.orca.sql.query;
 
-import com.iostate.orca.sql.query.QueryTree;
+import com.iostate.orca.query.SqlBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
