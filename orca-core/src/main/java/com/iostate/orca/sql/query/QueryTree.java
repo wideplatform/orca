@@ -8,8 +8,8 @@ import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.MiddleTableImage;
-import com.iostate.orca.query.SqlBuilder;
-import com.iostate.orca.query.predicate.Predicate;
+import com.iostate.orca.api.query.SqlBuilder;
+import com.iostate.orca.api.query.predicate.Predicate;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

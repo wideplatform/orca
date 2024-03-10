@@ -1,4 +1,4 @@
-package com.iostate.orca.query.predicate;
+package com.iostate.orca.api.query.predicate;
 
 public abstract class Compound extends AbstractPredicate {
 

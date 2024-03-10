@@ -10,7 +10,7 @@ import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.MiddleTable;
-import com.iostate.orca.query.predicate.Predicates;
+import com.iostate.orca.api.query.predicate.Predicates;
 import com.iostate.orca.sql.query.QueryTree;
 
 import java.sql.Connection;

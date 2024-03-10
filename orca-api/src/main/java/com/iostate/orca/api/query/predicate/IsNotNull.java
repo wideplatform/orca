@@ -1,7 +1,7 @@
-package com.iostate.orca.query.predicate;
+package com.iostate.orca.api.query.predicate;
 
-import com.iostate.orca.query.SqlBuilder;
-import com.iostate.orca.query.expression.Expression;
+import com.iostate.orca.api.query.SqlBuilder;
+import com.iostate.orca.api.query.expression.Expression;
 
 class IsNotNull extends AbstractPredicate {
 

@@ -1,14 +1,14 @@
-package com.iostate.orca.query.predicate;
+package com.iostate.orca.api.query.predicate;
 
-import com.iostate.orca.query.SqlBuilder;
-import com.iostate.orca.query.expression.Expression;
+import com.iostate.orca.api.query.SqlBuilder;
+import com.iostate.orca.api.query.expression.Expression;
 
-class NotEqual extends AbstractPredicate {
+class NotIn extends AbstractPredicate {
 
     private final Expression l;
     private final Expression r;
 
-    public NotEqual(Expression l, Expression r) {
+    public NotIn(Expression l, Expression r) {
         this.l = l;
         this.r = r;
     }
@@ -16,17 +16,17 @@ class NotEqual extends AbstractPredicate {
     @Override
     public void accept(SqlBuilder sqlBuilder) {
         l.accept(sqlBuilder);
-        sqlBuilder.addString(" <> ");
+        sqlBuilder.addString(" NOT IN ");
         r.accept(sqlBuilder);
     }
 
     @Override
     public String toString() {
-        return l + " <> " + r;
+        return l + " NOT IN " + r;
     }
 
     @Override
     public Predicate negate() {
-        return new Equal(l, r);
+        return new In(l, r);
     }
 }

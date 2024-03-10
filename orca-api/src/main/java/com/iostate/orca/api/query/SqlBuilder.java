@@ -1,4 +1,4 @@
-package com.iostate.orca.query;
+package com.iostate.orca.api.query;
 
 public interface SqlBuilder {
 

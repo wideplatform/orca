@@ -1,6 +1,6 @@
-package com.iostate.orca.query.expression;
+package com.iostate.orca.api.query.expression;
 
-import com.iostate.orca.query.SqlBuilder;
+import com.iostate.orca.api.query.SqlBuilder;
 
 public class SingleValueBinding implements Expression {
 
