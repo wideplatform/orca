@@ -2,7 +2,7 @@ package com.iostate.orca.metadata.cascade;
 
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasOne;
@@ -12,14 +12,14 @@ import java.util.Objects;
 public class HasOneCascade implements Cascade {
 
     private final Field mappedByField;
-    private final PersistentObject source;
-    private final PersistentObject target;
+    private final EntityObject source;
+    private final EntityObject target;
     private final CascadeConfig cascadeConfig;
 
-    public HasOneCascade(HasOne field, PersistentObject source, CascadeConfig cascadeConfig) {
+    public HasOneCascade(HasOne field, EntityObject source, CascadeConfig cascadeConfig) {
         this.mappedByField = Objects.requireNonNull(field).getMappedByField();
         this.source = Objects.requireNonNull(source);
-        this.target = (PersistentObject) field.getValue(source);
+        this.target = (EntityObject) field.getValue(source);
         this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
     }
 

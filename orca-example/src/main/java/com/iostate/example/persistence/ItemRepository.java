@@ -2,7 +2,7 @@ package com.iostate.example.persistence;
 
 import com.iostate.example.persistence.entity.Item;
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +22,8 @@ public class ItemRepository {
         return item;
     }
 
-    public PersistentObject save(PersistentObject po) {
-        entityManager.persist(po);
-        return po;
+    public EntityObject save(EntityObject entity) {
+        entityManager.persist(entity);
+        return entity;
     }
 }

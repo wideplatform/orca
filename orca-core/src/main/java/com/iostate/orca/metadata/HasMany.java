@@ -1,7 +1,7 @@
 package com.iostate.orca.metadata;
 
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.cascade.Cascade;
 import com.iostate.orca.metadata.cascade.HasManyCascade;
 
@@ -28,7 +28,7 @@ public class HasMany extends AssociationField {
     }
 
     @Override
-    public Cascade getCascade(PersistentObject entity) {
+    public Cascade getCascade(EntityObject entity) {
         return new HasManyCascade(this, entity, cascadeConfig());
     }
 

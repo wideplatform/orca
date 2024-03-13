@@ -1,8 +1,8 @@
 package com.iostate.orca.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.iostate.orca.api.MapBackedPO;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.CommonEntityObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.dto.EntityModelDto;
 
@@ -33,21 +33,21 @@ public class EntityModel extends Model {
         return idGenerator;
     }
 
-    public PersistentObject newInstance() {
+    public EntityObject newInstance() {
         Class<?> linkedClass = linkedClass();
         if (linkedClass != null) {
             try {
-                return (PersistentObject) linkedClass.getDeclaredConstructor().newInstance();
+                return (EntityObject) linkedClass.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new PersistenceException("Failed to create an instance for model " + getName(), e);
             }
         } else {
-            return new MapBackedPO(getName());
+            return new CommonEntityObject(getName());
         }
     }
 
-    public Object getIdValue(PersistentObject po) {
-        return getIdField().getValue(po);
+    public Object getIdValue(EntityObject entity) {
+        return getIdField().getValue(entity);
     }
 
     public final EntityModelDto toDto() {

@@ -1,12 +1,12 @@
 package com.iostate.orca.sql.query;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
 import com.iostate.orca.metadata.MiddleTableImage;
-import com.iostate.orca.metadata.PersistentObjectUtils;
+import com.iostate.orca.metadata.EntityObjectUtils;
 import com.iostate.orca.api.query.predicate.Predicate;
 import com.iostate.orca.api.query.predicate.Predicates;
 
@@ -25,7 +25,7 @@ class AdditionTree {
     private final EntityModel targetModel;
     private final CacheContext cacheContext;
 
-    private final List<PersistentObject> sources = new ArrayList<>();
+    private final List<EntityObject> sources = new ArrayList<>();
 
     AdditionTree(AssociationField associationField, CacheContext cacheContext) {
         this.associationField = associationField;
@@ -33,7 +33,7 @@ class AdditionTree {
         this.cacheContext = cacheContext;
     }
 
-    void addSource(PersistentObject source) {
+    void addSource(EntityObject source) {
         sources.add(source);
     }
 
@@ -54,8 +54,8 @@ class AdditionTree {
     private void executeForColumnedField(Connection connection) throws SQLException {
         Field targetIdField = targetModel.getIdField();
         // Multiple sources may point to the same target
-        MultiMap<Object, PersistentObject> groupedSources = new MultiMap<>();
-        for (PersistentObject source : sources) {
+        MultiMap<Object, EntityObject> groupedSources = new MultiMap<>();
+        for (EntityObject source : sources) {
             Object fkValue = associationField.getForeignKeyValue(source);
             if (fkValue != null && cacheContext.get(targetModel, fkValue) == null) {
                 groupedSources.put(fkValue, source);
@@ -67,12 +67,12 @@ class AdditionTree {
         }
 
         Predicate filter = Predicates.in(targetIdField.getName(), groupedSources.keySet());
-        List<PersistentObject> allTargets = new QueryTree(targetModel, cacheContext)
+        List<EntityObject> allTargets = new QueryTree(targetModel, cacheContext)
                 .addFilter(filter)
                 .execute(connection);
-        for (PersistentObject target : allTargets) {
+        for (EntityObject target : allTargets) {
             Object fkValue = targetIdField.getValue(target);
-            for (PersistentObject source : groupedSources.get(fkValue)) {
+            for (EntityObject source : groupedSources.get(fkValue)) {
                 associationField.setValue(source, target);
             }
         }
@@ -81,22 +81,22 @@ class AdditionTree {
     private void executeForMappedField(Connection connection) throws SQLException {
         Field sourceIdField = associationField.getSourceModel().getIdField();
 
-        Map<Object, PersistentObject> idsToSources = new HashMap<>();
-        for (PersistentObject source : sources) {
+        Map<Object, EntityObject> idsToSources = new HashMap<>();
+        for (EntityObject source : sources) {
             Object id = sourceIdField.getValue(source);
             idsToSources.put(id, source);
         }
 
         Field fkField = associationField.getMappedByField();
         Predicate filter = Predicates.in(fkField.getName(), idsToSources.keySet());
-        List<PersistentObject> allTargets = new QueryTree(targetModel, cacheContext)
+        List<EntityObject> allTargets = new QueryTree(targetModel, cacheContext)
                 .addFilter(filter)
                 .execute(connection);
         // Multiple targets may point to the same source
-        Map<Object, List<PersistentObject>> groupedTargets = allTargets.stream()
+        Map<Object, List<EntityObject>> groupedTargets = allTargets.stream()
                 .collect(Collectors.groupingBy(t -> t.getForeignKeyValue(fkField.getColumnName())));
         groupedTargets.forEach((key, group) -> {
-            PersistentObject source = idsToSources.get(key);
+            EntityObject source = idsToSources.get(key);
             if (associationField.isPlural()) {
                 associationField.setValue(source, group);
             } else {
@@ -109,7 +109,7 @@ class AdditionTree {
 
     private void executeForManyToManyField(Connection connection) throws SQLException {
         EntityModel sourceModel = associationField.getSourceModel();
-        Map<Object, PersistentObject> idsToSources = PersistentObjectUtils.indexById(sourceModel, sources);
+        Map<Object, EntityObject> idsToSources = EntityObjectUtils.indexById(sourceModel, sources);
 
         MultiMap<Object, Object> sourceIdsToTargetIds = new MultiMap<>();
         MiddleTableImage middle = ((HasAndBelongsToMany) associationField).middleTableImage();
@@ -130,14 +130,14 @@ class AdditionTree {
             }
         }
 
-        List<PersistentObject> allTargets = new QueryTree(targetModel, cacheContext)
+        List<EntityObject> allTargets = new QueryTree(targetModel, cacheContext)
                 .addFilter(Predicates.in(targetModel.getIdField().getName(), sourceIdsToTargetIds.valueSet()))
                 .execute(connection);
-        Map<Object, PersistentObject> idsToTargets = PersistentObjectUtils.indexById(targetModel, allTargets);
+        Map<Object, EntityObject> idsToTargets = EntityObjectUtils.indexById(targetModel, allTargets);
         idsToSources.forEach((sourceId, source) -> {
             List<Object> targetIds = sourceIdsToTargetIds.get(sourceId);
             if (targetIds != null) {
-                List<PersistentObject> targets = targetIds.stream().map(idsToTargets::get).collect(Collectors.toList());
+                List<EntityObject> targets = targetIds.stream().map(idsToTargets::get).collect(Collectors.toList());
                 associationField.setValue(source, targets);
             }
         });

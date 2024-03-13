@@ -1,6 +1,6 @@
 package com.iostate.orca.sql;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
 import com.iostate.orca.sql.type.TypeHandlers;
@@ -19,18 +19,18 @@ public class EntityResultMapper implements ResultMapper {
     }
 
     @Override
-    public PersistentObject mapRow(ResultSet rs) throws SQLException {
-        PersistentObject po = model.newInstance();
-        po.setPersisted(true);
+    public EntityObject mapRow(ResultSet rs) throws SQLException {
+        EntityObject entity = model.newInstance();
+        entity.setPersisted(true);
 
         for (Field field : model.allFields()) {
             if (field.isAssociation()) {
                 continue;
             }
             Object value = TypeHandlers.INSTANCE.find(field.getDataType()).getValue(rs, field.getColumnName());
-            po.setFieldValue(field.getName(), value);
+            entity.setFieldValue(field.getName(), value);
         }
 
-        return po;
+        return entity;
     }
 }

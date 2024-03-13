@@ -1,6 +1,6 @@
 package com.iostate.orca.metadata;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.dto.FieldDto;
 
 public interface Field {
@@ -22,11 +22,11 @@ public interface Field {
 
     boolean isAssociation();
 
-    Object getValue(Object entity);
+    Object getValue(EntityObject entity);
 
-    void setValue(Object entity, Object value);
+    void setValue(EntityObject entity, Object value);
 
-    boolean isUpdated(PersistentObject entity);
+    boolean isUpdated(EntityObject entity);
 
     FieldDto toDto();
 }

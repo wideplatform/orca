@@ -1,7 +1,7 @@
 package com.iostate.orca.sql;
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.Field;
@@ -13,17 +13,17 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
- * Record-style PO representation for persisting, also a tree having cascade nodes.
+ * Record-style representation for persisting an entity, also a tree having cascade nodes.
  */
 class PersistableRecord {
-    private final PersistentObject entity;
+    private final EntityObject entity;
     private final EntityManager entityManager;
 
     private final LinkedHashMap<String, Object> columnValues = new LinkedHashMap<>();
 
     private final Collection<Cascade> cascades = new ArrayList<>();
 
-    PersistableRecord(Collection<Field> fields, PersistentObject entity, EntityManager entityManager) {
+    PersistableRecord(Collection<Field> fields, EntityObject entity, EntityManager entityManager) {
         this.entity = Objects.requireNonNull(entity);
         this.entityManager = Objects.requireNonNull(entityManager);
         for (Field field : fields) {
@@ -35,7 +35,7 @@ class PersistableRecord {
         if (field.isAssociation()) {
             AssociationField assoc = (AssociationField) field;
             if (assoc instanceof BelongsTo) {
-                Object target = assoc.getValue(entity);
+                EntityObject target = (EntityObject) assoc.getValue(entity);
                 if (target != null) {
                     Field targetIdField = assoc.getTargetModelRef().model().getIdField();
                     Object targetId = targetIdField.getValue(target);

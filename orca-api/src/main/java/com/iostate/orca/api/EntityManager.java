@@ -4,23 +4,23 @@ import java.util.List;
 
 public interface EntityManager {
 
-    void persist(Object entity);
+    void persist(EntityObject entity);
 
-    void update(Object entity);
+    void update(EntityObject entity);
 
-    void merge(Object entity);
+    void merge(EntityObject entity);
 
-    void remove(Class<?> entityClass, Object id);
+    void remove(Class<? extends EntityObject> entityClass, Object id);
 
-    void remove(Object entity);
+    void remove(EntityObject entity);
 
-    void refresh(Object entity);
+    void refresh(EntityObject entity);
 
-    <T> T find(Class<T> entityClass, Object id);
+    <T extends EntityObject> T find(Class<T> entityClass, Object id);
 
-    PersistentObject find(String modelName, Object id);
+    EntityObject find(String modelName, Object id);
 
-    <T> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue);
+    <T extends EntityObject> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue);
 
-    List<PersistentObject> findBy(String modelName, String objectPath, Object fieldValue);
+    List<EntityObject> findBy(String modelName, String objectPath, Object fieldValue);
 }

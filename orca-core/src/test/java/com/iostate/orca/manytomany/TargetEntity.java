@@ -1,5 +1,7 @@
 package com.iostate.orca.manytomany;
 
+import com.iostate.orca.api.BaseEntityObject;
+
 import java.util.Collections;
 import java.util.Objects;
 import java.util.HashMap;
@@ -8,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("manytomany")
-public class TargetEntity extends com.iostate.orca.api.BasePO {
+public class TargetEntity extends BaseEntityObject {
     private Long id;
     private Integer intValue;
     private java.util.List<SourceEntity> sources = new java.util.ArrayList<>();

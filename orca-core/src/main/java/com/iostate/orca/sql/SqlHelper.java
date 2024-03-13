@@ -2,7 +2,7 @@ package com.iostate.orca.sql;
 
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
 import com.iostate.orca.api.exception.PersistenceException;
@@ -40,14 +40,14 @@ public class SqlHelper {
         this.entityManager = entityManager;
     }
 
-    public void insert(EntityModel entityModel, PersistentObject po) {
-        final boolean isIdAssigned = entityModel.getIdValue(po) != null;
+    public void insert(EntityModel entityModel, EntityObject entity) {
+        final boolean isIdAssigned = entityModel.getIdValue(entity) != null;
 
         if (!isIdAssigned && !entityModel.isIdGenerated()) {
             throw new PersistenceException(FAIL_PERSIST + ", no id and no generator, entityName=" + entityModel.getName());
         }
 
-        PersistableRecord record = extractDataToPersist(entityModel, po, isIdAssigned);
+        PersistableRecord record = extractDataToPersist(entityModel, entity, isIdAssigned);
 
         record.prePersist();
 
@@ -68,7 +68,7 @@ public class SqlHelper {
                     throw new PersistenceException(FAIL_PERSIST + ", INSERT returned generated keys count " + keys.size());
                 }
 
-                setId(entityModel, po, keys.get(0));
+                setId(entityModel, entity, keys.get(0));
             } else {
                 int count = executeDML(sql, args);
                 if (count != 1) {
@@ -79,16 +79,16 @@ public class SqlHelper {
             throw new PersistenceException(FAIL_PERSIST, e);
         }
 
-        po.setPersisted(true);
+        entity.setPersisted(true);
 
         record.postPersist();
     }
 
-    private void setId(EntityModel entityModel, PersistentObject po, Object id) {
-        entityModel.getIdField().setValue(po, id);
+    private void setId(EntityModel entityModel, EntityObject entity, Object id) {
+        entityModel.getIdField().setValue(entity, id);
     }
 
-    private PersistableRecord extractDataToPersist(EntityModel entityModel, PersistentObject po, boolean isIdAssigned) {
+    private PersistableRecord extractDataToPersist(EntityModel entityModel, EntityObject entity, boolean isIdAssigned) {
         Collection<Field> fields;
         if (isIdAssigned) {
             // Include ID
@@ -98,7 +98,7 @@ public class SqlHelper {
             fields = entityModel.getDataFields();
         }
 
-        return new PersistableRecord(fields, po, entityManager);
+        return new PersistableRecord(fields, entity, entityManager);
     }
 
     public List<Object> executeInsertWithGeneratedKeys(String sql, Object[] args, KeyMapper keyMapper) throws SQLException {
@@ -129,8 +129,8 @@ public class SqlHelper {
         }
     }
 
-    public void update(EntityModel entityModel, PersistentObject po) {
-        PersistableRecord record = extractDataToUpdate(entityModel, po);
+    public void update(EntityModel entityModel, EntityObject entity) {
+        PersistableRecord record = extractDataToUpdate(entityModel, entity);
 
         record.preUpdate();
 
@@ -141,7 +141,7 @@ public class SqlHelper {
         String sql = String.format("UPDATE %s SET %s WHERE %s = ?",
                 entityModel.getTableName(), columnsToUpdate, entityModel.getIdField().getColumnName());
 
-        Object id = entityModel.getIdValue(po);
+        Object id = entityModel.getIdValue(entity);
 
         Object[] args = Stream.concat(record.getColumnValues().values().stream(), Stream.of(id))
                 .toArray();
@@ -160,15 +160,15 @@ public class SqlHelper {
         record.postUpdate();
     }
 
-    private PersistableRecord extractDataToUpdate(EntityModel entityModel, PersistentObject po) {
+    private PersistableRecord extractDataToUpdate(EntityModel entityModel, EntityObject entity) {
         Collection<Field> fields = entityModel.getDataFields();
-        return new PersistableRecord(fields, po, entityManager);
+        return new PersistableRecord(fields, entity, entityManager);
     }
 
-    public void deleteEntity(EntityModel entityModel, Object entity) {
+    public void deleteEntity(EntityModel entityModel, EntityObject entity) {
         Object id = entityModel.getIdField().getValue(entity);
         if (shouldCascadeOnEntityDelete(entityModel)) {
-            PersistableRecord record = extractDataToUpdate(entityModel, (PersistentObject) entity);
+            PersistableRecord record = extractDataToUpdate(entityModel, entity);
             record.preDelete();
             sqlDelete(entityModel, id);
             record.postDelete();
@@ -179,8 +179,8 @@ public class SqlHelper {
 
     public void deleteById(EntityModel entityModel, Object id) {
         if (shouldCascadeOnEntityDelete(entityModel)) {
-            PersistentObject po = findById(entityModel, id);
-            PersistableRecord record = extractDataToUpdate(entityModel, po);
+            EntityObject entity = findById(entityModel, id);
+            PersistableRecord record = extractDataToUpdate(entityModel, entity);
             record.preDelete();
             sqlDelete(entityModel, id);
             record.postDelete();
@@ -221,12 +221,12 @@ public class SqlHelper {
         }
     }
 
-    public PersistentObject findById(EntityModel entityModel, Object id) {
+    public EntityObject findById(EntityModel entityModel, Object id) {
         QueryTree queryTree = new QueryTree(entityModel);
         queryTree.addFilter(Predicates.equal("id", id));
 
         try{
-            List<PersistentObject> records = queryTree.execute(connection());
+            List<EntityObject> records = queryTree.execute(connection());
             if (records.isEmpty()) {
                 return null;
             } else if (records.size() == 1) {
@@ -239,7 +239,7 @@ public class SqlHelper {
         }
     }
 
-    public List<PersistentObject> findBy(EntityModel entityModel, String objectPath, Object value) {
+    public List<EntityObject> findBy(EntityModel entityModel, String objectPath, Object value) {
         QueryTree queryTree = new QueryTree(entityModel);
         queryTree.addFilter(Predicates.equal(objectPath, value));
 
@@ -250,7 +250,7 @@ public class SqlHelper {
         }
     }
 
-    public List<PersistentObject> findByRelation(MiddleTable middleTable, Object sourceId) {
+    public List<EntityObject> findByRelation(MiddleTable middleTable, Object sourceId) {
         EntityModel targetModel = middleTable.getTargetModelRef().model();
 
         String selectedColumns = selectableColumns(targetModel, "t.");
@@ -274,7 +274,7 @@ public class SqlHelper {
                 .collect(Collectors.joining(","));
     }
 
-    private List<PersistentObject> executeQuery(String sql, Object[] args, ResultMapper resultMapper) throws SQLException {
+    private List<EntityObject> executeQuery(String sql, Object[] args, ResultMapper resultMapper) throws SQLException {
         if (sql == null) {
             throw new IllegalArgumentException("sql is null");
         }
@@ -288,7 +288,7 @@ public class SqlHelper {
 
             logSql(sql, args);
             try (ResultSet rs = ps.executeQuery()) {
-                List<PersistentObject> records = new ArrayList<>();
+                List<EntityObject> records = new ArrayList<>();
                 while (rs.next()) {
                     records.add(resultMapper.mapRow(rs));
                 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.iostate.orca.api.BasePO;
+import com.iostate.orca.api.BaseEntityObject;
 import com.iostate.orca.api.Namespace;
 import com.iostate.orca.metadata.dto.EntityModelDto;
 import com.iostate.orca.metadata.view.ViewModel;
@@ -118,7 +118,7 @@ public class MetadataManager {
     public String generateJava(EntityModel entityModel, String namespace, String packageName) {
         Map<String, Object> data = new HashMap<>();
         data.put("model", entityModel);
-        data.put("base", BasePO.class.getName());
+        data.put("base", BaseEntityObject.class.getName());
         data.put("namespace", namespace);
         data.put("packageName", packageName);
         addTemplateFunctions(data);

@@ -1,6 +1,6 @@
 package com.iostate.orca.metadata;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.PersistenceException;
 
 import java.util.Objects;
@@ -37,27 +37,27 @@ public abstract class AbstractField implements Field {
     }
 
     @Override
-    public Object getValue(Object entity) {
+    public Object getValue(EntityObject entity) {
         Objects.requireNonNull(entity, "entity is null when reading from field " + getName());
         try {
-            return ((PersistentObject) entity).getFieldValue(getName());
+            return entity.getFieldValue(getName());
         } catch (Exception e) {
             throw new PersistenceException("Failed to read from field " + getName(), e);
         }
     }
 
     @Override
-    public void setValue(Object entity, Object value) {
+    public void setValue(EntityObject entity, Object value) {
         Objects.requireNonNull(entity, "entity is null when writing to field " + getName());
         try {
-            ((PersistentObject) entity).setFieldValue(getName(), value);
+            entity.setFieldValue(getName(), value);
         } catch (Exception e) {
             throw new PersistenceException("Failed to write to field " + getName(), e);
         }
     }
 
     @Override
-    public boolean isUpdated(PersistentObject entity) {
+    public boolean isUpdated(EntityObject entity) {
         return entity.get_updatedFields().contains(name);
     }
 

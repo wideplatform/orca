@@ -1,5 +1,7 @@
 package com.iostate.example.persistence.entity;
 
+import com.iostate.orca.api.BaseEntityObject;
+
 import java.util.Collections;
 import java.util.Objects;
 import java.util.HashMap;
@@ -8,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("")
-public class Item extends com.iostate.orca.api.BasePO {
+public class Item extends BaseEntityObject {
     private Long id;
     private String name;
     private Boolean visible;

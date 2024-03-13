@@ -2,7 +2,7 @@ package com.iostate.orca.metadata.cascade;
 
 
 import com.iostate.orca.api.EntityManager;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.CascadeConfig;
 import com.iostate.orca.metadata.HasAndBelongsToMany;
@@ -13,18 +13,18 @@ import java.util.Objects;
 public class HasAndBelongsToManyCascade implements Cascade {
 
     private final HasAndBelongsToMany field;
-    private final PersistentObject source;
-    private final Collection<PersistentObject> targets;
+    private final EntityObject source;
+    private final Collection<EntityObject> targets;
     private final CascadeConfig cascadeConfig;
 
     public HasAndBelongsToManyCascade(
             HasAndBelongsToMany field,
-            PersistentObject source,
+            EntityObject source,
             CascadeConfig cascadeConfig) {
         this.field = Objects.requireNonNull(field);
         this.source = Objects.requireNonNull(source);
         //noinspection unchecked
-        this.targets = (Collection<PersistentObject>) field.getValue(source);
+        this.targets = (Collection<EntityObject>) field.getValue(source);
         this.cascadeConfig = Objects.requireNonNull(cascadeConfig);
     }
 
@@ -34,7 +34,7 @@ public class HasAndBelongsToManyCascade implements Cascade {
             return;
         }
         if (cascadeConfig.isPersist()) {
-            for (PersistentObject target : targets) {
+            for (EntityObject target : targets) {
                 // Should use merge?
                 entityManager.merge(target);
             }
@@ -48,7 +48,7 @@ public class HasAndBelongsToManyCascade implements Cascade {
             return;
         }
         if (cascadeConfig.isMerge()) {
-            for (PersistentObject target : targets) {
+            for (EntityObject target : targets) {
                 entityManager.merge(target);
             }
         }
@@ -62,14 +62,14 @@ public class HasAndBelongsToManyCascade implements Cascade {
         }
         middleTableRemove(entityManager);
         if (cascadeConfig.isRemove()) {
-            for (PersistentObject target : targets) {
+            for (EntityObject target : targets) {
                 entityManager.remove(target);
             }
         }
     }
 
     private void middleTablePut(EntityManager entityManager) {
-        for (PersistentObject target : targets) {
+        for (EntityObject target : targets) {
             if (target.isPersisted()) {
                 field.middleTableImage().put(source, target, entityManager);
             } else {
@@ -81,7 +81,7 @@ public class HasAndBelongsToManyCascade implements Cascade {
     }
 
     private void middleTableRemove(EntityManager entityManager) {
-        for (PersistentObject target : targets) {
+        for (EntityObject target : targets) {
             if (target.isPersisted()) {
                 field.middleTableImage().remove(source, target, entityManager);
             }

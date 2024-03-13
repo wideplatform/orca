@@ -1,6 +1,6 @@
 package com.iostate.orca.sql.query;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
@@ -25,9 +25,9 @@ class QueryResultMapper implements ResultMapper {
     }
 
     @Override
-    public PersistentObject mapRow(ResultSet rs) throws SQLException {
-        PersistentObject po = model.newInstance();
-        po.setPersisted(true);
+    public EntityObject mapRow(ResultSet rs) throws SQLException {
+        EntityObject entity = model.newInstance();
+        entity.setPersisted(true);
 
         for (SelectedField sf : fieldSelection.getSelectedFields()) {
             Field field = sf.getField();
@@ -37,19 +37,19 @@ class QueryResultMapper implements ResultMapper {
                 Object targetId = TypeHandlers.INSTANCE.find(targetIdField.getDataType())
                         .getValue(rs, sf.getIndex());
                 if (isValidId(targetId)) {
-                    po.setForeignKeyValue(field.getColumnName(), targetId);
-                    PersistentObject target = targetModel.newInstance();
+                    entity.setForeignKeyValue(field.getColumnName(), targetId);
+                    EntityObject target = targetModel.newInstance();
                     targetIdField.setValue(target, targetId);
-                    po.setFieldValue(field.getName(), target);
+                    entity.setFieldValue(field.getName(), target);
                 }
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType())
                         .getValue(rs, sf.getIndex());
-                po.setFieldValue(field.getName(), value);
+                entity.setFieldValue(field.getName(), value);
             }
         }
 
-        return po;
+        return entity;
     }
 
     Object getId(ResultSet rs) throws SQLException {

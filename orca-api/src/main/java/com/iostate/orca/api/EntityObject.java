@@ -1,7 +1,7 @@
 package com.iostate.orca.api;
 
 
-public interface PersistentObject extends TrackedObject {
+public interface EntityObject extends TrackedObject {
     boolean isPersisted();
 
     void setPersisted(boolean persisted);

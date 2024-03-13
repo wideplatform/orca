@@ -1,6 +1,6 @@
 package com.iostate.orca.metadata;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.cascade.Cascade;
 import com.iostate.orca.metadata.dto.FieldDto;
 
@@ -59,7 +59,7 @@ public abstract class AssociationField extends AbstractField {
         return true;
     }
 
-    public abstract Cascade getCascade(PersistentObject entity);
+    public abstract Cascade getCascade(EntityObject entity);
 
     public abstract boolean isSingular();
 
@@ -86,7 +86,7 @@ public abstract class AssociationField extends AbstractField {
         return dto;
     }
 
-    public Object getForeignKeyValue(PersistentObject entity) {
+    public Object getForeignKeyValue(EntityObject entity) {
         return entity.getForeignKeyValue(getColumnName());
     }
 }

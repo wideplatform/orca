@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class BasePO implements PersistentObject {
+public abstract class BaseEntityObject implements EntityObject {
 
     private boolean persisted;
     private final Map<String, Object> _foreignKeyValues = new ConcurrentHashMap<>();

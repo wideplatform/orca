@@ -2,8 +2,8 @@ package com.iostate.example.web;
 
 import com.iostate.example.persistence.ItemRepository;
 import com.iostate.example.persistence.entity.Item;
-import com.iostate.orca.api.MapBackedPO;
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.CommonEntityObject;
+import com.iostate.orca.api.EntityObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +43,7 @@ public class ItemController {
                          @RequestParam(defaultValue = "true") boolean visible,
                          @RequestParam BigDecimal price,
                          @RequestParam(defaultValue = "1") int quantity) {
-        PersistentObject item = new MapBackedPO("Item");
+        EntityObject item = new CommonEntityObject("Item");
         item.setFieldValue("name", name);
         item.setFieldValue("visible", visible);
         item.setFieldValue("price", price);

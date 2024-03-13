@@ -1,6 +1,6 @@
 package com.iostate.orca.sql.query;
 
-import com.iostate.orca.api.PersistentObject;
+import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.InvalidObjectPathException;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
@@ -70,7 +70,7 @@ public class QueryTree {
         return new SqlObject(sqlBuilder.toSql(), sqlBuilder.getArguments().toArray());
     }
 
-    public List<PersistentObject> execute(Connection connection) throws SQLException {
+    public List<EntityObject> execute(Connection connection) throws SQLException {
         SqlObject sqlObject = toSqlObject();
         String sql = sqlObject.getSql();
         Object[] args = sqlObject.getArguments();
@@ -88,7 +88,7 @@ public class QueryTree {
             }
         }
 
-        Collection<PersistentObject> results = root.complete(connection);
+        Collection<EntityObject> results = root.complete(connection);
         return new ArrayList<>(results);
     }
 
@@ -192,7 +192,7 @@ abstract class QueryNode {
 }
 
 class QueryRootNode extends QueryNode {
-    private final Map<Object, PersistentObject> results = new LinkedHashMap<>();
+    private final Map<Object, EntityObject> results = new LinkedHashMap<>();
 
     QueryRootNode(EntityModel entityModel, QueryContext queryContext) {
         super(null, entityModel, queryContext);
@@ -208,14 +208,14 @@ class QueryRootNode extends QueryNode {
     void mapRows(ResultSet rs) throws SQLException {
         while (rs.next()) {
             Object id = mapper.getId(rs);
-            PersistentObject cached = queryContext.cacheContext.get(entityModel, id);
+            EntityObject cached = queryContext.cacheContext.get(entityModel, id);
             if (cached != null) {
                 results.put(id, cached);
                 continue;
             }
 
-            PersistentObject prev = results.get(id);
-            PersistentObject current = prev == null ? mapper.mapRow(rs) : prev;
+            EntityObject prev = results.get(id);
+            EntityObject current = prev == null ? mapper.mapRow(rs) : prev;
             for (QueryJoinNode join : joins) {
                 join.mapRow(rs, current);
             }
@@ -230,7 +230,7 @@ class QueryRootNode extends QueryNode {
         }
     }
 
-    Collection<PersistentObject> complete(Connection connection) throws SQLException {
+    Collection<EntityObject> complete(Connection connection) throws SQLException {
         queryContext.commitCache();
         for (AdditionTree addition : additions) {
             addition.complete(connection);
@@ -254,15 +254,15 @@ class QueryJoinNode extends QueryNode {
         return associationField;
     }
 
-    void mapRow(ResultSet rs, PersistentObject parent) throws SQLException {
+    void mapRow(ResultSet rs, EntityObject parent) throws SQLException {
         Object id = mapper.getId(rs);
         if (!mapper.isValidId(id)) {
             // Skip empty sub-record in left join
             return;
         }
 
-        PersistentObject prev = queryContext.cacheContext.get(entityModel, id);
-        PersistentObject current;
+        EntityObject prev = queryContext.cacheContext.get(entityModel, id);
+        EntityObject current;
         if (prev != null) {
             current = prev;
         } else {
@@ -277,7 +277,7 @@ class QueryJoinNode extends QueryNode {
             associationField.setValue(parent, current);
         } else {
             //noinspection unchecked
-            List<PersistentObject> list = (List<PersistentObject>) associationField.getValue(parent);
+            List<EntityObject> list = (List<EntityObject>) associationField.getValue(parent);
             if (list == null) {
                 list = new ArrayList<>();
                 associationField.setValue(parent, list);

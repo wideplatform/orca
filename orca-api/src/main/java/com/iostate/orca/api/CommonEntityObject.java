@@ -7,11 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * For no-code development
  */
-public class MapBackedPO extends BasePO {
+public final class CommonEntityObject extends BaseEntityObject {
     private final String modelName;
     private final Map<String, Object> valueMap = new ConcurrentHashMap<>();
 
-    public MapBackedPO(String modelName) {
+    public CommonEntityObject(String modelName) {
         this.modelName = modelName;
     }
 
