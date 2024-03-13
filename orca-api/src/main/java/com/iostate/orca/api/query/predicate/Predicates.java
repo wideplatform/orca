@@ -1,6 +1,5 @@
 package com.iostate.orca.api.query.predicate;
 
-import com.iostate.orca.api.query.expression.Expression;
 import com.iostate.orca.api.query.expression.PathNavigation;
 
 import java.util.Collection;
@@ -15,11 +14,10 @@ public class Predicates {
         return equal(objectPath, bindValue).negate();
     }
 
-    public static Predicate in(Expression l, Expression r) {
-        return new In(l, r);
-    }
-
     public static Predicate in(String objectPath, Collection<Object> bindValueCollection) {
+        if (bindValueCollection.size() == 1) {
+            return equal(objectPath, bindValueCollection.iterator().next());
+        }
         return new In(objectPath, bindValueCollection);
     }
 
