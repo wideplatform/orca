@@ -1,7 +1,5 @@
 package com.iostate.orca.circular;
 
-import com.iostate.orca.api.BaseEntityObject;
-
 import java.util.Collections;
 import java.util.Objects;
 import java.util.HashMap;
@@ -10,7 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("circular")
-public class ParentEntity extends BaseEntityObject {
+public class ParentEntity extends com.iostate.orca.api.BaseEntityObject {
     private Long id;
     private String strValue;
     private java.util.List<ChildEntity> children = new java.util.ArrayList<>();

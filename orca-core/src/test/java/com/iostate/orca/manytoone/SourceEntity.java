@@ -1,7 +1,5 @@
 package com.iostate.orca.manytoone;
 
-import com.iostate.orca.api.BaseEntityObject;
-
 import java.util.Collections;
 import java.util.Objects;
 import java.util.HashMap;
@@ -10,7 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("manytoone")
-public class SourceEntity extends BaseEntityObject {
+public class SourceEntity extends com.iostate.orca.api.BaseEntityObject {
     private Long id;
     private String strValue;
     private TargetEntity target;
