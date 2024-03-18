@@ -20,9 +20,13 @@ public class TestConnectionProvider implements ConnectionProvider {
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() {
         if (connection == null) {
-            connection = dataSource.getConnection();
+            try {
+                connection = dataSource.getConnection();
+            } catch (SQLException e) {
+                throw new RuntimeException("Failed to getConnection", e);
+            }
         }
         return connection;
     }

@@ -321,11 +321,7 @@ public class SqlHelper {
 
     // Connection lifecycle management is delegated to the application framework like Spring
     private Connection connection() {
-        try {
-            return connectionProvider.getConnection();
-        } catch (SQLException e) {
-            throw new PersistenceException("Failed to getConnection()", e);
-        }
+        return connectionProvider.getConnection();
     }
 
     private void logSql(String sql, Object[] args) {

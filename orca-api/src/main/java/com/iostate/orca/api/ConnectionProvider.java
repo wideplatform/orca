@@ -1,8 +1,10 @@
 package com.iostate.orca.api;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
+/**
+ * SPI for providing DB connections to Orca framework
+ */
 public interface ConnectionProvider {
-    Connection getConnection() throws SQLException;
+    Connection getConnection();
 }
