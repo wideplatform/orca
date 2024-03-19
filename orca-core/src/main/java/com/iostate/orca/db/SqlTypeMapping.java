@@ -17,28 +17,47 @@ class SqlTypeMapping {
     // 36 with 4 '-' dashes, or 32 without '-' dashes
     private static final String UUID_TYPE = "CHAR(36)";
 
-    private static final Map<DataType, String> sqlTypes = new HashMap<>();
+    private static final Map<DataType, String> commonMappings = new HashMap<>();
+    private static final Map<DataType, String> mysqlMappings = new HashMap<>();
+    private static final Map<DataType, String> postgresqlMappings = new HashMap<>();
 
     static {
-        sqlTypes.put(SimpleDataType.BOOLEAN, "BOOLEAN");
-        sqlTypes.put(SimpleDataType.INT, "INTEGER");
-        sqlTypes.put(SimpleDataType.LONG, "BIGINT");
-        sqlTypes.put(SimpleDataType.DECIMAL, "DECIMAL(18,8)");
-        sqlTypes.put(SimpleDataType.STRING, "VARCHAR(255)");
-        sqlTypes.put(SimpleDataType.DATETIME, "DATETIME");
-        sqlTypes.put(SimpleDataType.DATE, "DATE");
+        commonMappings.put(SimpleDataType.BOOLEAN, "BOOLEAN");
+        commonMappings.put(SimpleDataType.INT, "INTEGER");
+        commonMappings.put(SimpleDataType.LONG, "BIGINT");
+        commonMappings.put(SimpleDataType.DECIMAL, "DECIMAL(18,8)");
+        commonMappings.put(SimpleDataType.STRING, "VARCHAR(255)");
+        commonMappings.put(SimpleDataType.DATE, "DATE");
+    }
+    static {
+        mysqlMappings.put(SimpleDataType.DATETIME, "DATETIME(6)");
+    }
+    static {
+        postgresqlMappings.put(SimpleDataType.DATETIME, "TIMESTAMP");
     }
 
-    static String sqlType(Field field) {
+    static String sqlType(DbType dbType, Field field) {
         if (field.isAssociation()) {
             AssociationField rf = (AssociationField) field;
             if (rf.hasColumn()) {
-                return sqlTypes.get(rf.getTargetModelRef().model().getIdField().getDataType());
+                return map(dbType, rf.getTargetModelRef().model().getIdField().getDataType());
             } else {
                 throw new IllegalArgumentException("field " + rf + " should not map to SQL type");
             }
         }
 
-        return sqlTypes.get(field.getDataType());
+        return map(dbType, field.getDataType());
+    }
+
+    static String map(DbType dbType, DataType dataType) {
+        String result = null;
+        switch (dbType) {
+            case H2, MYSQL -> result = mysqlMappings.get(dataType);
+            case POSTGRESQL -> result = postgresqlMappings.get(dataType);
+        }
+        if (result != null) {
+            return result;
+        }
+        return commonMappings.get(dataType);
     }
 }

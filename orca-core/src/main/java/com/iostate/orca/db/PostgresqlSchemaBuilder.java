@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class MysqlSchemaBuilder implements SchemaBuilder {
+public class PostgresqlSchemaBuilder implements SchemaBuilder {
 
     @Override
     public void build(ConnectionProvider connectionProvider, MetadataManager metadataManager) throws SQLException {
@@ -23,7 +23,7 @@ public class MysqlSchemaBuilder implements SchemaBuilder {
     }
 
     private Stream<String> recreateTableStmts(EntityModel model) {
-        Map<String, String> tablesVsDDLs = TableGeneratorFactory.make(DbType.MYSQL).create(model);
+        Map<String, String> tablesVsDDLs = TableGeneratorFactory.make(DbType.POSTGRESQL).create(model);
 
         return tablesVsDDLs.entrySet().stream()
                 .flatMap(entry -> {

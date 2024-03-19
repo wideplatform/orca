@@ -9,21 +9,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * This implementation supports ANSI & H2
- */
-public class TableGeneratorImpl implements TableGenerator {
+public abstract class AbstractTableGenerator implements TableGenerator {
     @Override
     public Map<String, String> create(EntityModel entityModel) {
         String columns = entityModel.allFields()
                 .stream()
                 .filter(Field::hasColumn)
                 .map(field -> {
-                    String clause = field.getColumnName() + " " + SqlTypeMapping.sqlType(field);
+                    String clause = field.getColumnName() + " " + SqlTypeMapping.sqlType(dbType(), field);
                     if (field.isId()) {
                         clause += " PRIMARY KEY";
                         if (entityModel.isIdGenerated()) {
-                            clause += " AUTO_INCREMENT";
+                            clause += (" " + autoIncrement());
                         }
                     } else {
                         if (!field.isNullable()) {
@@ -43,8 +40,8 @@ public class TableGeneratorImpl implements TableGenerator {
                 if (rel != null) {
                     String ddl = String.format("  CREATE TABLE %s(source_id %s, target_id %s, PRIMARY KEY (source_id, target_id));\n",
                             rel.getTableName(),
-                            SqlTypeMapping.sqlType(rel.getSourceModelRef().model().getIdField()),
-                            SqlTypeMapping.sqlType(rel.getTargetModelRef().model().getIdField())
+                            SqlTypeMapping.sqlType(dbType(), rel.getSourceModelRef().model().getIdField()),
+                            SqlTypeMapping.sqlType(dbType(), rel.getTargetModelRef().model().getIdField())
                     );
                     tablesVsDdls.put(rel.getTableName(), ddl);
                 }
@@ -53,4 +50,8 @@ public class TableGeneratorImpl implements TableGenerator {
 
         return tablesVsDdls;
     }
+
+    protected abstract DbType dbType();
+
+    protected abstract String autoIncrement();
 }

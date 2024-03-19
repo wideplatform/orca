@@ -18,6 +18,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("com.h2database:h2:2.2.220")
     testImplementation("com.mysql:mysql-connector-j:8.2.0")
+    testImplementation("org.postgresql:postgresql:42.7.3")
 }
 
 tasks.test {

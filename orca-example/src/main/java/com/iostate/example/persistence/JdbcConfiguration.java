@@ -16,16 +16,8 @@ public class JdbcConfiguration {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
-        String dbType = System.getProperty("mdp.db.type", "h2");
-        Properties prop = readProperties(String.format("db-%s.properties", dbType));
-        if ("h2".equals(dbType)) {
-            dataSource.setDriverClassName("org.h2.Driver");
-        } else if ("mysql".equals(dbType)) {
-            dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        } else {
-            throw new IllegalArgumentException(dbType);
-        }
-
+        Properties prop = readProperties("orca-db.properties");
+        dataSource.setDriverClassName(prop.getProperty("database.driver"));
         dataSource.setUrl(prop.getProperty("database.url"));
         dataSource.setUsername(prop.getProperty("database.username"));
         dataSource.setPassword(prop.getProperty("database.password"));
