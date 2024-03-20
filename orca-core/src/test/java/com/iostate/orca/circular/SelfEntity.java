@@ -81,6 +81,5 @@ public class SelfEntity extends com.iostate.orca.api.BaseEntityObject {
         Objects.requireNonNull(name, "field name must not be null");
         SETTERS.get(name)
             .accept(this, value);
-        markUpdatedField(name);
     }
 }

@@ -56,6 +56,5 @@ public class ${model.name} extends ${base} {
         Objects.requireNonNull(name, "field name must not be null");
         SETTERS.get(name)
             .accept(this, value);
-        markUpdatedField(name);
     }
 }
