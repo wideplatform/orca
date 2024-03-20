@@ -5,7 +5,7 @@ import com.iostate.orca.metadata.CascadeType;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.SimpleDataType;
@@ -76,12 +76,12 @@ public class AssociatedEntityModelTest extends EntityModelGenerationTestBase {
     public void testManyToMany() throws IOException {
         EntityModel sourceModel = modelSourceEntity();
         EntityModel targetModel = modelTargetEntity();
-        sourceModel.addDataField(new HasAndBelongsToMany(
+        sourceModel.addDataField(new ManyToMany(
                 "targets", metadataManager,
                 sourceModel, modelRef(targetModel), null,
                 FetchType.EAGER, new CascadeType[]{}
         ));
-        targetModel.addDataField(new HasAndBelongsToMany(
+        targetModel.addDataField(new ManyToMany(
                 "sources", metadataManager,
                 targetModel, modelRef(sourceModel), "targets",
                 FetchType.EAGER, new CascadeType[]{}

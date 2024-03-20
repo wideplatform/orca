@@ -3,14 +3,14 @@ package com.iostate.orca.metadata;
 
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.cascade.Cascade;
-import com.iostate.orca.metadata.cascade.HasAndBelongsToManyCascade;
+import com.iostate.orca.metadata.cascade.ManyToManyCascade;
 
-public class HasAndBelongsToMany extends AssociationField {
+public class ManyToMany extends AssociationField {
 
     private final DataType dataType;
     private final MiddleTable middleTable;
 
-    public HasAndBelongsToMany(
+    public ManyToMany(
             String name, MetadataManager metadataManager,
             EntityModel sourceModel, EntityModelRef targetModelRef, String mappedByFieldName,
             FetchType fetchType, CascadeType[] cascadeTypes) {
@@ -36,7 +36,7 @@ public class HasAndBelongsToMany extends AssociationField {
     @SuppressWarnings("unchecked")
     @Override
     public Cascade getCascade(EntityObject entity) {
-        return new HasAndBelongsToManyCascade(this, entity, cascadeConfig());
+        return new ManyToManyCascade(this, entity, cascadeConfig());
     }
 
     @Override

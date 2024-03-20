@@ -14,7 +14,7 @@ dataFields:
   nullable: true
 - name: "sources"
   dataTypeName: "<SourceEntity>"
-  associationType: "HasAndBelongsToMany"
+  associationType: "ManyToMany"
   targetModelName: "SourceEntity"
   mappedByFieldName: "targets"
   fetchType: "EAGER"

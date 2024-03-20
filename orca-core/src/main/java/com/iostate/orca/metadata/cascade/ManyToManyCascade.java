@@ -5,20 +5,20 @@ import com.iostate.orca.api.EntityManager;
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.CascadeConfig;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 
 import java.util.Collection;
 import java.util.Objects;
 
-public class HasAndBelongsToManyCascade implements Cascade {
+public class ManyToManyCascade implements Cascade {
 
-    private final HasAndBelongsToMany field;
+    private final ManyToMany field;
     private final EntityObject source;
     private final Collection<EntityObject> targets;
     private final CascadeConfig cascadeConfig;
 
-    public HasAndBelongsToManyCascade(
-            HasAndBelongsToMany field,
+    public ManyToManyCascade(
+            ManyToMany field,
             EntityObject source,
             CascadeConfig cascadeConfig) {
         this.field = Objects.requireNonNull(field);

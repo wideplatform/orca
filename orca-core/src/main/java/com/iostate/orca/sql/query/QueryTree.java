@@ -6,7 +6,7 @@ import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.MiddleTableImage;
 import com.iostate.orca.api.query.SqlBuilder;
 import com.iostate.orca.api.query.predicate.Predicate;
@@ -292,8 +292,8 @@ class QueryJoinNode extends QueryNode {
 
     void buildTableClauses(SqlBuilder sqlBuilder, String parentTableAlias) {
         EntityModel parentModel = associationField.getSourceModel();
-        if (associationField instanceof HasAndBelongsToMany) {
-            MiddleTableImage middle = ((HasAndBelongsToMany) associationField).middleTableImage();
+        if (associationField instanceof ManyToMany) {
+            MiddleTableImage middle = ((ManyToMany) associationField).middleTableImage();
             String middleTableAlias = queryContext.tableAliasGenerator.generate();
             sqlBuilder.addTableClause(leftJoinClause(
                     new JoinableTable(parentModel.getTableName(), parentTableAlias, parentModel.getIdField().getColumnName()),

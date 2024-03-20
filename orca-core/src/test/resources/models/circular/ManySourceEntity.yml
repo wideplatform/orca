@@ -14,7 +14,7 @@ dataFields:
   nullable: true
 - name: "targets"
   dataTypeName: "<ManyTargetEntity>"
-  associationType: "HasAndBelongsToMany"
+  associationType: "ManyToMany"
   targetModelName: "ManyTargetEntity"
   fetchType: "EAGER"
   nullable: false

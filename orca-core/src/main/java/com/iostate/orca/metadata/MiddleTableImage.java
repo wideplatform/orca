@@ -8,13 +8,13 @@ public class MiddleTableImage {
     private final boolean isOwning;
     private final MiddleTable middleTable;
 
-    MiddleTableImage(HasAndBelongsToMany mm) {
+    MiddleTableImage(ManyToMany mm) {
         if (mm.getMappedByFieldName() == null) {
             isOwning = true;
             middleTable = mm.getMiddleTable();
         } else {
             isOwning = false;
-            middleTable = ((HasAndBelongsToMany) mm.getMappedByField()).getMiddleTable();
+            middleTable = ((ManyToMany) mm.getMappedByField()).getMiddleTable();
         }
     }
 

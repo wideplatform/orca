@@ -14,7 +14,7 @@ dataFields:
   nullable: true
 - name: "targets"
   dataTypeName: "<TargetEntity>"
-  associationType: "HasAndBelongsToMany"
+  associationType: "ManyToMany"
   targetModelName: "TargetEntity"
   fetchType: "EAGER"
   cascadeTypes: []

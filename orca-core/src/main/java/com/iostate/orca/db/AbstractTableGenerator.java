@@ -2,7 +2,7 @@ package com.iostate.orca.db;
 
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.MiddleTable;
 
 import java.util.HashMap;
@@ -35,8 +35,8 @@ public abstract class AbstractTableGenerator implements TableGenerator {
         tablesVsDdls.put(entityModel.getTableName(), String.format("CREATE TABLE %s(%s);\n", entityModel.getTableName(), columns));
 
         entityModel.allFields().forEach(f -> {
-            if (f instanceof HasAndBelongsToMany) {
-                MiddleTable rel = ((HasAndBelongsToMany) f).getMiddleTable();
+            if (f instanceof ManyToMany) {
+                MiddleTable rel = ((ManyToMany) f).getMiddleTable();
                 if (rel != null) {
                     String ddl = String.format("  CREATE TABLE %s(source_id %s, target_id %s, PRIMARY KEY (source_id, target_id));\n",
                             rel.getTableName(),

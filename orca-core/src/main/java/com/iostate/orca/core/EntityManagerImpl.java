@@ -11,7 +11,7 @@ import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
@@ -214,9 +214,9 @@ public class EntityManagerImpl implements InternalEntityManager {
                             }
                             //TODO should also load target's associations
                             a.setValue(entity, targets);
-                        } else if (a instanceof HasAndBelongsToMany) {
+                        } else if (a instanceof ManyToMany) {
                             Object id = idField.getValue(entity);
-                            List<EntityObject> targets = sqlHelper.findByRelation(((HasAndBelongsToMany) a).getMiddleTable(), id);
+                            List<EntityObject> targets = sqlHelper.findByRelation(((ManyToMany) a).getMiddleTable(), id);
                             //TODO should also load target's associations
                             a.setValue(entity, targets);
                         } else {

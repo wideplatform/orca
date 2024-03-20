@@ -51,8 +51,8 @@ public class ModelConverter {
                         targetModelRef, fieldDto.getMappedByFieldName(),
                         fetchType, cascadeTypes
                 );
-            } else if ("HasAndBelongsToMany".equals(associationType)) {
-                return new HasAndBelongsToMany(
+            } else if ("ManyToMany".equals(associationType)) {
+                return new ManyToMany(
                         fieldDto.getName(), metadataManager, sourceModel,
                         targetModelRef, fieldDto.getMappedByFieldName(),
                         fetchType, cascadeTypes

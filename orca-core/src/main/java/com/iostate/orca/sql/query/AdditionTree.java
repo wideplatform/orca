@@ -4,7 +4,7 @@ import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.HasAndBelongsToMany;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.MiddleTableImage;
 import com.iostate.orca.metadata.EntityObjectUtils;
 import com.iostate.orca.api.query.predicate.Predicate;
@@ -42,7 +42,7 @@ class AdditionTree {
             return;
         }
 
-        if (associationField instanceof HasAndBelongsToMany) {
+        if (associationField instanceof ManyToMany) {
             executeForManyToManyField(connection);
         } else if (associationField.hasColumn()) {
             executeForColumnedField(connection);
@@ -112,7 +112,7 @@ class AdditionTree {
         Map<Object, EntityObject> idsToSources = EntityObjectUtils.indexById(sourceModel, sources);
 
         MultiMap<Object, Object> sourceIdsToTargetIds = new MultiMap<>();
-        MiddleTableImage middle = ((HasAndBelongsToMany) associationField).middleTableImage();
+        MiddleTableImage middle = ((ManyToMany) associationField).middleTableImage();
         String middleTableQuery = "SELECT " + middle.getSourceIdColumn() + ", " + middle.getTargetIdColumn()
                 + " FROM " + middle.getTableName()
                 + " WHERE " + middle.getSourceIdColumn() + " IN "
