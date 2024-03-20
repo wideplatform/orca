@@ -240,6 +240,6 @@ public class EntityManagerImpl implements InternalEntityManager {
     }
 
     private boolean isPersisted(EntityObject entity) {
-        return entity.isPersisted();
+        return entity.persisted();
     }
 }

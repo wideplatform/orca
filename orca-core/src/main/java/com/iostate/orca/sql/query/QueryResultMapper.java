@@ -27,7 +27,7 @@ class QueryResultMapper implements ResultMapper {
     @Override
     public EntityObject mapRow(ResultSet rs) throws SQLException {
         EntityObject entity = model.newInstance();
-        entity.setPersisted(true);
+        entity.persisted(true);
 
         for (SelectedField sf : fieldSelection.getSelectedFields()) {
             Field field = sf.getField();
@@ -40,12 +40,12 @@ class QueryResultMapper implements ResultMapper {
                     entity.setForeignKeyValue(field.getColumnName(), targetId);
                     EntityObject target = targetModel.newInstance();
                     targetIdField.setValue(target, targetId);
-                    entity.setFieldValue(field.getName(), target);
+                    entity.populateFieldValue(field.getName(), target);
                 }
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType())
                         .getValue(rs, sf.getIndex());
-                entity.setFieldValue(field.getName(), value);
+                entity.populateFieldValue(field.getName(), value);
             }
         }
 

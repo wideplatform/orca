@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * For no-code development
+ * An implementation for no-code development
  */
 public final class CommonEntityObject extends BaseEntityObject {
     private final String modelName;

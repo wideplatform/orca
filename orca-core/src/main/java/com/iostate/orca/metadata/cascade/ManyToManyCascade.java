@@ -70,7 +70,7 @@ public class ManyToManyCascade implements Cascade {
 
     private void middleTablePut(EntityManager entityManager) {
         for (EntityObject target : targets) {
-            if (target.isPersisted()) {
+            if (target.persisted()) {
                 field.middleTableImage().put(source, target, entityManager);
             } else {
                 throw new PersistenceException(
@@ -82,7 +82,7 @@ public class ManyToManyCascade implements Cascade {
 
     private void middleTableRemove(EntityManager entityManager) {
         for (EntityObject target : targets) {
-            if (target.isPersisted()) {
+            if (target.persisted()) {
                 field.middleTableImage().remove(source, target, entityManager);
             }
         }

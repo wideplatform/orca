@@ -21,14 +21,14 @@ public class EntityResultMapper implements ResultMapper {
     @Override
     public EntityObject mapRow(ResultSet rs) throws SQLException {
         EntityObject entity = model.newInstance();
-        entity.setPersisted(true);
+        entity.persisted(true);
 
         for (Field field : model.allFields()) {
             if (field.isAssociation()) {
                 continue;
             }
             Object value = TypeHandlers.INSTANCE.find(field.getDataType()).getValue(rs, field.getColumnName());
-            entity.setFieldValue(field.getName(), value);
+            entity.populateFieldValue(field.getName(), value);
         }
 
         return entity;

@@ -79,7 +79,7 @@ public class SqlHelper {
             throw new PersistenceException(FAIL_PERSIST, e);
         }
 
-        entity.setPersisted(true);
+        entity.persisted(true);
 
         record.postPersist();
     }

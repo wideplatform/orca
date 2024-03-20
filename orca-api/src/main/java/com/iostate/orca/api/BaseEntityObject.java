@@ -4,19 +4,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A base for every entity object
+ */
 public abstract class BaseEntityObject implements EntityObject {
 
     private boolean persisted;
+    private boolean loading;
     private final Map<String, Object> _foreignKeyValues = new ConcurrentHashMap<>();
     private final Set<String> _updatedFields = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean isPersisted() {
+    public boolean persisted() {
         return persisted;
     }
 
     @Override
-    public void setPersisted(boolean persisted) {
+    public void persisted(boolean persisted) {
         this.persisted = persisted;
     }
 
@@ -31,11 +35,20 @@ public abstract class BaseEntityObject implements EntityObject {
     }
 
     @Override
+    public void populateFieldValue(String name, Object value) {
+        loading = true;
+        setFieldValue(name, value);
+        loading = false;
+    }
+
+    @Override
     public Set<String> get_updatedFields() {
         return _updatedFields;
     }
 
     protected void markUpdatedField(String name) {
-        _updatedFields.add(name);
+        if (!loading) {
+            _updatedFields.add(name);
+        }
     }
 }

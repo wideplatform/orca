@@ -12,7 +12,7 @@ public interface TrackedObject {
     void setFieldValue(String name, Object value);
 
     /**
-     * Named in a getter style for Jackson to recognize
+     * Internal API for change tracking. Named in a getter style for Jackson to recognize
      */
     Set<String> get_updatedFields();
 }
