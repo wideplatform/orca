@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 @Transactional
 public class ItemRepository {
@@ -15,6 +17,10 @@ public class ItemRepository {
 
     public Item find(Long id) {
         return entityManager.find(Item.class, id);
+    }
+
+    public List<Item> findAll() {
+        return entityManager.findAll(Item.class);
     }
 
     public Item save(Item item) {

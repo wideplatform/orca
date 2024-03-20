@@ -4,6 +4,10 @@ import com.iostate.orca.api.exception.PersistenceException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,6 +53,15 @@ public class SimpleCrudTest extends TestBase {
         entityManager.persist(entity);
         Exception e = assertThrows(IllegalStateException.class, () -> entityManager.persist(entity));
         assertEquals("entity is already persisted thus unable to persist", e.getMessage());
+    }
+
+    @Test
+    public void testFindAll() {
+        SimpleEntity prepared1 = prepare();
+        SimpleEntity prepared2 = prepare();
+
+        List<SimpleEntity> results = entityManager.findAll(SimpleEntity.class);
+        assertEquals(idSet(List.of(prepared1, prepared2)), idSet(results));
     }
 
     @Test
@@ -147,5 +160,9 @@ public class SimpleCrudTest extends TestBase {
         SimpleEntity prepared = new SimpleEntity();
         entityManager.persist(prepared);
         return prepared;
+    }
+
+    private Set<Long> idSet(Collection<SimpleEntity> entities) {
+        return entities.stream().map(SimpleEntity::getId).collect(Collectors.toSet());
     }
 }

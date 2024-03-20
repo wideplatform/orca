@@ -266,6 +266,14 @@ public class SqlHelper {
         }
     }
 
+    public List<EntityObject> findAll(EntityModel entityModel) {
+        try {
+            return new QueryTree(entityModel).execute(connection());
+        } catch (SQLException e) {
+            throw new PersistenceException(FAIL_FIND, e);
+        }
+    }
+
     private String selectableColumns(EntityModel entityModel, String prefix) {
         return entityModel.allFields()
                 .stream()

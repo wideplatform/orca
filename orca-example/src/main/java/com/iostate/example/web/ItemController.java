@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/items")
@@ -23,6 +24,11 @@ public class ItemController {
     @GetMapping("/{id}")
     public Item get(@PathVariable Long id) {
         return itemRepository.find(id);
+    }
+
+    @GetMapping
+    public List<Item> all() {
+        return itemRepository.findAll();
     }
 
     @PostMapping

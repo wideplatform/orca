@@ -145,6 +145,19 @@ public class EntityManagerImpl implements InternalEntityManager {
     }
 
     @Override
+    public <T extends EntityObject> List<T> findAll(Class<T> entityClass) {
+        EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
+        //noinspection unchecked
+        return (List<T>) sqlHelper.findAll(entityModel);
+    }
+
+    @Override
+    public List<EntityObject> findAll(String modelName) {
+        EntityModel entityModel = metadataManager.findEntityByName(modelName);
+        return sqlHelper.findAll(entityModel);
+    }
+
+    @Override
     public <T extends EntityObject> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue) {
         EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
         //noinspection unchecked
