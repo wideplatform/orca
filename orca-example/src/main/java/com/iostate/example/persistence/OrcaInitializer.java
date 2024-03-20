@@ -22,6 +22,9 @@ public class OrcaInitializer implements ApplicationRunner {
     private ApplicationContext applicationContext;
 
     @Autowired
+    private OrcaDatabaseProperties properties;
+
+    @Autowired
     private MetadataManager metadataManager;
 
     @Autowired
@@ -38,7 +41,7 @@ public class OrcaInitializer implements ApplicationRunner {
         }
 
         String packageName = "com.iostate.example.persistence.entity";
-        Resource[] resources = applicationContext.getResources("classpath:models/**");
+        Resource[] resources = applicationContext.getResources("classpath:models/**.yml");
         for (Resource resource : resources) {
             String modelName = resource.getFilename().replace(".yml", "");
             EntityModel entityModel = metadataManager.findEntityByName(modelName);
@@ -49,6 +52,6 @@ public class OrcaInitializer implements ApplicationRunner {
             CodeUtils.writeJavaFile(sourceRoot, entityModel.getLinkedClassName(), javaCode);
         }
 
-        SchemaBuilderFactory.make(DbType.MYSQL).build(connectionProvider, metadataManager);
+        SchemaBuilderFactory.make(DbType.of(properties.getType())).build(connectionProvider, metadataManager);
     }
 }
