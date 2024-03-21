@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @com.iostate.orca.api.Namespace("${namespace}")
-public class ${model.name} extends ${base} {
+public class ${className} extends ${base} {
 <#list model.allFields() as field>
     private ${fieldDeclaration.apply(field)};
 </#list>
@@ -24,20 +24,20 @@ public class ${model.name} extends ${base} {
     }
 </#list>
 
-    private static final Map<String, Function<${model.name}, Object>> GETTERS;
+    private static final Map<String, Function<${className}, Object>> GETTERS;
 
     static {
-        Map<String, Function<${model.name}, Object>> getters = new HashMap<>();
+        Map<String, Function<${className}, Object>> getters = new HashMap<>();
         <#list model.allFields() as field>
-        getters.put("${field.name}", ${model.name}::${getter.apply(field)});
+        getters.put("${field.name}", ${className}::${getter.apply(field)});
         </#list>
         GETTERS = Collections.unmodifiableMap(getters);
     }
 
-    private static final Map<String, BiConsumer<${model.name}, Object>> SETTERS;
+    private static final Map<String, BiConsumer<${className}, Object>> SETTERS;
 
     static {
-        Map<String, BiConsumer<${model.name}, Object>> setters = new HashMap<>();
+        Map<String, BiConsumer<${className}, Object>> setters = new HashMap<>();
         <#list model.allFields() as field>
         setters.put("${field.name}", (object, value) -> object.${setter.apply(field)}((${fieldType.apply(field)}) value));
         </#list>
@@ -56,5 +56,20 @@ public class ${model.name} extends ${base} {
         Objects.requireNonNull(name, "field name must not be null");
         SETTERS.get(name)
             .accept(this, value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ${className} that)) return false;
+
+        <#assign idGetter = getter.apply(model.idField)>
+        if (${idGetter}() != null) return ${idGetter}().equals(that.${idGetter}());
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

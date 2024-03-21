@@ -118,6 +118,7 @@ public class MetadataManager {
     public String generateJava(EntityModel entityModel, String namespace, String packageName) {
         Map<String, Object> data = new HashMap<>();
         data.put("model", entityModel);
+        data.put("className", entityModel.getName());
         data.put("base", BaseEntityObject.class.getName());
         data.put("namespace", namespace);
         data.put("packageName", packageName);

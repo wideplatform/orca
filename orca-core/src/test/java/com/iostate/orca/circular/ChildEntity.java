@@ -71,4 +71,18 @@ public class ChildEntity extends com.iostate.orca.api.BaseEntityObject {
         SETTERS.get(name)
             .accept(this, value);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChildEntity that)) return false;
+
+        if (getId() != null) return getId().equals(that.getId());
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
