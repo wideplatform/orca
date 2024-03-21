@@ -274,13 +274,13 @@ class QueryJoinNode extends QueryNode {
         }
 
         if (associationField.isSingular()) {
-            associationField.setValue(parent, current);
+            associationField.populateValue(parent, current);
         } else {
             //noinspection unchecked
             List<EntityObject> list = (List<EntityObject>) associationField.getValue(parent);
             if (list == null) {
                 list = new ArrayList<>();
-                associationField.setValue(parent, list);
+                associationField.populateValue(parent, list);
             }
             list.add(current);
         }

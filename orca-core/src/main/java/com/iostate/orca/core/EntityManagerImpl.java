@@ -195,13 +195,13 @@ public class EntityManagerImpl implements InternalEntityManager {
                             Object fkValue = entity.getForeignKeyValue(a.getColumnName());
                             if (fkValue != null) {
                                 Object target = find(targetModel, fkValue);
-                                a.setValue(entity, target);
+                                a.populateValue(entity, target);
                             }
                         } else if (a instanceof HasOne) {
                             Object id = idField.getValue(entity);
                             List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
                             if (targets.size() == 1) {
-                                a.setValue(entity, targets.get(0));
+                                a.populateValue(entity, targets.get(0));
                             } else if (targets.size() > 1) {
                                 throw new NonUniqueResultException(entityModel.getName(), id);
                             }
@@ -210,15 +210,15 @@ public class EntityManagerImpl implements InternalEntityManager {
                             Object id = idField.getValue(entity);
                             List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
                             for (EntityObject target : targets) {
-                                mappedByField.setValue(target, entity);
+                                mappedByField.populateValue(target, entity);
                             }
                             //TODO should also load target's associations
-                            a.setValue(entity, targets);
+                            a.populateValue(entity, targets);
                         } else if (a instanceof ManyToMany) {
                             Object id = idField.getValue(entity);
                             List<EntityObject> targets = sqlHelper.findByRelation(((ManyToMany) a).getMiddleTable(), id);
                             //TODO should also load target's associations
-                            a.setValue(entity, targets);
+                            a.populateValue(entity, targets);
                         } else {
                             throw new PersistenceException("Unknown association type: " + a.getClass());
                         }

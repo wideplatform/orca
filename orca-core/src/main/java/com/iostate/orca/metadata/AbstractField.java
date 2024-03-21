@@ -57,6 +57,16 @@ public abstract class AbstractField implements Field {
     }
 
     @Override
+    public void populateValue(EntityObject entity, Object value) {
+        Objects.requireNonNull(entity, "entity is null when loading to field " + getName());
+        try {
+            entity.populateFieldValue(getName(), value);
+        } catch (Exception e) {
+            throw new PersistenceException("Failed to load to field " + getName(), e);
+        }
+    }
+
+    @Override
     public boolean isUpdated(EntityObject entity) {
         return entity.get_updatedFields().contains(name);
     }

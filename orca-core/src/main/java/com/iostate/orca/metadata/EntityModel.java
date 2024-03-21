@@ -46,6 +46,12 @@ public class EntityModel extends Model {
         }
     }
 
+    public EntityObject newPersistedInstance() {
+        EntityObject instance = newInstance();
+        instance.persisted(true);
+        return instance;
+    }
+
     public Object getIdValue(EntityObject entity) {
         return getIdField().getValue(entity);
     }

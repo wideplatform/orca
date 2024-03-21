@@ -73,7 +73,7 @@ class AdditionTree {
         for (EntityObject target : allTargets) {
             Object fkValue = targetIdField.getValue(target);
             for (EntityObject source : groupedSources.get(fkValue)) {
-                associationField.setValue(source, target);
+                associationField.populateValue(source, target);
             }
         }
     }
@@ -98,10 +98,10 @@ class AdditionTree {
         groupedTargets.forEach((key, group) -> {
             EntityObject source = idsToSources.get(key);
             if (associationField.isPlural()) {
-                associationField.setValue(source, group);
+                associationField.populateValue(source, group);
             } else {
                 if (group.size() > 0) {
-                    associationField.setValue(source, group.get(0));
+                    associationField.populateValue(source, group.get(0));
                 }
             }
         });
@@ -138,7 +138,7 @@ class AdditionTree {
             List<Object> targetIds = sourceIdsToTargetIds.get(sourceId);
             if (targetIds != null) {
                 List<EntityObject> targets = targetIds.stream().map(idsToTargets::get).collect(Collectors.toList());
-                associationField.setValue(source, targets);
+                associationField.populateValue(source, targets);
             }
         });
     }

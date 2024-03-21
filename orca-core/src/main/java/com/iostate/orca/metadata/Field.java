@@ -26,6 +26,11 @@ public interface Field {
 
     void setValue(EntityObject entity, Object value);
 
+    /**
+     * Internal API.
+     */
+    void populateValue(EntityObject entity, Object value);
+
     boolean isUpdated(EntityObject entity);
 
     FieldDto toDto();

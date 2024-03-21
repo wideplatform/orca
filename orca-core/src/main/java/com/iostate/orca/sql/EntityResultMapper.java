@@ -20,8 +20,7 @@ public class EntityResultMapper implements ResultMapper {
 
     @Override
     public EntityObject mapRow(ResultSet rs) throws SQLException {
-        EntityObject entity = model.newInstance();
-        entity.persisted(true);
+        EntityObject entity = model.newPersistedInstance();
 
         for (Field field : model.allFields()) {
             if (field.isAssociation()) {
