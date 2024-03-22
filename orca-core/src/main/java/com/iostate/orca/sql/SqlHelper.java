@@ -68,7 +68,7 @@ public class SqlHelper {
                     throw new PersistenceException(FAIL_PERSIST + ", INSERT returned generated keys count " + keys.size());
                 }
 
-                setId(entityModel, entity, keys.get(0));
+                populateId(entityModel, entity, keys.get(0));
             } else {
                 int count = executeDML(sql, args);
                 if (count != 1) {
@@ -79,13 +79,11 @@ public class SqlHelper {
             throw new PersistenceException(FAIL_PERSIST, e);
         }
 
-        entity.persisted(true);
-
         record.postPersist();
     }
 
-    private void setId(EntityModel entityModel, EntityObject entity, Object id) {
-        entityModel.getIdField().setValue(entity, id);
+    private void populateId(EntityModel entityModel, EntityObject entity, Object id) {
+        entityModel.getIdField().populateValue(entity, id);
     }
 
     private PersistableRecord extractDataToPersist(EntityModel entityModel, EntityObject entity, boolean isIdAssigned) {

@@ -60,7 +60,9 @@ class PersistableRecord {
     }
 
     void postPersist() {
+        entity.persisted(true);
         cascades.forEach(cascade -> cascade.persist(entityManager));
+        entity.get_updatedFields().clear();
     }
 
     void preUpdate() {
@@ -68,6 +70,7 @@ class PersistableRecord {
 
     void postUpdate() {
         cascades.forEach(cascade -> cascade.merge(entityManager));
+        entity.get_updatedFields().clear();
     }
 
     public void preDelete() {
