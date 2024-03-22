@@ -11,12 +11,22 @@ public class IntTypeHandler implements TypeHandler<Integer> {
     }
 
     @Override
-    public Integer getValue(ResultSet rs, int index) throws SQLException {
-        return rs.getInt(index);
+    public Integer getValue(ResultSet rs, int index, boolean nullable) throws SQLException {
+        int value = rs.getInt(index);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
     @Override
-    public Integer getValue(ResultSet rs, String column) throws SQLException {
-        return rs.getInt(column);
+    public Integer getValue(ResultSet rs, String column, boolean nullable) throws SQLException {
+        int value = rs.getInt(column);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 }

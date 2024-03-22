@@ -33,7 +33,7 @@ class QueryResultMapper implements ResultMapper {
                 EntityModel targetModel = ((AssociationField) field).getTargetModelRef().model();
                 Field targetIdField = targetModel.getIdField();
                 Object targetId = TypeHandlers.INSTANCE.find(targetIdField.getDataType())
-                        .getValue(rs, sf.getIndex());
+                        .getValue(rs, sf.getIndex(), targetIdField.isNullable());
                 if (isValidId(targetId)) {
                     entity.setForeignKeyValue(field.getColumnName(), targetId);
                     EntityObject target = targetModel.newPersistedInstance();
@@ -42,7 +42,7 @@ class QueryResultMapper implements ResultMapper {
                 }
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType())
-                        .getValue(rs, sf.getIndex());
+                        .getValue(rs, sf.getIndex(), field.isNullable());
                 entity.populateFieldValue(field.getName(), value);
             }
         }
@@ -53,7 +53,7 @@ class QueryResultMapper implements ResultMapper {
     Object getId(ResultSet rs) throws SQLException {
         SelectedField sf = fieldSelection.getIdField();
         return TypeHandlers.INSTANCE.find(sf.getField().getDataType())
-                .getValue(rs, sf.getIndex());
+                .getValue(rs, sf.getIndex(), sf.getField().isNullable());
     }
 
     // TODO is there a better solution?

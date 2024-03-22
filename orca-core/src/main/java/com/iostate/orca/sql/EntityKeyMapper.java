@@ -17,8 +17,8 @@ public class EntityKeyMapper implements KeyMapper {
 
     @Override
     public Object mapKey(ResultSet keySet) throws SQLException {
-        Field idField = model.getIdField();
-        return TypeHandlers.INSTANCE.find(idField.getDataType())
-                .getValue(keySet, 1);
+        Field field = model.getIdField();
+        return TypeHandlers.INSTANCE.find(field.getDataType())
+                .getValue(keySet, 1, field.isNullable());
     }
 }

@@ -12,12 +12,22 @@ public class BigDecimalTypeHandler implements TypeHandler<BigDecimal> {
     }
 
     @Override
-    public BigDecimal getValue(ResultSet rs, int index) throws SQLException {
-        return rs.getBigDecimal(index);
+    public BigDecimal getValue(ResultSet rs, int index, boolean nullable) throws SQLException {
+        BigDecimal value = rs.getBigDecimal(index);
+        if (value == null && !nullable) {
+            return BigDecimal.valueOf(0L);
+        } else {
+            return value;
+        }
     }
 
     @Override
-    public BigDecimal getValue(ResultSet rs, String column) throws SQLException {
-        return rs.getBigDecimal(column);
+    public BigDecimal getValue(ResultSet rs, String column, boolean nullable) throws SQLException {
+        BigDecimal value = rs.getBigDecimal(column);
+        if (value == null && !nullable) {
+            return BigDecimal.valueOf(0L);
+        } else {
+            return value;
+        }
     }
 }

@@ -97,6 +97,23 @@ public class OneToManyAggregateTest extends TestBase {
         assertEquals(0, childrenCount.getAsInt());
     }
 
+    @Test
+    public void testRefreshParentShouldCascade() {
+        ParentEntity parent = prepare();
+        parent.setStrValue("abc");
+        parent.getChildren().get(0).setIntValue(123);
+        entityManager.persist(parent);
+
+        parent.populateFieldValue("strValue", null);
+        parent.getChildren().get(0).populateFieldValue("intValue", null);
+        parent.getChildren().get(1).populateFieldValue("intValue", 123);
+
+        entityManager.refresh(parent);
+        assertEquals("abc", parent.getStrValue());
+        assertEquals(123, parent.getChildren().get(0).getIntValue());
+        assertNull(parent.getChildren().get(1).getIntValue());
+    }
+
     private ParentEntity prepare() {
         ParentEntity preparedParent = new ParentEntity();
         preparedParent.getChildren().add(new ChildEntity());

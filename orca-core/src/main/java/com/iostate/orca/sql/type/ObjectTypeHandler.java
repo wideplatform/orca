@@ -11,12 +11,12 @@ public class ObjectTypeHandler implements TypeHandler<Object> {
     }
 
     @Override
-    public Object getValue(ResultSet rs, int index) throws SQLException {
+    public Object getValue(ResultSet rs, int index, boolean nullable) throws SQLException {
         return rs.getObject(index);
     }
 
     @Override
-    public Object getValue(ResultSet rs, String column) throws SQLException {
+    public Object getValue(ResultSet rs, String column, boolean nullable) throws SQLException {
         return rs.getObject(column);
     }
 }

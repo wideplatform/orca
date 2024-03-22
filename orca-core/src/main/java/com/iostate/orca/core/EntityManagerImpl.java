@@ -17,9 +17,14 @@ import com.iostate.orca.metadata.HasOne;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.sql.SqlHelper;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 public class EntityManagerImpl implements InternalEntityManager {
 
@@ -108,16 +113,61 @@ public class EntityManagerImpl implements InternalEntityManager {
             throw new EntityNotFoundException("entityName=" + entityModel.getName() + ", id is null");
         }
 
-        Object from = find(entity.getClass(), id);
+        EntityObject from = find(entityModel, id);
         if (from == null) {
             throw new EntityNotFoundException("entityName=" + entityModel.getName() + ", id=" + id);
         }
+        // HashSet low performance because of hashCode implementation
+        doRefresh(new HashSet<>(), entityModel, entity, from);
+    }
 
-//    try {
-//      BeanUtils.copyProperties(entity, from);
-//    } catch (IllegalAccessException | InvocationTargetException e) {
-//      throw new PersistenceException("Failed to copyProperties", e);
-//    }
+    @SuppressWarnings("unchecked")
+    private void doRefresh(Set<EntityObject> cache, EntityModel entityModel, EntityObject to, EntityObject from) {
+        if (!cache.add(to)) {
+            return; // Do not refresh the same object again
+        }
+        Set<String> updatedFields = to.get_updatedFields();
+        for (Field field : entityModel.allFields()) {
+            if (updatedFields.contains(field.getName())) {
+                continue; // Do not revert an updated field
+            }
+            Object fromValue = field.getValue(from);
+            if (fromValue == null) {
+                field.populateValue(to, fromValue);
+            } else if (field instanceof AssociationField af) {
+                if (!af.cascadeConfig().isRefresh()) {
+                    continue;
+                }
+                if (af.isPlural()) {
+                    Collection<EntityObject> fromTargets = (Collection<EntityObject>) fromValue;
+                    Collection<EntityObject> toTargets = (Collection<EntityObject>) field.getValue(to);
+                    if (fromTargets.isEmpty()) {
+                        toTargets.clear();
+                    } else {
+                        EntityModel targetModel = af.getTargetModelRef().model();
+                        Collection<EntityObject> newTargets = new ArrayList<>(fromTargets.size());
+                        for (EntityObject fromTarget : fromTargets) {
+                            Optional<EntityObject> optional = toTargets.stream().filter(fromTarget::equals).findAny();
+                            if (optional.isPresent()) {
+                                EntityObject toTarget = optional.get();
+                                doRefresh(cache, targetModel, toTarget, fromTarget);
+                                newTargets.add(toTarget);
+                            } else {
+                                newTargets.add(fromTarget);
+                            }
+                        }
+                        toTargets.clear();
+                        toTargets.addAll(newTargets);
+                    }
+                } else {
+                    EntityModel targetModel = af.getTargetModelRef().model();
+                    Object toValue = field.getValue(to);
+                    doRefresh(cache, targetModel, (EntityObject) toValue, (EntityObject) fromValue);
+                }
+            } else {
+                field.populateValue(to, fromValue);
+            }
+        }
     }
 
     @Override

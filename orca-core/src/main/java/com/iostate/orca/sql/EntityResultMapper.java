@@ -26,10 +26,10 @@ public class EntityResultMapper implements ResultMapper {
             if (field.isAssociation()) {
                 continue;
             }
-            Object value = TypeHandlers.INSTANCE.find(field.getDataType()).getValue(rs, field.getColumnName());
+            Object value = TypeHandlers.INSTANCE.find(field.getDataType())
+                    .getValue(rs, field.getColumnName(), field.isNullable());
             entity.populateFieldValue(field.getName(), value);
         }
-
         return entity;
     }
 }

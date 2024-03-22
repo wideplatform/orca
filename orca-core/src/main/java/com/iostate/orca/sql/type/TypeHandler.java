@@ -8,7 +8,7 @@ public interface TypeHandler<T> {
 
     void setValue(PreparedStatement ps, int index, T value) throws SQLException;
 
-    T getValue(ResultSet rs, int index) throws SQLException;
+    T getValue(ResultSet rs, int index, boolean nullable) throws SQLException;
 
-    T getValue(ResultSet rs, String column) throws SQLException;
+    T getValue(ResultSet rs, String column, boolean nullable) throws SQLException;
 }

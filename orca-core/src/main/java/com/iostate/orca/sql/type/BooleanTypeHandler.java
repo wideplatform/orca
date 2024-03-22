@@ -11,12 +11,22 @@ public class BooleanTypeHandler implements TypeHandler<Boolean> {
     }
 
     @Override
-    public Boolean getValue(ResultSet rs, int index) throws SQLException {
-        return rs.getBoolean(index);
+    public Boolean getValue(ResultSet rs, int index, boolean nullable) throws SQLException {
+        boolean value = rs.getBoolean(index);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
     @Override
-    public Boolean getValue(ResultSet rs, String column) throws SQLException {
-        return rs.getBoolean(column);
+    public Boolean getValue(ResultSet rs, String column, boolean nullable) throws SQLException {
+        boolean value = rs.getBoolean(column);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 }

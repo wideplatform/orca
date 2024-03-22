@@ -123,6 +123,21 @@ public class OneToOneAggregateTest extends TestBase {
     }
 
     @Test
+    public void testRefreshParentShouldCascade() {
+        ParentEntity parent = prepare();
+        parent.setStrValue("abc");
+        parent.getChild().setIntValue(123);
+        entityManager.persist(parent);
+
+        parent.populateFieldValue("strValue", null);
+        parent.getChild().populateFieldValue("intValue", null);
+
+        entityManager.refresh(parent);
+        assertEquals("abc", parent.getStrValue());
+        assertEquals(123, parent.getChild().getIntValue());
+    }
+
+    @Test
     public void testFindByChildField() {
         ParentEntity preparedParent = prepare();
         preparedParent.getChild().setIntValue(123);

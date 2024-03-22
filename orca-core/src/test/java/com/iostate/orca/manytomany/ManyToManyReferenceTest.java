@@ -28,18 +28,44 @@ public class ManyToManyReferenceTest extends TestBase {
 
     @Test
     public void testUpdateSourceOnly() {
-        SourceEntity source = new SourceEntity();
-        entityManager.persist(source);
+        SourceEntity preparedParent = preparePersisted();
 
-        source.setStrValue("updated");
-        entityManager.update(source);
+        preparedParent.setStrValue("updated");
+        preparedParent.getTargets().get(0).setIntValue(1);
+        preparedParent.getTargets().get(1).setIntValue(2);
 
-        SourceEntity resultSource = entityManager.find(SourceEntity.class, source.getId());
+        entityManager.update(preparedParent);
+
+        SourceEntity resultSource = entityManager.find(SourceEntity.class, preparedParent.getId());
         assertNotNull(resultSource.getId());
-        assertEquals(0, resultSource.getTargets().size());
         assertEquals("updated", resultSource.getStrValue());
+        // not updated
+        List<TargetEntity> resultTargets = resultSource.getTargets();
+        assertNull(resultTargets.get(0).getIntValue());
+        assertNull(resultTargets.get(1).getIntValue());
     }
     
+    @Test
+    public void testRefreshSourceOnly() {
+        SourceEntity source = preparePersisted();
+        source.setStrValue("updated");
+        source.getTargets().get(0).setIntValue(1);
+        source.getTargets().get(1).setIntValue(2);
+        entityManager.update(source);
+        entityManager.update(source.getTargets().get(0));
+        entityManager.update(source.getTargets().get(1));
+
+        source.populateFieldValue("strValue", null);
+        source.getTargets().get(0).populateFieldValue("intValue", null);
+        source.getTargets().get(1).populateFieldValue("intValue", null);
+
+        entityManager.refresh(source);
+
+        assertEquals("updated", source.getStrValue());
+        assertNull(source.getTargets().get(0).getIntValue());
+        assertNull(source.getTargets().get(1).getIntValue());
+    }
+
     @Test
     public void testCreateStandalone() {
         List<TargetEntity> targets = Arrays.asList(new TargetEntity(), new TargetEntity());
@@ -77,26 +103,50 @@ public class ManyToManyReferenceTest extends TestBase {
         preparedParent.getTargets().get(1).setIntValue(2);
 
         entityManager.update(preparedParent);
+        entityManager.update(preparedParent.getTargets().get(0));
+        entityManager.update(preparedParent.getTargets().get(1));
 
         SourceEntity resultSource = entityManager.find(SourceEntity.class, preparedParent.getId());
         assertNotNull(resultSource.getId());
         assertEquals("updated", resultSource.getStrValue());
-        // not updated
         List<TargetEntity> resultTargets = resultSource.getTargets();
-        assertEquals(0, resultTargets.get(0).getIntValue());
-        assertEquals(0, resultTargets.get(1).getIntValue());
+        assertEquals(1, resultTargets.get(0).getIntValue());
+        assertEquals(2, resultTargets.get(1).getIntValue());
+    }
+
+    @Test
+    public void testRefreshStandalone() {
+        SourceEntity source = preparePersisted();
+        source.setStrValue("updated");
+        source.getTargets().get(0).setIntValue(1);
+        source.getTargets().get(1).setIntValue(2);
+        entityManager.update(source);
+        entityManager.update(source.getTargets().get(0));
+        entityManager.update(source.getTargets().get(1));
+
+        source.populateFieldValue("strValue", null);
+        source.getTargets().get(0).populateFieldValue("intValue", null);
+        source.getTargets().get(1).populateFieldValue("intValue", null);
+
+        entityManager.refresh(source);
+        entityManager.refresh(source.getTargets().get(0));
+        entityManager.refresh(source.getTargets().get(1));
+
+        assertEquals("updated", source.getStrValue());
+        assertEquals(1, source.getTargets().get(0).getIntValue());
+        assertEquals(2, source.getTargets().get(1).getIntValue());
     }
 
     private SourceEntity preparePersisted() {
-        SourceEntity preparedParent = prepare();
-        preparedParent.getTargets().forEach(entityManager::persist);
-        entityManager.persist(preparedParent);
-        return preparedParent;
+        SourceEntity source = prepare();
+        source.getTargets().forEach(entityManager::persist);
+        entityManager.persist(source);
+        return source;
     }
 
     private SourceEntity prepare() {
-        SourceEntity preparedParent = new SourceEntity();
-        preparedParent.setTargets(Arrays.asList(new TargetEntity(), new TargetEntity()));
-        return preparedParent;
+        SourceEntity source = new SourceEntity();
+        source.setTargets(Arrays.asList(new TargetEntity(), new TargetEntity()));
+        return source;
     }
 }

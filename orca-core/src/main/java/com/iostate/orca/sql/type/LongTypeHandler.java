@@ -11,12 +11,22 @@ public class LongTypeHandler implements TypeHandler<Long> {
     }
 
     @Override
-    public Long getValue(ResultSet rs, int index) throws SQLException {
-        return rs.getLong(index);
+    public Long getValue(ResultSet rs, int index, boolean nullable) throws SQLException {
+        long value = rs.getLong(index);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 
     @Override
-    public Long getValue(ResultSet rs, String column) throws SQLException {
-        return rs.getLong(column);
+    public Long getValue(ResultSet rs, String column, boolean nullable) throws SQLException {
+        long value = rs.getLong(column);
+        if (nullable && rs.wasNull()) {
+            return null;
+        } else {
+            return value;
+        }
     }
 }
