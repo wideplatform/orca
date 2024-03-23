@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class MetadataManager {
 
@@ -122,7 +121,7 @@ public class MetadataManager {
         data.put("base", BaseEntityObject.class.getName());
         data.put("namespace", namespace);
         data.put("packageName", packageName);
-        addTemplateFunctions(data);
+        data.put("fieldHelper", new TemplateFieldHelper());
         return render("entity.java.ftl", data);
     }
 
@@ -139,33 +138,4 @@ public class MetadataManager {
         }
     }
 
-    private static void addTemplateFunctions(Map<String, Object> data) {
-        Function<Field, String> fieldTypeFunction = field -> {
-            String typeName = field.getDataType().javaTypeName();
-            if (typeName.startsWith("java.lang.")) {
-                typeName = typeName.replace("java.lang.", "");
-            }
-            return typeName;
-        };
-        data.put("fieldType", fieldTypeFunction);
-        data.put("fieldDeclaration", (Function<Field, String>) field -> {
-            String decl = fieldTypeFunction.apply(field) + " " + field.getName();
-            if (field instanceof AssociationField) {
-                AssociationField a = (AssociationField) field;
-                if (a.isPlural()) {
-                    decl += " = new java.util.ArrayList<>()";
-                }
-            }
-            return decl;
-        });
-        data.put("getter", (Function<Field, String>) field -> "get" + capitalize(field.getName()));
-        data.put("setter", (Function<Field, String>) field -> "set" + capitalize(field.getName()));
-    }
-
-    private static String capitalize(String name) {
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
-    }
 }

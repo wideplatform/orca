@@ -10,15 +10,15 @@ import java.util.function.Function;
 @com.iostate.orca.api.Namespace("${namespace}")
 public class ${className} extends ${base} {
 <#list model.allFields() as field>
-    private ${fieldDeclaration.apply(field)};
+    private ${fieldHelper.declaration(field)};
 </#list>
 
 <#list model.allFields() as field>
-    public ${fieldType.apply(field)} ${getter.apply(field)}() {
+    public ${fieldHelper.type(field)} ${fieldHelper.getter(field)}() {
         return ${field.name};
     }
 
-    public void ${setter.apply(field)}(${fieldType.apply(field)} ${field.name}) {
+    public void ${fieldHelper.setter(field)}(${fieldHelper.type(field)} ${field.name}) {
         this.${field.name} = ${field.name};
         markUpdatedField("${field.name}");
     }
@@ -29,7 +29,7 @@ public class ${className} extends ${base} {
     static {
         Map<String, Function<${className}, Object>> getters = new HashMap<>();
         <#list model.allFields() as field>
-        getters.put("${field.name}", ${className}::${getter.apply(field)});
+        getters.put("${field.name}", ${className}::${fieldHelper.getter(field)});
         </#list>
         GETTERS = Collections.unmodifiableMap(getters);
     }
@@ -39,7 +39,7 @@ public class ${className} extends ${base} {
     static {
         Map<String, BiConsumer<${className}, Object>> setters = new HashMap<>();
         <#list model.allFields() as field>
-        setters.put("${field.name}", (object, value) -> object.${setter.apply(field)}((${fieldType.apply(field)}) value));
+        setters.put("${field.name}", (object, value) -> object.${fieldHelper.setter(field)}((${fieldHelper.type(field)}) value));
         </#list>
         SETTERS = Collections.unmodifiableMap(setters);
     }
@@ -63,7 +63,7 @@ public class ${className} extends ${base} {
         if (this == o) return true;
         if (!(o instanceof ${className} that)) return false;
 
-        <#assign idGetter = getter.apply(model.idField)>
+        <#assign idGetter = fieldHelper.getter(model.idField)>
         if (${idGetter}() != null) return ${idGetter}().equals(that.${idGetter}());
         return false;
     }
