@@ -27,3 +27,6 @@ Currently, its features are proven by unit tests and an example application.
 You can check these code paths for what things it can do:
 - Tests https://github.com/sorra/orca/tree/main/orca-core/src/test
 - Application https://github.com/sorra/orca/tree/main/orca-example
+
+## License
+Orca is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
