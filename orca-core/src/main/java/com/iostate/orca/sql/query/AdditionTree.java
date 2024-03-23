@@ -57,8 +57,14 @@ class AdditionTree {
         MultiMap<Object, EntityObject> groupedSources = new MultiMap<>();
         for (EntityObject source : sources) {
             Object fkValue = associationField.getForeignKeyValue(source);
-            if (fkValue != null && cacheContext.get(targetModel, fkValue) == null) {
+            if (fkValue == null) {
+                continue;
+            }
+            EntityObject cachedTarget = cacheContext.get(targetModel, fkValue);
+            if (cachedTarget == null) {
                 groupedSources.put(fkValue, source);
+            } else {
+                associationField.populateValue(source, cachedTarget);
             }
         }
 

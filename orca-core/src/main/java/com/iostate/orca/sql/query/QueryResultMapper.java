@@ -36,9 +36,6 @@ class QueryResultMapper implements ResultMapper {
                         .getValue(rs, sf.getIndex(), targetIdField.isNullable());
                 if (isValidId(targetId)) {
                     entity.setForeignKeyValue(field.getColumnName(), targetId);
-                    EntityObject target = targetModel.newPersistedInstance();
-                    target.populateFieldValue(targetIdField.getName(), targetId);
-                    entity.populateFieldValue(field.getName(), target);
                 }
             } else {
                 Object value = TypeHandlers.INSTANCE.find(field.getDataType())

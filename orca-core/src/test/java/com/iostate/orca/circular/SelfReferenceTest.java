@@ -22,11 +22,11 @@ public class SelfReferenceTest extends TestBase {
         entityManager.persist(preparedTarget);
 
         SelfEntity foundSource = entityManager.find(SelfEntity.class, preparedSource.getId());
-        assertEquals(preparedSource.getId(), foundSource.getId());
-        assertNotNull(foundSource.getTarget());
-        assertEquals(preparedTarget.getId(), foundSource.getTarget().getId());
-        assertNotNull(foundSource.getTarget().getSource());
-        assertEquals(preparedSource.getId(), foundSource.getTarget().getSource().getId());
+        assertEquals(preparedSource, foundSource);
+
+        SelfEntity foundTarget = foundSource.getTarget();
+        assertEquals(preparedTarget, foundTarget);
+        assertSame(foundSource, foundTarget.getSource());
     }
 
     @Test
@@ -40,10 +40,10 @@ public class SelfReferenceTest extends TestBase {
         entityManager.persist(preparedTarget);
 
         SelfEntity foundSource = entityManager.find(SelfEntity.class, preparedSource.getId());
-        assertEquals(preparedSource.getId(), foundSource.getId());
-        assertNotNull(foundSource.getTarget());
-        assertEquals(preparedTarget.getId(), foundSource.getTarget().getId());
-        assertNotNull(foundSource.getTarget().getSource());
-        assertEquals(preparedSource.getId(), foundSource.getTarget().getSource().getId());
+        assertEquals(preparedSource, foundSource);
+
+        SelfEntity foundTarget = foundSource.getTarget();
+        assertEquals(preparedTarget, foundTarget);
+        assertSame(foundSource, foundTarget.getSource());
     }
 }
