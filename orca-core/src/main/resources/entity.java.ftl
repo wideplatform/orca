@@ -11,15 +11,26 @@ import java.util.function.Function;
 public class ${className} extends ${base} {
 <#list model.allFields() as field>
     private ${fieldHelper.declaration(field)};
+    <#if fieldHelper.isLazy(field)>
+    private boolean _${field.name}Loaded;
+    </#if>
 </#list>
 
 <#list model.allFields() as field>
     public ${fieldHelper.type(field)} ${fieldHelper.getter(field)}() {
+        <#if fieldHelper.isLazy(field)>
+        if (!_${field.name}Loaded) {
+            ${fieldHelper.lazyLoader(field)}
+        }
+        </#if>
         return ${field.name};
     }
 
     public void ${fieldHelper.setter(field)}(${fieldHelper.type(field)} ${field.name}) {
         this.${field.name} = ${field.name};
+        <#if fieldHelper.isLazy(field)>
+        _${field.name}Loaded = true;
+        </#if>
         markUpdatedField("${field.name}");
     }
 

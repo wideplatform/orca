@@ -12,6 +12,7 @@ public class SourceEntity extends com.iostate.orca.api.BaseEntityObject {
     private Long id;
     private String strValue;
     private TargetEntity target;
+    private boolean _targetLoaded;
 
     public Long getId() {
         return id;
@@ -32,11 +33,15 @@ public class SourceEntity extends com.iostate.orca.api.BaseEntityObject {
     }
 
     public TargetEntity getTarget() {
+        if (!_targetLoaded) {
+            com.iostate.orca.api.EntityManagerFactory.getDefault().loadLazyField(this, "target");
+        }
         return target;
     }
 
     public void setTarget(TargetEntity target) {
         this.target = target;
+        _targetLoaded = true;
         markUpdatedField("target");
     }
 

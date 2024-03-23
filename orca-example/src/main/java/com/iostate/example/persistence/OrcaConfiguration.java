@@ -16,6 +16,6 @@ public class OrcaConfiguration {
 
     @Bean
     public EntityManager entityManager(MetadataManager metadataManager, ConnectionProvider connectionProvider) {
-        return new EntityManagerImpl(metadataManager, connectionProvider);
+        return new EntityManagerImpl(metadataManager, connectionProvider).asDefault();
     }
 }

@@ -1,5 +1,7 @@
 package com.iostate.orca.metadata;
 
+import com.iostate.orca.api.EntityManagerFactory;
+
 @SuppressWarnings("unused")
 public class TemplateFieldHelper {
     public String type(Field field) {
@@ -30,6 +32,10 @@ public class TemplateFieldHelper {
 
     public boolean isLazy(Field field) {
         return field instanceof AssociationField af && af.getFetchType() == FetchType.LAZY;
+    }
+
+    public String lazyLoader(Field field) {
+        return EntityManagerFactory.class.getName() + ".getDefault().loadLazyField(this, \"" + field.getName() + "\");";
     }
 
     private static String capitalize(String name) {

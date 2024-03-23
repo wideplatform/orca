@@ -39,7 +39,7 @@ public abstract class TestBase {
         DbType dbType = DbType.of(dbTypeString);
         connectionProvider = TestConnectionProvider.of(DataSourceUtil.create(dbType));
         SchemaBuilderFactory.make(dbType).build(connectionProvider, metadataManager);
-        entityManager = new EntityManagerImpl(metadataManager, connectionProvider);
+        entityManager = new EntityManagerImpl(metadataManager, connectionProvider).asDefault();
     }
 
     protected LocalDate date(String dateText) {

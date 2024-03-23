@@ -9,8 +9,9 @@ import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.AssociationField;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.MiddleTable;
 import com.iostate.orca.api.query.predicate.Predicates;
+import com.iostate.orca.metadata.ManyToMany;
+import com.iostate.orca.metadata.MiddleTableImage;
 import com.iostate.orca.sql.query.QueryTree;
 
 import java.sql.Connection;
@@ -248,14 +249,16 @@ public class SqlHelper {
         }
     }
 
-    public List<EntityObject> findByRelation(MiddleTable middleTable, Object sourceId) {
-        EntityModel targetModel = middleTable.getTargetModelRef().model();
+    public List<EntityObject> findManyToManyTargets(ManyToMany mtm, Object sourceId) {
+        EntityModel targetModel = mtm.getTargetModelRef().model();
+        MiddleTableImage middle = mtm.middleTableImage();
 
         String selectedColumns = selectableColumns(targetModel, "t.");
 
         String sql = "SELECT " + selectedColumns +
-                " FROM " + targetModel.getTableName() + " t JOIN " + middleTable.getTableName() + " r ON t." +
-                targetModel.getIdField().getColumnName() + " = r.target_id WHERE r.source_id = ?";
+                " FROM " + targetModel.getTableName() + " t JOIN " + middle.getTableName() + " r ON t." +
+                targetModel.getIdField().getColumnName() + " = r." + middle.getTargetIdColumn() +
+                " WHERE r." + middle.getSourceIdColumn() + " = ?";
 
         try {
             return executeQuery(sql, new Object[]{sourceId}, new EntityResultMapper(targetModel));

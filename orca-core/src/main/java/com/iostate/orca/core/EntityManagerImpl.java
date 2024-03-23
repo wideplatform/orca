@@ -1,7 +1,8 @@
 package com.iostate.orca.core;
 
-import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.CommonEntityObject;
+import com.iostate.orca.api.ConnectionProvider;
+import com.iostate.orca.api.EntityManagerFactory;
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.EntityNotFoundException;
 import com.iostate.orca.api.exception.NonUniqueResultException;
@@ -11,15 +12,14 @@ import com.iostate.orca.metadata.BelongsTo;
 import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
 import com.iostate.orca.metadata.Field;
-import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.HasMany;
 import com.iostate.orca.metadata.HasOne;
+import com.iostate.orca.metadata.ManyToMany;
 import com.iostate.orca.metadata.MetadataManager;
 import com.iostate.orca.sql.SqlHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +35,11 @@ public class EntityManagerImpl implements InternalEntityManager {
     public EntityManagerImpl(MetadataManager metadataManager, ConnectionProvider connectionProvider) {
         this.metadataManager = metadataManager;
         this.sqlHelper = new SqlHelper(connectionProvider, this);
+    }
+
+    public EntityManagerImpl asDefault() {
+        EntityManagerFactory.setDefault(this);
+        return this;
     }
 
     @Override
@@ -189,9 +194,7 @@ public class EntityManagerImpl implements InternalEntityManager {
         if (id == null) {
             throw new IllegalArgumentException("id is null");
         }
-        EntityObject entity = sqlHelper.findById(entityModel, id);
-        loadAllLazy(entityModel, Collections.singletonList(entity));
-        return entity;
+        return sqlHelper.findById(entityModel, id);
     }
 
     @Override
@@ -211,69 +214,53 @@ public class EntityManagerImpl implements InternalEntityManager {
     public <T extends EntityObject> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue) {
         EntityModel entityModel = metadataManager.findEntityByClass(entityClass);
         //noinspection unchecked
-        return (List<T>) findBy(entityModel, objectPath, fieldValue);
+        return (List<T>) sqlHelper.findBy(entityModel, objectPath, fieldValue);
     }
 
     @Override
     public List<EntityObject> findBy(String modelName, String objectPath, Object fieldValue) {
         EntityModel entityModel = metadataManager.findEntityByName(modelName);
-        return findBy(entityModel, objectPath, fieldValue);
+        return sqlHelper.findBy(entityModel, objectPath, fieldValue);
     }
 
-    private List<EntityObject> findBy(EntityModel entityModel, String objectPath, Object fieldValue) {
-        List<EntityObject> entities = sqlHelper.findBy(entityModel, objectPath, fieldValue);
-        loadAllLazy(entityModel, entities);
-        return entities;
-    }
+    @Override
+    public void loadLazyField(EntityObject entity, String fieldName) {
+        EntityModel entityModel = getEntityModel(entity);
+        Field loadedField = entityModel.findFieldByName(fieldName);
+        if (loadedField instanceof AssociationField a && a.getFetchType() == FetchType.LAZY) {
+            EntityModel targetModel = a.getTargetModelRef().model();
+            Field mappedByField = a.getMappedByField();
 
-    // TODO implement real lazy loading in generated code
-    private void loadAllLazy(EntityModel entityModel, List<EntityObject> entities) {
-        Field idField = entityModel.getIdField();
-        entityModel.allFields().stream()
-                .filter(Field::isAssociation)
-                .map(field -> (AssociationField) field)
-                .filter(a -> a.getFetchType() == FetchType.LAZY)
-                .forEach(a -> {
-                    EntityModel targetModel = a.getTargetModelRef().model();
-                    Field mappedByField = null;
-                    if (a.getMappedByFieldName() != null) {
-                        mappedByField = targetModel.findFieldByName(a.getMappedByFieldName());
-                    }
-
-                    for (EntityObject entity : entities) {
-                        if (a instanceof BelongsTo) {
-                            Object fkValue = entity.getForeignKeyValue(a.getColumnName());
-                            if (fkValue != null) {
-                                Object target = find(targetModel, fkValue);
-                                a.populateValue(entity, target);
-                            }
-                        } else if (a instanceof HasOne) {
-                            Object id = idField.getValue(entity);
-                            List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
-                            if (targets.size() == 1) {
-                                a.populateValue(entity, targets.get(0));
-                            } else if (targets.size() > 1) {
-                                throw new NonUniqueResultException(entityModel.getName(), id);
-                            }
-                            // else: remain null if targets is empty
-                        } else if (a instanceof HasMany) {
-                            Object id = idField.getValue(entity);
-                            List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
-                            for (EntityObject target : targets) {
-                                mappedByField.populateValue(target, entity);
-                            }
-                            //TODO should also load target's associations
-                            a.populateValue(entity, targets);
-                        } else if (a instanceof ManyToMany) {
-                            Object id = idField.getValue(entity);
-                            List<EntityObject> targets = sqlHelper.findByRelation(((ManyToMany) a).getMiddleTable(), id);
-                            //TODO should also load target's associations
-                            a.populateValue(entity, targets);
-                        } else {
-                            throw new PersistenceException("Unknown association type: " + a.getClass());
-                        }
-                    }
-                });
+            if (a instanceof BelongsTo) {
+                Object fkValue = entity.getForeignKeyValue(a.getColumnName());
+                if (fkValue != null) {
+                    Object target = find(targetModel, fkValue);
+                    a.populateValue(entity, target);
+                }
+            } else if (a instanceof HasOne) {
+                Object id = entityModel.getIdField().getValue(entity);
+                List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
+                if (targets.size() == 1) {
+                    a.populateValue(entity, targets.get(0));
+                } else if (targets.size() > 1) {
+                    throw new NonUniqueResultException(entityModel.getName(), id);
+                }
+                // else: remain null if targets is empty
+            } else if (a instanceof HasMany) {
+                Object id = entityModel.getIdField().getValue(entity);
+                List<EntityObject> targets = sqlHelper.findBy(targetModel, mappedByField.getName(), id);
+                for (EntityObject target : targets) {
+                    mappedByField.populateValue(target, entity);
+                }
+                a.populateValue(entity, targets);
+            } else if (a instanceof ManyToMany) {
+                Object id = entityModel.getIdField().getValue(entity);
+                List<EntityObject> targets = sqlHelper.findManyToManyTargets((ManyToMany) a, id);
+                a.populateValue(entity, targets);
+            } else {
+                throw new PersistenceException("Unknown association type: " + a.getClass());
+            }
+        }
     }
 
     @Override

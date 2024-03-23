@@ -16,7 +16,7 @@ dataFields:
   dataTypeName: "<TargetEntity>"
   associationType: "ManyToMany"
   targetModelName: "TargetEntity"
-  fetchType: "EAGER"
+  fetchType: "LAZY"
   cascadeTypes: []
   nullable: false
 linkedClassName: "com.iostate.orca.manytomany.SourceEntity"

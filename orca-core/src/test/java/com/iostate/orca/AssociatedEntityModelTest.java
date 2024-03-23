@@ -79,12 +79,12 @@ public class AssociatedEntityModelTest extends EntityModelGenerationTestBase {
         sourceModel.addDataField(new ManyToMany(
                 "targets", metadataManager,
                 sourceModel, modelRef(targetModel), null,
-                FetchType.EAGER, new CascadeType[]{}
+                FetchType.LAZY, new CascadeType[]{}
         ));
         targetModel.addDataField(new ManyToMany(
                 "sources", metadataManager,
                 targetModel, modelRef(sourceModel), "targets",
-                FetchType.EAGER, new CascadeType[]{}
+                FetchType.LAZY, new CascadeType[]{}
         ));
 
         exportCode("manytomany", sourceModel, targetModel);

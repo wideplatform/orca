@@ -66,6 +66,9 @@ public abstract class AssociationField extends AbstractField {
     public abstract boolean isPlural();
 
     public Field getMappedByField() {
+        if (mappedByFieldName == null) {
+            return null;
+        }
         return targetModelRef.model().findFieldByName(mappedByFieldName);
     }
 

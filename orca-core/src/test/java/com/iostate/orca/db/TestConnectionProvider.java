@@ -34,6 +34,7 @@ public class TestConnectionProvider implements ConnectionProvider {
     public void closeConnection() throws SQLException {
         if (connection != null) {
             connection.close();
+            connection = null;
         }
     }
 }

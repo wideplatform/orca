@@ -27,4 +27,6 @@ public interface EntityManager {
     <T extends EntityObject> List<T> findBy(Class<T> entityClass, String objectPath, Object fieldValue);
 
     List<EntityObject> findBy(String modelName, String objectPath, Object fieldValue);
+
+    void loadLazyField(EntityObject entity, String fieldName);
 }
