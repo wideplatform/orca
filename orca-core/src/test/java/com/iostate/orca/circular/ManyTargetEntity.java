@@ -21,6 +21,7 @@ public class ManyTargetEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public Integer getIntValue() {
         return intValue;
     }
@@ -29,6 +30,7 @@ public class ManyTargetEntity extends com.iostate.orca.api.BaseEntityObject {
         this.intValue = intValue;
         markUpdatedField("intValue");
     }
+
     public java.util.List<ManySourceEntity> getSources() {
         return sources;
     }

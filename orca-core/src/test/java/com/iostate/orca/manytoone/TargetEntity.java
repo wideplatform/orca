@@ -20,6 +20,7 @@ public class TargetEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public Integer getIntValue() {
         return intValue;
     }

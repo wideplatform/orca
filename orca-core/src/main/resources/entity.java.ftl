@@ -22,8 +22,8 @@ public class ${className} extends ${base} {
         this.${field.name} = ${field.name};
         markUpdatedField("${field.name}");
     }
-</#list>
 
+</#list>
     private static final Map<String, Function<${className}, Object>> GETTERS;
 
     static {

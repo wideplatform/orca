@@ -22,6 +22,7 @@ public class SelfEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public String getStrValue() {
         return strValue;
     }
@@ -30,6 +31,7 @@ public class SelfEntity extends com.iostate.orca.api.BaseEntityObject {
         this.strValue = strValue;
         markUpdatedField("strValue");
     }
+
     public SelfEntity getTarget() {
         return target;
     }
@@ -38,6 +40,7 @@ public class SelfEntity extends com.iostate.orca.api.BaseEntityObject {
         this.target = target;
         markUpdatedField("target");
     }
+
     public SelfEntity getSource() {
         return source;
     }

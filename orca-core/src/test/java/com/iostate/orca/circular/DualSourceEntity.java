@@ -22,6 +22,7 @@ public class DualSourceEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public String getStrValue() {
         return strValue;
     }
@@ -30,6 +31,7 @@ public class DualSourceEntity extends com.iostate.orca.api.BaseEntityObject {
         this.strValue = strValue;
         markUpdatedField("strValue");
     }
+
     public DualTargetEntity getTarget1() {
         return target1;
     }
@@ -38,6 +40,7 @@ public class DualSourceEntity extends com.iostate.orca.api.BaseEntityObject {
         this.target1 = target1;
         markUpdatedField("target1");
     }
+
     public DualTargetEntity getTarget2() {
         return target2;
     }

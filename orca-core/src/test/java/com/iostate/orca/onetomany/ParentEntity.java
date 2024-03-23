@@ -21,6 +21,7 @@ public class ParentEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public String getStrValue() {
         return strValue;
     }
@@ -29,6 +30,7 @@ public class ParentEntity extends com.iostate.orca.api.BaseEntityObject {
         this.strValue = strValue;
         markUpdatedField("strValue");
     }
+
     public java.util.List<ChildEntity> getChildren() {
         return children;
     }

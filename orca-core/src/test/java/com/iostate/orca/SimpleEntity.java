@@ -25,6 +25,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public Boolean getBoolValue() {
         return boolValue;
     }
@@ -33,6 +34,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.boolValue = boolValue;
         markUpdatedField("boolValue");
     }
+
     public Integer getIntValue() {
         return intValue;
     }
@@ -41,6 +43,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.intValue = intValue;
         markUpdatedField("intValue");
     }
+
     public Long getLongValue() {
         return longValue;
     }
@@ -49,6 +52,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.longValue = longValue;
         markUpdatedField("longValue");
     }
+
     public java.math.BigDecimal getDecValue() {
         return decValue;
     }
@@ -57,6 +61,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.decValue = decValue;
         markUpdatedField("decValue");
     }
+
     public String getStrValue() {
         return strValue;
     }
@@ -65,6 +70,7 @@ public class SimpleEntity extends com.iostate.orca.api.BaseEntityObject {
         this.strValue = strValue;
         markUpdatedField("strValue");
     }
+
     public java.time.Instant getDtValue() {
         return dtValue;
     }
