@@ -1,0 +1,24 @@
+---
+name: "Order"
+tableName: "t_order"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+  - name: "entries"
+    dataTypeName: "<OrderEntry>"
+    nullable: false
+    associationType: "HasMany"
+    targetModelName: "OrderEntry"
+    mappedByFieldName: "order"
+    fetchType: "EAGER"
+    cascadeTypes:
+      - "ALL"
+  - name: "created_at"
+    columnName: "created_at"
+    dataTypeName: "DATETIME"
+    nullable: true
+linkedClassName: "com.iostate.example.persistence.entity.Order"

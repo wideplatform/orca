@@ -1,0 +1,29 @@
+---
+name: "OrderEntry"
+tableName: "order_entry"
+idGenerator: "auto"
+idField:
+  name: "id"
+  columnName: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+  - name: "quantity"
+    columnName: "quantity"
+    dataTypeName: "INT"
+    nullable: false
+  - name: "order"
+    columnName: "order_id"
+    dataTypeName: "Order"
+    nullable: false
+    associationType: "BelongsTo"
+    targetModelName: "Order"
+    fetchType: "EAGER"
+  - name: "item"
+    columnName: "item_id"
+    dataTypeName: "Item"
+    nullable: false
+    associationType: "BelongsTo"
+    targetModelName: "Item"
+    fetchType: "LAZY"
+linkedClassName: "com.iostate.example.persistence.entity.OrderEntry"

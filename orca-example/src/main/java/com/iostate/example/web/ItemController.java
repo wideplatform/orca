@@ -2,8 +2,9 @@ package com.iostate.example.web;
 
 import com.iostate.example.persistence.ItemRepository;
 import com.iostate.example.persistence.entity.Item;
-import com.iostate.orca.api.CommonEntityObject;
+import com.iostate.orca.core.CommonEntityObject;
 import com.iostate.orca.api.EntityObject;
+import com.iostate.orca.metadata.MetadataManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,8 @@ import java.util.List;
 public class ItemController {
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private MetadataManager metadataManager;
 
     @GetMapping("/{id}")
     public Item get(@PathVariable Long id) {
@@ -49,7 +52,7 @@ public class ItemController {
                          @RequestParam(defaultValue = "true") boolean visible,
                          @RequestParam BigDecimal price,
                          @RequestParam(defaultValue = "1") int quantity) {
-        EntityObject item = new CommonEntityObject("Item");
+        EntityObject item = new CommonEntityObject(metadataManager.findEntityByClass(Item.class));
         item.setFieldValue("name", name);
         item.setFieldValue("visible", visible);
         item.setFieldValue("price", price);

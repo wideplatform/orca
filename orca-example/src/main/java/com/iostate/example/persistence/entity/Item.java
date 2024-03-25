@@ -24,6 +24,7 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         this.id = id;
         markUpdatedField("id");
     }
+
     public String getName() {
         return name;
     }
@@ -32,6 +33,7 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         this.name = name;
         markUpdatedField("name");
     }
+
     public Boolean getVisible() {
         return visible;
     }
@@ -40,6 +42,7 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         this.visible = visible;
         markUpdatedField("visible");
     }
+
     public Integer getQuantity() {
         return quantity;
     }
@@ -48,6 +51,7 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         this.quantity = quantity;
         markUpdatedField("quantity");
     }
+
     public java.math.BigDecimal getPrice() {
         return price;
     }
@@ -56,6 +60,7 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         this.price = price;
         markUpdatedField("price");
     }
+
     public java.time.Instant getCreated_at() {
         return created_at;
     }
@@ -103,5 +108,19 @@ public class Item extends com.iostate.orca.api.BaseEntityObject {
         Objects.requireNonNull(name, "field name must not be null");
         SETTERS.get(name)
             .accept(this, value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Item that)) return false;
+
+        if (getId() != null) return getId().equals(that.getId());
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
