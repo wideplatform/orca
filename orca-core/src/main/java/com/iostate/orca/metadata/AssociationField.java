@@ -7,7 +7,7 @@ import com.iostate.orca.metadata.dto.FieldDto;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public abstract class AssociationField extends AbstractField {
+public abstract class AssociationField extends AbstractField implements Association {
     // direct reference, sourceModel is always the aggregate root of this field
     private final EntityModel sourceModel;
     // dynamic reference, targetModel may be recreated when edited
@@ -42,6 +42,7 @@ public abstract class AssociationField extends AbstractField {
         return mappedByFieldName;
     }
 
+    @Override
     public FetchType getFetchType() {
         return fetchType;
     }

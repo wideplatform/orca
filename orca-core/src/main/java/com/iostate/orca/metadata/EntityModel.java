@@ -1,7 +1,6 @@
 package com.iostate.orca.metadata;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.iostate.orca.api.CommonEntityObject;
+import com.iostate.orca.core.CommonEntityObject;
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.api.exception.PersistenceException;
 import com.iostate.orca.metadata.dto.EntityModelDto;
@@ -24,7 +23,6 @@ public class EntityModel extends Model {
         return tableName;
     }
 
-    @JsonIgnore
     public boolean isIdGenerated() {
         return idGenerator != null && !idGenerator.isEmpty();
     }
@@ -42,8 +40,12 @@ public class EntityModel extends Model {
                 throw new PersistenceException("Failed to create an instance for model " + getName(), e);
             }
         } else {
-            return new CommonEntityObject(getName());
+            return new CommonEntityObject(this);
         }
+    }
+
+    public EntityObject newCeoInstance() {
+        return new CommonEntityObject(this);
     }
 
     public EntityObject newPersistedInstance() {

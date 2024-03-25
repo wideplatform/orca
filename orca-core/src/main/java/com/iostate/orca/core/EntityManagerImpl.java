@@ -1,6 +1,5 @@
 package com.iostate.orca.core;
 
-import com.iostate.orca.api.CommonEntityObject;
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.api.EntityManagerFactory;
 import com.iostate.orca.api.EntityObject;
