@@ -1,4 +1,4 @@
-package com.iostate.example.persistence;
+package com.iostate.example.config;
 
 import com.iostate.orca.api.ConnectionProvider;
 import com.iostate.orca.db.DbType;

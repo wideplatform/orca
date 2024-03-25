@@ -1,4 +1,4 @@
-package com.iostate.example.persistence;
+package com.iostate.example.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
