@@ -89,8 +89,4 @@ public abstract class AssociationField extends AbstractField implements Associat
         }
         return dto;
     }
-
-    public Object getForeignKeyValue(EntityObject entity) {
-        return entity.getForeignKeyValue(getColumnName());
-    }
 }

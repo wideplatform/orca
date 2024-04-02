@@ -56,7 +56,7 @@ class AdditionTree {
         // Multiple sources may point to the same target
         MultiMap<Object, EntityObject> groupedSources = new MultiMap<>();
         for (EntityObject source : sources) {
-            Object fkValue = associationField.getForeignKeyValue(source);
+            Object fkValue = source.getForeignKeyValue(associationField.getColumnName());
             if (fkValue == null) {
                 continue;
             }
