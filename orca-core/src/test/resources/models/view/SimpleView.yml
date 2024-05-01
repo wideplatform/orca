@@ -1,0 +1,27 @@
+---
+name: "SimpleView"
+entityModelName: "SimpleEntity"
+idField:
+  name: "id"
+  dataTypeName: "LONG"
+  nullable: true
+dataFields:
+- name: "boolValue"
+  dataTypeName: "BOOLEAN"
+  nullable: true
+- name: "intValue"
+  dataTypeName: "INT"
+  nullable: true
+- name: "longValue"
+  dataTypeName: "LONG"
+  nullable: true
+- name: "decValue"
+  dataTypeName: "DECIMAL"
+  nullable: true
+- name: "strValue"
+  dataTypeName: "STRING"
+  nullable: true
+- name: "dtValue"
+  dataTypeName: "DATETIME"
+  nullable: true
+linkedClassName: "com.iostate.orca.view.SimpleView"

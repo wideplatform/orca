@@ -5,8 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.iostate.orca.api.BaseEntityObject;
+import com.iostate.orca.api.BaseViewObject;
 import com.iostate.orca.api.Namespace;
 import com.iostate.orca.metadata.dto.EntityModelDto;
+import com.iostate.orca.metadata.dto.ViewModelDto;
 import com.iostate.orca.metadata.view.ViewModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -68,9 +70,30 @@ public class MetadataManager {
 
     private EntityModel loadEntityModelFromYaml(String yaml) throws JsonProcessingException {
         EntityModelDto entityModelDto = yamlMapper.readValue(yaml, EntityModelDto.class);
-        EntityModel entityModel = new ModelConverter(this).entityModel(entityModelDto);
+        EntityModel entityModel = new EntityModelConverter(this).entityModel(entityModelDto);
         addEntityModel(entityModel);
         return entityModel;
+    }
+
+
+    private ViewModel loadViewModelByName(String name) {
+        String path = "models/" + name + ".yml";
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (in == null) {
+                return null;
+            }
+            byte[] bytes = in.readAllBytes();
+            return loadViewModelFromYaml(new String(bytes, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private ViewModel loadViewModelFromYaml(String yaml) throws JsonProcessingException {
+        ViewModelDto viewModelDto = yamlMapper.readValue(yaml, ViewModelDto.class);
+        ViewModel viewModel = new ViewModelConverter(this).viewModel(viewModelDto);
+        addViewModel(viewModel);
+        return viewModel;
     }
 
     public void addEntityModel(EntityModel entityModel) {
@@ -103,7 +126,12 @@ public class MetadataManager {
     }
 
     public ViewModel findViewByName(String name) {
-        return viewModelMap.get(name);
+        ViewModel viewModel = viewModelMap.get(name);
+        if (viewModel != null) {
+            return viewModel;
+        } else {
+            return loadViewModelByName(name);
+        }
     }
 
     public ViewModel findViewByClass(Class<?> cls) {
@@ -112,6 +140,10 @@ public class MetadataManager {
 
     public String generateYaml(EntityModel entityModel) throws JsonProcessingException {
         return yamlMapper.writeValueAsString(entityModel.toDto());
+    }
+
+    public String generateYaml(ViewModel viewModel) throws JsonProcessingException {
+        return yamlMapper.writeValueAsString(viewModel.toDto());
     }
 
     public String generateJava(EntityModel entityModel, String namespace, String packageName) {
@@ -123,6 +155,17 @@ public class MetadataManager {
         data.put("packageName", packageName);
         data.put("fieldHelper", new TemplateFieldHelper());
         return render("entity.java.ftl", data);
+    }
+
+    public String generateJava(ViewModel viewModel, String namespace, String packageName) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("model", viewModel);
+        data.put("className", viewModel.getName());
+        data.put("base", BaseViewObject.class.getName());
+        data.put("namespace", namespace);
+        data.put("packageName", packageName);
+        data.put("fieldHelper", new ViewFieldHelper());
+        return render("view.java.ftl", data);
     }
 
     private String render(String templateName, Map<String, Object> data) {

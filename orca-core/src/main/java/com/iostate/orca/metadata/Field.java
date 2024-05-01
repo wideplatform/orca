@@ -3,7 +3,7 @@ package com.iostate.orca.metadata;
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.dto.FieldDto;
 
-public interface Field {
+public interface Field extends IField {
 
     String getName();
 

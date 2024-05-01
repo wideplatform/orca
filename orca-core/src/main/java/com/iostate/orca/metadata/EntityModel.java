@@ -8,7 +8,7 @@ import com.iostate.orca.metadata.dto.EntityModelDto;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
-public class EntityModel extends Model {
+public class EntityModel extends Model<Field> {
     private final String tableName;
     private final String idGenerator;
 

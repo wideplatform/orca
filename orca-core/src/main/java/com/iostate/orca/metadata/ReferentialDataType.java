@@ -26,8 +26,4 @@ public class ReferentialDataType implements DataType {
             return name();
         }
     }
-
-    public EntityModelRef getTargetModelRef() {
-        return targetModelRef;
-    }
 }

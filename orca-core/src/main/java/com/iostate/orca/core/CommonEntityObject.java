@@ -3,8 +3,8 @@ package com.iostate.orca.core;
 import com.iostate.orca.api.BaseEntityObject;
 import com.iostate.orca.api.EntityManagerFactory;
 import com.iostate.orca.metadata.Association;
+import com.iostate.orca.metadata.EntityModel;
 import com.iostate.orca.metadata.FetchType;
-import com.iostate.orca.metadata.Model;
 
 import java.util.Map;
 import java.util.Objects;
@@ -15,11 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * An implementation for no-code development
  */
 public final class CommonEntityObject extends BaseEntityObject {
-    private final Model model;
+    private final EntityModel model;
     private final Map<String, Object> valueMap = new ConcurrentHashMap<>();
     private final Set<String> loadedLazyFields = ConcurrentHashMap.newKeySet();
 
-    public CommonEntityObject(Model model) {
+    public CommonEntityObject(EntityModel model) {
         this.model = model;
     }
 
@@ -29,6 +29,7 @@ public final class CommonEntityObject extends BaseEntityObject {
 
     @Override
     public Object getFieldValue(String name) {
+        Objects.requireNonNull(name, "field name must not be null");
         if (model.findFieldByName(name) instanceof Association a
                 && a.getFetchType() == FetchType.LAZY
                 && loadedLazyFields.add(name)) {

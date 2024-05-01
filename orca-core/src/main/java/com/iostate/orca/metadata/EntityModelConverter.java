@@ -3,10 +3,10 @@ package com.iostate.orca.metadata;
 import com.iostate.orca.metadata.dto.EntityModelDto;
 import com.iostate.orca.metadata.dto.FieldDto;
 
-public class ModelConverter {
+public class EntityModelConverter {
     private final MetadataManager metadataManager;
 
-    public ModelConverter(MetadataManager metadataManager) {
+    public EntityModelConverter(MetadataManager metadataManager) {
         this.metadataManager = metadataManager;
     }
 

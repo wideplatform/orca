@@ -21,6 +21,8 @@ public enum TypeHandlers {
         classTypeHandlerMap.put(SimpleDataType.DECIMAL, new BigDecimalTypeHandler());
 
         classTypeHandlerMap.put(SimpleDataType.STRING, new StringTypeHandler());
+
+        classTypeHandlerMap.put(SimpleDataType.DATETIME, new DatetimeTypeHandler());
     }
 
     private final TypeHandler<Object> defaultTypeHandler = new ObjectTypeHandler();

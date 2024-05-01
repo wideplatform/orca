@@ -3,7 +3,7 @@ package com.iostate.orca.api;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class BaseViewObject implements TrackedObject {
+public abstract class BaseViewObject implements ViewObject {
 
     private final Set<String> _updatedFields = ConcurrentHashMap.newKeySet();
 

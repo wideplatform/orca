@@ -4,6 +4,7 @@ import com.iostate.orca.api.exception.PersistenceException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -88,6 +89,8 @@ public class SimpleCrudTest extends TestBase {
         prepared.setLongValue(123L);
         prepared.setDecValue(new BigDecimal("1.23"));
         prepared.setStrValue("abc");
+        Instant instant = Instant.now();
+        prepared.setDtValue(instant);
         entityManager.update(prepared);
 
         SimpleEntity result = entityManager.find(SimpleEntity.class, prepared.getId());
@@ -96,6 +99,7 @@ public class SimpleCrudTest extends TestBase {
         assertEquals((Long) 123L, result.getLongValue());
         assertEquals(0, new BigDecimal("1.23").compareTo(result.getDecValue()));
         assertEquals("abc", result.getStrValue());
+        assertEquals(instant, result.getDtValue());
     }
 
     @Test

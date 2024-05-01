@@ -27,7 +27,7 @@ public abstract class TestBase {
     protected abstract Class<?>[] entities();
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setupCore() throws Exception {
         metadataManager = new MetadataManager();
         for (Class<?> entityClass : entities()) {
             metadataManager.findEntityByClass(entityClass);
