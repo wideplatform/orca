@@ -1,19 +1,18 @@
 package com.iostate.orca.db;
 
 import com.iostate.orca.metadata.EntityModel;
+import com.iostate.orca.metadata.EntityModelDiff;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Generates DDL for a table (assuming to be executed in tenant context)
  */
 public interface TableGenerator {
 
-    /**
-     * Generates DDL for the entity table (and its relation tables for associations like ManyToMany)
-     *
-     * @param model entity model
-     * @return tables Vs DDLs
-     */
-    Map<String, String> create(EntityModel model);
+    List<String> create(EntityModel entityModel);
+
+    List<String> drop(EntityModel entityModel);
+
+    List<String> alter(EntityModel entityModel, EntityModelDiff diff);
 }
