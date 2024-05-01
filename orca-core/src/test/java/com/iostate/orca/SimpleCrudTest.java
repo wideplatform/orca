@@ -97,9 +97,9 @@ public class SimpleCrudTest extends TestBase {
         assertEquals(true, result.getBoolValue());
         assertEquals((Integer) 123, result.getIntValue());
         assertEquals((Long) 123L, result.getLongValue());
-        assertEquals(0, new BigDecimal("1.23").compareTo(result.getDecValue()));
         assertEquals("abc", result.getStrValue());
-        assertEquals(instant, result.getDtValue());
+        checkEqual(new BigDecimal("1.23"), result.getDecValue());
+        checkEqual(instant, result.getDtValue());
     }
 
     @Test

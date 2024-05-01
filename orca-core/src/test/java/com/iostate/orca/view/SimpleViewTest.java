@@ -60,15 +60,8 @@ public class SimpleViewTest extends TestBase {
         assertEquals(prepared.getIntValue(), view.getIntValue());
         assertEquals(prepared.getLongValue(), view.getLongValue());
         assertEquals(prepared.getStrValue(), view.getStrValue());
-        assertTrue(isEqual(prepared.getDecValue(), view.getDecValue()));
-        assertEquals(prepared.getDtValue(), view.getDtValue());
-    }
-
-    private static boolean isEqual(BigDecimal a, BigDecimal b) {
-        if (a == null) {
-            return b == null;
-        }
-        return a.compareTo(b) == 0;
+        checkEqual(prepared.getDecValue(), view.getDecValue());
+        checkEqual(prepared.getDtValue(), view.getDtValue());
     }
 
     private SimpleEntity prepare() {
