@@ -3,7 +3,6 @@ package com.iostate.orca.metadata;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public enum SimpleDataType implements DataType {
@@ -15,9 +14,9 @@ public enum SimpleDataType implements DataType {
 
     STRING(String.class),
 
-    DATE(LocalDate.class, java.sql.Date.class),
-    TIME(LocalTime.class, java.sql.Time.class),
-    DATETIME(Instant.class, LocalDateTime.class, java.util.Date.class);
+    DATE(LocalDate.class),
+    TIME(LocalTime.class),
+    DATETIME(Instant.class);
 
     private final Class<?>[] javaTypes;
 

@@ -2,7 +2,6 @@ package com.iostate.example.web;
 
 import com.iostate.example.persistence.ItemRepository;
 import com.iostate.example.persistence.entity.Item;
-import com.iostate.orca.core.CommonEntityObject;
 import com.iostate.orca.api.EntityObject;
 import com.iostate.orca.metadata.MetadataManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +46,13 @@ public class ItemController {
         return itemRepository.save(item);
     }
 
+    // the no-code way
     @PostMapping("/nocode")
     public String nocode(@RequestParam String name,
                          @RequestParam(defaultValue = "true") boolean visible,
                          @RequestParam BigDecimal price,
                          @RequestParam(defaultValue = "1") int quantity) {
-        EntityObject item = new CommonEntityObject(metadataManager.findEntityByClass(Item.class));
+        EntityObject item = metadataManager.findEntityByName("Item").newCeoInstance();
         item.setFieldValue("name", name);
         item.setFieldValue("visible", visible);
         item.setFieldValue("price", price);

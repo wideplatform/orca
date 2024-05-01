@@ -48,6 +48,7 @@ public class OrderController {
         return orderRepository.save(order);
     }
 
+    // the no-code way
     @PostMapping("/nocode")
     public String nocode(@RequestParam(defaultValue = "1") int quantity,
                          @RequestParam long itemId) {
