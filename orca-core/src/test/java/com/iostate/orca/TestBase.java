@@ -10,19 +10,16 @@ import com.iostate.orca.metadata.MetadataManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.Locale;
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class TestBase {
 
     protected MetadataManager metadataManager;
     protected TestConnectionProvider connectionProvider;
     protected EntityManager entityManager;
-
-    public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     protected abstract Class<?>[] entities();
 
@@ -42,24 +39,31 @@ public abstract class TestBase {
         entityManager = new EntityManagerImpl(metadataManager, connectionProvider).asDefault();
     }
 
-    protected LocalDate date(String dateText) {
-        return LocalDate.parse(dateText);
-    }
-
-    protected Date datetime(String dateTimeText) {
-        SimpleDateFormat format = new SimpleDateFormat(DATETIME_FORMAT, Locale.US);
-        try {
-            return format.parse(dateTimeText);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
     @AfterEach
     public void teardown() throws Exception {
         connectionProvider.closeConnection();
         metadataManager = null;
         connectionProvider = null;
         entityManager = null;
+    }
+
+    // Handle DB decimal digit issue
+    protected static void checkEqual(BigDecimal expected, BigDecimal actual) {
+        if (expected == null) {
+            assertNull(actual, "expected: null, actual: not null");
+        } else {
+            assertEquals(0, expected.compareTo(actual),
+                    String.format("expected: %s, actual: %s", expected, actual));
+        }
+    }
+
+    // Handle DB time precision issue
+    protected static void checkEqual(Instant expected, Instant actual) {
+        if (expected == null) {
+            assertNull(actual, "expected: null, actual: not null");
+        } else {
+            assertEquals(expected.toEpochMilli(), actual.toEpochMilli(),
+                    String.format("expected: %s, actual: %s", expected, actual));
+        }
     }
 }
