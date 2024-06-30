@@ -15,10 +15,10 @@ public abstract class AbstractSchemaBuilder implements SchemaBuilder {
         TableGenerator tableGenerator = getTableGenerator();
         for (EntityModel entityModel : metadataManager.allEntityModels()) {
             for (String stmt : tableGenerator.drop(entityModel)) {
-                sqlHelper.executeDML(stmt, null);
+                sqlHelper.executeDDL(stmt);
             }
             for (String stmt : tableGenerator.create(entityModel)) {
-                sqlHelper.executeDML(stmt, null);
+                sqlHelper.executeDDL(stmt);
             }
         }
     }
