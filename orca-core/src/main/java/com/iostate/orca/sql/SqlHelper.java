@@ -220,6 +220,16 @@ public class SqlHelper {
         }
     }
 
+    public void executeDDL(String sql) throws SQLException {
+        if (sql == null) {
+            throw new IllegalArgumentException("sql is null");
+        }
+        try(Statement statement = connection().createStatement()) {
+            statement.execute(sql);
+            logSql(sql, null);
+        }
+    }
+
     public EntityObject findById(EntityModel entityModel, Object id) {
         QueryTree queryTree = new QueryTree(entityModel);
         queryTree.addFilter(Predicates.equal("id", id));
