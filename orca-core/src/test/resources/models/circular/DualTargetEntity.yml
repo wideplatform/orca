@@ -14,14 +14,12 @@ dataFields:
   nullable: true
 - name: "source1"
   columnName: "source1"
-  dataTypeName: "DualSourceEntity"
   associationType: "BelongsTo"
   targetModelName: "DualSourceEntity"
   fetchType: "EAGER"
   nullable: true
 - name: "source2"
   columnName: "source2"
-  dataTypeName: "DualSourceEntity"
   associationType: "BelongsTo"
   targetModelName: "DualSourceEntity"
   fetchType: "EAGER"

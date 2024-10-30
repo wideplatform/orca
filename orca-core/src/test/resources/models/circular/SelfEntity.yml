@@ -13,7 +13,6 @@ dataFields:
   dataTypeName: "STRING"
   nullable: true
 - name: "target"
-  dataTypeName: "SelfEntity"
   associationType: "HasOne"
   targetModelName: "SelfEntity"
   mappedByFieldName: "source"
@@ -21,7 +20,6 @@ dataFields:
   nullable: true
 - name: "source"
   columnName: "source_id"
-  dataTypeName: "SelfEntity"
   associationType: "BelongsTo"
   targetModelName: "SelfEntity"
   fetchType: "EAGER"

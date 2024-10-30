@@ -13,7 +13,6 @@ dataFields:
   dataTypeName: "INT"
   nullable: true
 - name: "sources"
-  dataTypeName: "<ManySourceEntity>"
   associationType: "ManyToMany"
   targetModelName: "ManySourceEntity"
   mappedByFieldName: "targets"
