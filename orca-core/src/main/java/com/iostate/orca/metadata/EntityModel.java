@@ -27,6 +27,10 @@ public class EntityModel extends Model<Field> {
         return idGenerator != null && !idGenerator.isEmpty();
     }
 
+    public boolean isAutoId() {
+        return "auto".equalsIgnoreCase(idGenerator);
+    }
+
     public String getIdGenerator() {
         return idGenerator;
     }

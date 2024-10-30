@@ -63,7 +63,7 @@ public class SqlHelper {
         Object[] args = record.getColumnValues().values().toArray();
 
         try {
-            if (!isIdAssigned && entityModel.isIdGenerated()) {
+            if (!isIdAssigned && entityModel.isAutoId()) {
                 List<Object> keys = executeInsertWithGeneratedKeys(sql, args, new EntityKeyMapper(entityModel));
                 if (keys.size() != 1) {
                     throw new PersistenceException(FAIL_PERSIST + ", INSERT returned generated keys count " + keys.size());
