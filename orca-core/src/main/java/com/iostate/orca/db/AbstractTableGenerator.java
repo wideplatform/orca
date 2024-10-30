@@ -16,7 +16,7 @@ public abstract class AbstractTableGenerator implements TableGenerator {
         String clause = field.getColumnName() + " " + SqlTypeMapping.sqlType(dbType(), field);
         if (field.isId()) {
             clause += " PRIMARY KEY";
-            if (entityModel.isIdGenerated()) {
+            if (entityModel.isAutoId()) {
                 clause += (" " + autoIncrement());
             }
         } else {
