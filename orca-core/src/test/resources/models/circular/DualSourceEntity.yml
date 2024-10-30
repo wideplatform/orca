@@ -13,14 +13,12 @@ dataFields:
   dataTypeName: "STRING"
   nullable: true
 - name: "target1"
-  dataTypeName: "DualTargetEntity"
   associationType: "HasOne"
   targetModelName: "DualTargetEntity"
   mappedByFieldName: "source1"
   fetchType: "EAGER"
   nullable: true
 - name: "target2"
-  dataTypeName: "DualTargetEntity"
   associationType: "HasOne"
   targetModelName: "DualTargetEntity"
   mappedByFieldName: "source2"

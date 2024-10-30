@@ -13,7 +13,6 @@ dataFields:
   dataTypeName: "STRING"
   nullable: true
 - name: "children"
-  dataTypeName: "<ChildEntity>"
   associationType: "HasMany"
   targetModelName: "ChildEntity"
   mappedByFieldName: "parent"

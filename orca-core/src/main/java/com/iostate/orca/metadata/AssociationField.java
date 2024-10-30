@@ -79,7 +79,6 @@ public abstract class AssociationField extends AbstractField implements Associat
         dto.setName(getName());
         dto.setAssociationType(getClass().getSimpleName());
         dto.setColumnName(getColumnName());
-        dto.setDataTypeName(getDataType().name());
         dto.setTargetModelName(getTargetModelRef().getName());
         dto.setMappedByFieldName(getMappedByFieldName());
         dto.setNullable(isNullable());
